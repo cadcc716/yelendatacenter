@@ -40,7 +40,7 @@ P_SLEEP = GPU_IDLE + P_HOST                          # kW/台 休眠(空闲)功�
 # ---------------- 热安全 (式6) ----------------
 T_CHIP_MAX = 85.0      # ℃ 允许热点温度; A100 nvidia-smi Max Operating 85℃, H100 slowdown≈87℃ 取保守值  [B]
 T_INLET_SPEC = 45.0    # ℃ H100 700 W 液冷节点允许最高进水温度 (Lenovo SD665-N V3 datasheet)            [B]
-R_TH = (T_CHIP_MAX - T_INLET_SPEC) / TDP / 1000 * 1000  # K/kW: 标称满功率在45℃进水恰达限值 => 57.1 K/kW [C]
+R_TH = (T_CHIP_MAX - T_INLET_SPEC) / TDP        # K/kW: 标称满功率在45℃进水恰达限值 => 57.1 K/kW [C]
 ZONES = [(25.0, 32.0), (32.0, 38.0), (38.0, 45.0), (45.0, 50.0), (50.0, 53.0)]  # 液冷温区 ℃ (覆盖W32~W45+) [C]
 TW0 = 40.0             # ℃ 代表日初末液冷等效温度 (式5)                                                 [C]
 TW0_FIXED = 30.0       # ℃ 解耦基准的固定温区中点 (W32 类常规供水)                                       [C]
@@ -109,6 +109,28 @@ N_BOOT, BOOT_Q = 2000, 0.95  # bootstrap 估计 δ_d、v±_dℓ
 KAPPA = 1.0            # 模糊集缩放系数 (敏感性分析)
 
 # ---------------- 求解器 ----------------
-MIP_GAP, TIME_LIMIT = 1e-6, 900.0
+MIP_GAP, TIME_LIMIT = 1e-6, 1800.0
 MIP_ABS_GAP = 1.0e4    # 元/年; 总费用中 GPU 投资约占 96%, 以绝对间隙控制精度 (约为能源相关费用的 0.15%)
-RELAX_B = True         # 松弛储能充放电互斥 b∈[0,1]; 结果校验"同时充放电h"=0 时松弛精确, 否则改 False 重解
+RELAX_B = False        # 式(12) b∈{0,1} (与论文一致); True 仅用于数值试验
+TIGHT_BIGM = True      # 式(7) 大M取 min(N^max, 需求界) 并给 m 加同一上界 (有效不等式, 不改变最优值, verify.py 验证);
+                       # False 时严格按论文用 N^max
+VALID_FRAC = 0.25      # 式(17) 训练日中用于验证集校准 δ、v± 的比例
+
+# ---------------- 派生参数 (敏感性分析覆盖基础参数时必须联动重算) ----------------
+_DERIVED = {
+    "GPU_IDLE": lambda P: 0.20 * P["TDP"],
+    "MODES": lambda P: {"k1_标称": (1.00, P["TDP"]), "k2_浅锁频": (0.95, P["TDP"] * 0.87),
+                        "k3_深锁频": (0.93, P["TDP"] * 0.80)},
+    "P_SLEEP": lambda P: P["GPU_IDLE"] + P["P_HOST"],
+    "R_TH": lambda P: (P["T_CHIP_MAX"] - P["T_INLET_SPEC"]) / P["TDP"],
+    "A_AIR": lambda P: 1.0 / P["COP_AHRI"],
+}
+
+
+def params(cfg=None):
+    """返回参数字典: 先套用覆盖值 cfg, 再按依赖顺序重算未被显式覆盖的派生参数。"""
+    P = {k: v for k, v in globals().items() if k.isupper()}
+    cfg = dict(cfg or {}); P.update(cfg)
+    for k, f in _DERIVED.items():
+        if k not in cfg: P[k] = f(P)
+    return P

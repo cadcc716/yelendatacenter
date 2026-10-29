@@ -56,16 +56,30 @@ rel.columns = ["模型"] + [c.replace("_较基准%", "") for c in rel.columns[1:
 parts.append("## T8 相对 Baseline 变化率 (%)\n\n" + md(rel, {c: "{:+.2f}" for c in rel.columns[1:]}))
 try:
     SE = pd.read_csv(C.RES / "sensitivity.csv")
-    se = SE[["参数", "取值", "模型", "光伏kWp", "自然冷却kWth", "机械制冷kWth", "能源相关费用_经验", "总费用_经验", "总费用_最坏", "PUE",
-             "自然冷却散热占比", "间隙"]].copy()
+    se = SE[["参数", "取值", "模型", "GPU台数", "光伏kWp", "储能kWh", "自然冷却kWth", "机械制冷kWth", "能源相关费用_经验", "总费用_经验",
+             "总费用_最坏", "PUE", "同时充放电h", "间隙"]].copy()
     for c in ["能源相关费用_经验", "总费用_经验", "总费用_最坏"]: se[c] /= 1e4
     parts.append("## T9 敏感性分析 (费用: 万元/年)\n\n" + md(se, {"取值": "{:g}", "PUE": "{:.4f}", "自然冷却散热占比": "{:.3f}",
                                                          "间隙": "{:,.0f}", "光伏kWp": "{:,.0f}", "自然冷却kWth": "{:,.0f}",
-                                                         "机械制冷kWth": "{:,.0f}"}))
+                                                         "机械制冷kWth": "{:,.0f}", "GPU台数": "{:.0f}", "储能kWh": "{:,.0f}",
+                                                         "同时充放电h": "{:.0f}"}))
 except FileNotFoundError:
     pass
 PR = pd.read_csv(C.RES / "probabilities.csv")
 pr = PR[PR.模型.isin(["M4-DRO"])].pivot_table(index="类别", columns="情景", values=["经验概率", "最坏概率"]).round(3)
 parts.append("## T10 M4-DRO 经验概率与最坏分布\n\n" + pr.to_markdown() if hasattr(pr, "to_markdown") else "")
+try:
+    CA = pd.read_csv(C.RES / "calibration.csv")[["类别", "kappa_delta", "kappa_v", "非空放大tau", "训练日", "验证日"]]
+    parts.append("## T11 模糊集验证集校准 (50 次随机划分中位数)\n\n" + md(CA, {"kappa_delta": "{:.3f}", "kappa_v": "{:.3f}",
+                                                                      "非空放大tau": "{:.3f}"}))
+except FileNotFoundError:
+    pass
+try:
+    VE = pd.read_csv(C.RES / "verify.csv")[["检验", "设置", "目标值", "绝对间隙", "N", "FC", "MC", "EB", "同时充放电h", "时间s"]]
+    parts.append("## T12 数值等价性验证 (缩减算例)\n\n" + md(VE, {"目标值": "{:,.0f}", "绝对间隙": "{:,.0f}", "N": "{:.0f}",
+                                                       "FC": "{:,.0f}", "MC": "{:,.0f}", "EB": "{:,.0f}", "同时充放电h": "{:.0f}",
+                                                       "时间s": "{:.0f}"}))
+except FileNotFoundError:
+    pass
 (C.ROOT / "docs/_tables.md").write_text("\n\n".join(parts), encoding="utf-8")
 print("written docs/_tables.md")

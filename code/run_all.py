@@ -1,8 +1,11 @@
 """
 实验主程序: 基准与不同模型场景 -> 物理一致性校验 -> 样本外评估 -> 敏感性分析 -> 结果导出
 用法:
-  python run_all.py main          # 6 个模型场景 + 校验 + 样本外评估
-  python run_all.py sens          # 敏感性分析 (基于 M4-DRO)
+  python run_all.py main                 # 全部模型场景 + 校验 + 样本外评估 (串行)
+  python run_all.py sens                 # 敏感性分析 (串行)
+  python run_all.py job <模型名>          # 单个模型场景 (可并行, 见 run_parallel.sh)
+  python run_all.py sjob <参数> <取值> <模型名>   # 单个敏感性算例 (可并行)
+  python run_all.py collect              # 汇总 job/sjob 的结果
   python run_all.py all
 输出: results/*.csv, results/results.xlsx, results/*.pkl
 """
@@ -51,7 +54,7 @@ def plan(D, variant, cfg=None, gap=C.MIP_GAP, tl=C.TIME_LIMIT):
 
 def summarize(R, D, cfg=None):
     """费用分解与运行指标 (经验概率 p̂ 加权年化; DRO 另给最坏分布 p*)。"""
-    P = dict(vars(C)); P.update(cfg or {})
+    P = C.params(cfg)
     x, a, out, nd = R["x"], R["a"], R["out"], D["n_d"]
     s = D["scen"]; amb = amb_of(D)
     capex = {k: a[k] * x[k] for k in ["N", "PV", "PB", "EB", "FC", "MC"]}
@@ -83,7 +86,7 @@ def summarize(R, D, cfg=None):
 
 def checks(R, D, cfg=None):
     """物理一致性校验: 能量守恒、热平衡、SOC、任务完成、芯片温度、容量。返回最大违背量。"""
-    P = dict(vars(C)); P.update(cfg or {})
+    P = C.params(cfg)
     x, rows = R["x"], []
     for o in R["out"]:
         bal = o["Pg"] + o["PPV"] + o["Pdis"] - o["kaux"] * o["PIT"] - o["PFC"] - o["PMC"] - P["P0"] - o["Pch"]
@@ -155,54 +158,87 @@ def export_ts(R, tag):
     return pd.DataFrame(rows)
 
 
-def main():
-    D0 = load(); DX = pickle.load(open(C.PROC / "scenarios_ext.pkl", "rb"))
-    rs, ck, ts, oos, pws = [], [], [], [], {}
+def D_of(v):
+    return pickle.load(open(C.PROC / ("scenarios_ext.pkl" if "极端" in v else "scenarios.pkl"), "rb"))
+
+
+def job(v):
+    """单个模型场景: 规划 → 汇总 → 校验 → 时序导出 → 样本外评估, 结果存 results/job_<v>.pkl。"""
+    D = D_of(v)
+    R = plan(D, v); pickle.dump(R, open(RES / f"plan_{v}.pkl", "wb"))
+    row, pw = summarize(R, D)
+    c = checks(R, D); c.insert(0, "模型", v)
+    t = export_ts(R, v); t["电价"] = np.tile(D["price"], len(R["out"]))
+    E = evaluate(R, D); E.insert(0, "模型", v); E.to_csv(RES / f"oos_{v}.csv", index=False)
+    row.update(oos_summary(E, D))
+    pickle.dump(dict(row=row, pw=pw, checks=c, ts=t), open(RES / f"job_{v}.pkl", "wb"))
+    print(f"[{v}] {R['status']} obj={R['obj']:.4e} gap={R['gap']:.0f} N={R['x']['N']:.0f} time={R['time']:.0f}s", flush=True)
+
+
+def collect():
+    rs, ck, ts, P = [], [], [], []
     for v in Mo.VARIANTS:
-        D = DX if "极端" in v else D0
-        R = plan(D, v); pickle.dump(R, open(RES / f"plan_{v}.pkl", "wb"))
-        row, pw = summarize(R, D); pws[v] = pw
-        c = checks(R, D); c.insert(0, "模型", v); ck.append(c)
-        t = export_ts(R, v); t["电价"] = np.tile(D["price"], len(R["out"])); ts.append(t)
-        E = evaluate(R, D); E.insert(0, "模型", v); E.to_csv(RES / f"oos_{v}.csv", index=False)
-        row.update(oos_summary(E, D)); rs.append(row)
-        print(f"[{v}] {R['status']} obj={R['obj']:.4e} N={R['x']['N']:.0f} time={R['time']:.0f}s", flush=True)
-    S = pd.DataFrame(rs); K = pd.concat(ck); TS = pd.concat(ts)
+        J = pickle.load(open(RES / f"job_{v}.pkl", "rb")); D = D_of(v)
+        rs.append(J["row"]); ck.append(J["checks"]); ts.append(J["ts"])
+        P += [dict(模型=v, 类别=D["classes"][d], 情景=s, 经验概率=D["scen"]["p"][d, s], 最坏概率=J["pw"][d, s])
+              for d in range(4) for s in range(J["pw"].shape[1])]
+    S = pd.DataFrame(rs); K = pd.concat(ck); TS = pd.concat(ts); P = pd.DataFrame(P)
     base = S.iloc[0]
     for col in ["总费用_经验", "总费用_最坏", "能源相关费用_经验", "期望电费_经验", "购电量MWh", "冷却电量MWh", "样本外年运行费用",
                 "偏移θ=1.0年运行费用"]:
         S[col + "_较基准%"] = (S[col] / base[col] - 1) * 100
-    S.to_csv(RES / "summary.csv", index=False); K.to_csv(RES / "checks.csv", index=False); TS.to_csv(RES / "timeseries.csv", index=False)
-    P = pd.DataFrame([dict(模型=v, 类别=D0["classes"][d], 情景=s, 经验概率=(DX if "极端" in v else D0)["scen"]["p"][d, s],
-                           最坏概率=pws[v][d, s]) for v in pws for d in range(4) for s in range(pws[v].shape[1])])
-    P.to_csv(RES / "probabilities.csv", index=False)
+    S.to_csv(RES / "summary.csv", index=False); K.to_csv(RES / "checks.csv", index=False)
+    TS.to_csv(RES / "timeseries.csv", index=False); P.to_csv(RES / "probabilities.csv", index=False)
+    cal = pd.DataFrame(D_of("M4-DRO")["calib"]); cal.to_csv(RES / "calibration.csv", index=False)
+    sj = sorted(RES.glob("sjob_*.csv"))
+    SE = pd.concat([pd.read_csv(f) for f in sj], ignore_index=True) if sj else pd.DataFrame()
+    if len(SE): SE.to_csv(RES / "sensitivity.csv", index=False)
     with pd.ExcelWriter(RES / "results.xlsx") as w:
-        S.to_excel(w, sheet_name="汇总", index=False); K.to_excel(w, sheet_name="校验", index=False); P.to_excel(w, sheet_name="概率", index=False)
-    print(S.T.to_string())
+        S.to_excel(w, sheet_name="汇总", index=False); K.to_excel(w, sheet_name="校验", index=False)
+        P.to_excel(w, sheet_name="概率", index=False); cal.to_excel(w, sheet_name="模糊集校准", index=False)
+        if len(SE): SE.to_excel(w, sheet_name="敏感性", index=False)
+        pd.read_csv(C.ROOT / "docs/参数与数据来源表.csv").to_excel(w, sheet_name="参数来源", index=False)
+    print(S[["模型", "状态", "间隙", "GPU台数", "光伏kWp", "储能kWh", "自然冷却kWth", "机械制冷kWth", "能源相关费用_经验"]].to_string())
+
+
+def main():
+    for v in Mo.VARIANTS: job(v)
+    collect()
+
+
+SENS_CASES = ([("kappa", k, "M4-DRO") for k in (0.0, 0.5, 2.0, 4.0)]
+              + [("FLOAT", f, v) for f in (0.3, 0.8) for v in ("M4-DRO", "M3-SP")]     # 宁夏: 新能源±30%, 尖峰深谷±80%
+              + [("R_TH", r, v) for r in (0.9, 1.1) for v in ("M4-DRO", "M3-SP")]
+              + [("BETA_LIQ", b, "M4-DRO") for b in (0.6, 0.8)]                         # 冷板捕获 60–80%
+              + [("C_W", c, "M4-DRO") for c in (10.0, 90.0)])
+
+
+def sjob(name, val, v):
+    """单个敏感性算例: 只改变一个参数, 其余保持基准。"""
+    val = float(val); D = load(kappa=val) if name == "kappa" else D_of(v); cfg = None
+    if name == "FLOAT":
+        D = copy.deepcopy(D); k = np.ones(24); k[C.PEAK_H] += val; k[C.VALLEY_H] -= val
+        D["price"] = np.roll(C.LAMBDA_E * k + C.C_TD, -C.H0)
+    elif name == "R_TH": cfg = {"R_TH": C.R_TH * val}
+    elif name != "kappa": cfg = {name: val}
+    R = plan(D, v, cfg=cfg)
+    row, _ = summarize(R, D, cfg); row.update(参数=name, 取值=val)
+    c = checks(R, D, cfg); row.update(同时充放电h=int(c["同时充放电h"].sum()), 最高芯片温度=float(c["最高芯片温度"].max()))
+    if "calib" in D: row.update(非空放大tau=max(x["非空放大tau"] for x in D["calib"]))
+    pd.DataFrame([row]).to_csv(RES / f"sjob_{name}_{val:g}_{v}.csv", index=False)
+    print(f"[sens] {name}={val:g} {v} obj={R['obj']:.4e} gap={R['gap']:.0f}", flush=True)
 
 
 def sens():
-    """敏感性分析: 每次只改变一个参数, 其余保持基准; 模型为 M4-DRO (另给 M3-SP 对照)。"""
-    cases = [("kappa", k, None) for k in (0.0, 0.5, 2.0, 4.0)]
-    cases += [("FLOAT", f, {"FLOAT": f}) for f in (0.3, 0.8)]                    # 宁夏征求意见稿: 新能源±30%, 尖峰深谷±80%
-    cases += [("R_TH", r, {"R_TH": C.R_TH * r}) for r in (0.9, 1.1)]
-    cases += [("BETA_LIQ", b, {"BETA_LIQ": b}) for b in (0.6, 0.8)]                # 冷板捕获 60–80%
-    cases += [("C_W", c, {"C_W": c}) for c in (10.0, 90.0)]
-    rows = []
-    D0 = load()
-    for name, val, cfg in cases:
-        D = load(kappa=val) if name == "kappa" else D0
-        if name == "FLOAT":
-            D = copy.deepcopy(D0); k = np.ones(24); k[C.PEAK_H] += val; k[C.VALLEY_H] -= val
-            D["price"] = np.roll(C.LAMBDA_E * k + C.C_TD, -C.H0)
-        for v in (["M4-DRO", "M3-SP"] if name in ("FLOAT", "R_TH") else ["M4-DRO"]):
-            R = plan(D, v, cfg=cfg)
-            row, _ = summarize(R, D, cfg); row.update(参数=name, 取值=val); rows.append(row)
-            print(f"[sens] {name}={val} {v} obj={R['obj']:.4e}", flush=True)
-            pd.DataFrame(rows).to_csv(RES / "sensitivity.csv", index=False)
+    for name, val, v in SENS_CASES: sjob(name, val, v)
+    collect()
 
 
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
-    if what in ("main", "all"): main()
-    if what in ("sens", "all"): sens()
+    if what == "job": job(sys.argv[2])
+    elif what == "sjob": sjob(*sys.argv[2:5])
+    elif what == "collect": collect()
+    else:
+        if what in ("main", "all"): main()
+        if what in ("sens", "all"): sens()

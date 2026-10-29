@@ -1,0 +1,23 @@
+job Baseline
+job M1-调频
+job M2-热耦合
+job M3-SP
+job M4-DRO
+job M5-RO
+job M6-DRO+极端
+sjob kappa 0.0 M4-DRO
+sjob kappa 0.5 M4-DRO
+sjob kappa 2.0 M4-DRO
+sjob kappa 4.0 M4-DRO
+sjob FLOAT 0.3 M4-DRO
+sjob FLOAT 0.3 M3-SP
+sjob FLOAT 0.8 M4-DRO
+sjob FLOAT 0.8 M3-SP
+sjob R_TH 0.9 M4-DRO
+sjob R_TH 0.9 M3-SP
+sjob R_TH 1.1 M4-DRO
+sjob R_TH 1.1 M3-SP
+sjob BETA_LIQ 0.6 M4-DRO
+sjob BETA_LIQ 0.8 M4-DRO
+sjob C_W 10.0 M4-DRO
+sjob C_W 90.0 M4-DRO

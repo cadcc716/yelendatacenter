@@ -74,6 +74,53 @@ def day_features(Tamb, gpv, AR, AB):
     return np.c_[Tamb.mean(1), Tamb.max(1), gpv.sum(1), AR.sum(1), AB.sum(1)]
 
 
+def semivar(Zs, mu, A):
+    """各风险方向的正/负二阶半偏差 E[[a_ℓ^T(F−μ)]_+^2], E[[−a_ℓ^T(F−μ)]_+^2]。"""
+    r = (Zs - mu) @ A.T
+    return (np.clip(r, 0, None) ** 2).mean(0), (np.clip(-r, 0, None) ** 2).mean(0)
+
+
+def bootstrap_bounds(Zs, mu, A, rng):
+    """bootstrap: 均值误差 |mean_b − μ| 与半偏差的 BOOT_Q 分位数 (参考点均为 μ)。"""
+    bm, bvp, bvn = [], [], []
+    for _ in range(C.N_BOOT):
+        Zb = Zs[rng.integers(0, len(Zs), len(Zs))]
+        bm.append(np.abs(Zb.mean(0) - mu)); vp, vn = semivar(Zb, mu, A); bvp.append(vp); bvn.append(vn)
+    q = lambda a: np.quantile(a, C.BOOT_Q, axis=0)
+    return q(bm), q(bvp), q(bvn)
+
+
+def calibrate(Z, A, nv, rng, n_split=50, n_boot=300):
+    """验证集校准 (式17 "经验证集校准"): 重复随机划分估计集/验证集, 每次求使验证集均值偏差落入 δ 的最小放大系数 κ_δ,
+    以及使验证集二阶半偏差落入 v± 的最小放大系数 κ_v; 取各划分的中位数 (≥1)。"""
+    kd, kv = [], []
+    for _ in range(n_split):
+        idx = rng.permutation(len(Z)); val, est = idx[:nv], idx[nv:]
+        mu_e = Z[est].mean(0)
+        bm, bvp, bvn = [], [], []
+        for _ in range(n_boot):
+            Zb = Z[est][rng.integers(0, len(est), len(est))]
+            bm.append(np.abs(Zb.mean(0) - mu_e)); vp, vn = semivar(Zb, mu_e, A); bvp.append(vp); bvn.append(vn)
+        d0, vp0, vn0 = (np.quantile(x, C.BOOT_Q, axis=0) for x in (bm, bvp, bvn))
+        vpe, vne = semivar(Z[est], mu_e, A); svp, svn = semivar(Z[val], mu_e, A)
+        kd.append(np.max(np.abs(Z[val].mean(0) - mu_e) / np.maximum(d0, 1e-9)))
+        kv.append(max(np.max((svp - vpe) / np.maximum(vp0 - vpe, 1e-9)), np.max((svn - vne) / np.maximum(vn0 - vne, 1e-9))))
+    return float(max(1.0, np.median(kd))), float(max(1.0, np.median(kv)))
+
+
+def nonempty_tau(F, mu, delta, rp, rn, vp, vn, gd, gp, gn):
+    """LP: min τ ≥ 0, s.t. p ≥ 0, Σp = 1, |pF − μ| ≤ δ + τ gd, p rp ≤ vp + τ gp, p rn ≤ vn + τ gn。返回 τ (0 表示原集合非空)。"""
+    from scipy.optimize import linprog
+    S, nf = F.shape; nl = rp.shape[1]
+    c = np.r_[np.zeros(S), 1.0]
+    Aub = np.vstack([np.c_[F.T, -gd], np.c_[-F.T, -gd], np.c_[rp.T, -gp], np.c_[rn.T, -gn]])
+    bub = np.r_[mu + delta, -(mu - delta), vp, vn]
+    r = linprog(c, A_ub=Aub, b_ub=bub, A_eq=np.r_[np.ones(S), 0.0][None, :], b_eq=[1.0],
+                bounds=[(0, None)] * S + [(0, None)], method="highs")
+    assert r.status == 0, "模糊集非空性 LP 求解失败"
+    return float(max(r.x[-1], 0.0)) * (1 + 1e-6) if r.x[-1] > 1e-9 else 0.0
+
+
 def kmedoids(Z, k, rng, it=100):
     D = ((Z[:, None, :] - Z[None, :, :]) ** 2).sum(-1)
     med = [int(np.argmin(D.sum(1)))]                                  # k-means++ 式初始化
@@ -99,6 +146,7 @@ def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", kappa=1.0, extreme=False)
     S, keys = C.N_SCEN, ["AR", "AB", "Tamb", "gpv"]
     sc = {k: [] for k in keys + ["F", "p", "mu", "delta", "rho_p", "rho_n", "v_p", "v_n", "z_mu", "z_sd"]}
     test = {k: [] for k in keys + ["F"]}
+    calib = []
     for name, (months, nd) in C.SEASONS.items():
         days = np.flatnonzero(np.isin(month, months)); rng.shuffle(days)
         d_tr, d_te = days[: int(0.67 * len(days))], days[int(0.67 * len(days)):]
@@ -108,19 +156,21 @@ def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", kappa=1.0, extreme=False)
         mu_raw, sd_raw = F_tr.mean(0), F_tr.std(0) + 1e-9
         Z = (F_tr - mu_raw) / sd_raw                                    # 归一化特征
         med, p = kmedoids(Z, S, rng)
-        Fs = Z[med]
-        mu = p @ Fs                                                     # 有限支持上的条件经验特征均值 μ̂_d
-        # bootstrap: 均值误差界 δ_d 与各风险方向二阶半偏差界 v±
         L = [C.FEATURES.index(f) for f in C.RISK_DIRS.values()]
         sgn = np.array([+1, -1, +1])                                    # 高温(+), 低光伏(-), 高负荷(+)
         A = np.zeros((len(L), Z.shape[1])); A[range(len(L)), L] = sgn  # 风险方向 a_ℓ
-        bm, bvp, bvn = [], [], []
-        for _ in range(C.N_BOOT):
-            Zb = Z[rng.integers(0, len(Z), len(Z))]
-            mb = Zb.mean(0); bm.append(np.abs(mb - Z.mean(0)))
-            r = (Zb - Z.mean(0)) @ A.T
-            bvp.append((np.clip(r, 0, None) ** 2).mean(0)); bvn.append((np.clip(-r, 0, None) ** 2).mean(0))
-        delta = kappa * np.quantile(bm, C.BOOT_Q, axis=0)
+        # ---- 式(17) 模糊集参数 ----
+        # μ̂_d: 训练日条件经验特征均值;  ρ 与二阶半偏差全部以 μ̂_d 为参考点
+        # δ^0, v^0: bootstrap 95% 分位数;  κ_cal: 估计集/验证集校准 (使验证集的均值偏差与半偏差落入集合的最小放大系数)
+        for _ in range(C.N_BOOT): rng.integers(0, len(Z), len(Z))   # 保持主随机流与 v1 一致 → 训练/测试划分与情景不变
+        rb = np.random.default_rng([C.SEED, len(sc["p"])])           # 校准与 bootstrap 使用独立随机流
+        nv = int(round(C.VALID_FRAC * len(Z)))
+        kd, kv = calibrate(Z, A, nv, rb)
+        mu = Z.mean(0)
+        d0, vp0, vn0 = bootstrap_bounds(Z, mu, A, rb)
+        vpe, vne = semivar(Z, mu, A)
+        delta = kappa * kd * d0
+        v_p = vpe + kappa * kv * np.maximum(vp0 - vpe, 0.0); v_n = vne + kappa * kv * np.maximum(vn0 - vne, 0.0)
         if extreme:
             # 支持集扩充: 训练日中最高气温日、实时负荷峰值最大日、可延期负荷最大日 (经验概率 0, 由模糊集决定可分配概率)
             pk = AR[J_tr[1]].max(1)
@@ -128,12 +178,16 @@ def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", kappa=1.0, extreme=False)
             add = []
             for order in cand:
                 add.append(int(next(i for i in order if i not in set(med) | set(add))))
-            med = np.r_[med, add]; p = np.r_[p, np.zeros(len(add))]; Fs = Z[med]
+            med = np.r_[med, add]; p = np.r_[p, np.zeros(len(add))]
+        Fs = Z[med]
         rho = (Fs - mu) @ A.T
         rp, rn = np.clip(rho, 0, None) ** 2, np.clip(-rho, 0, None) ** 2
-        # 保证 p̂ ∈ P_d (模糊集非空): v 取 bootstrap 分位数与经验值的较大者, 再按 kappa 放缩
-        v_p = np.maximum(p @ rp, np.quantile(bvp, C.BOOT_Q, axis=0)) * (1 + kappa) / 2 if kappa > 0 else p @ rp
-        v_n = np.maximum(p @ rn, np.quantile(bvn, C.BOOT_Q, axis=0)) * (1 + kappa) / 2 if kappa > 0 else p @ rn
+        # 非空性检验 (论文: 求解前验证 P_d ≠ ∅); 若为空, 求最小统一放大量 τ 并报告
+        tau = nonempty_tau(Fs, mu, delta, rp, rn, v_p, v_n, d0, np.maximum(vp0 - vpe, 1e-6), np.maximum(vn0 - vne, 1e-6))
+        if tau > 0:
+            delta = delta + tau * d0
+            v_p = v_p + tau * np.maximum(vp0 - vpe, 1e-6); v_n = v_n + tau * np.maximum(vn0 - vne, 1e-6)
+        calib.append(dict(类别=name, kappa=kappa, kappa_delta=kd, kappa_v=kv, 非空放大tau=tau, 训练日=len(Z), 验证日=nv))
         for k, arr in zip(keys, [AR[J_tr[1][med]], AB[J_tr[1][med]], Tamb[J_tr[0][med]], gpv[J_tr[0][med]]]):
             sc[k].append(arr)
         for k, v in zip(["F", "p", "mu", "delta", "rho_p", "rho_n", "v_p", "v_n", "z_mu", "z_sd"],
@@ -142,8 +196,8 @@ def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", kappa=1.0, extreme=False)
         for k, arr in zip(keys, [AR[J_te[1]], AB[J_te[1]], Tamb[J_te[0]], gpv[J_te[0]]]):
             test[k].append(arr)
         test["F"].append((day_features(Tamb[J_te[0]], gpv[J_te[0]], AR[J_te[1]], AB[J_te[1]]) - mu_raw) / sd_raw)
-        assert np.all(np.abs(p @ Fs - mu) <= delta + 1e-9), "模糊集为空"
     out["scen"] = {k: np.array(v) for k, v in sc.items()}
+    out["calib"] = calib
     out["test"] = test
     out["risk_A"] = A
     return out
@@ -159,5 +213,6 @@ if __name__ == "__main__":
     print("站点:", D["site"]["city"], D["site"]["latitude"], D["site"]["altitude"])
     print("代表类别:", D["classes"], "n_d =", D["n_d"])
     print("情景概率 p̂:\n", s["p"].round(3)); print("δ_d:\n", s["delta"].round(3))
+    print("校准:", D["calib"])
     print("电价:", D["price"].round(4))
     print("年均气温 %.1f℃, 年光伏利用小时 %.0f h" % (D["Tamb_all"].mean(), D["gpv_all"].sum()))

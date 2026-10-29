@@ -76,32 +76,36 @@ class MILP:
         h = highspy.Highs(); h.setOptionValue("output_flag", verbose)
         h.setOptionValue("mip_rel_gap", gap); h.setOptionValue("time_limit", tl)
         h.setOptionValue("mip_abs_gap", C.MIP_ABS_GAP)
-        h.setOptionValue("threads", 4); h.passModel(lp); h.run()
+        h.setOptionValue("threads", int(__import__("os").environ.get("HIGHS_THREADS", 4))); h.passModel(lp); h.run()
         st = h.modelStatusToString(h.getModelStatus()); info = h.getInfo()
         sol = np.array(h.getSolution().col_value) if info.primal_solution_status == 2 else None
         gapv = abs(info.objective_function_value - info.mip_dual_bound) if it.any() else 0.0   # 绝对间隙 元
         return sol, st, info.objective_function_value, gapv
 
 
-def thermal_tables(Tamb, zones):
-    """式(8)(9)系数: 自然冷却可用容量系数下界 φ_jt, 机械制冷单位电耗 a^MC_jt (均取温区下界, 不高估冷却能力)。"""
+def thermal_tables(Tamb, zones, P=None):
+    """式(8)(9)系数: 自然冷却可用容量系数下界 φ_jt, 机械制冷单位电耗 a^MC_jt (均取温区下界, 不高估冷却能力)。
+      φ_jt = clip((T̲_j − ΔT_CDU − T_amb,t) / ITD_des, 0, 1)
+      COP_jt = min(COP_max, η_c·T_e/(T_c − T_e)),  T_e = T̲_j − ΔT_CDU − ΔT_evap,  T_c = T_amb + ΔT_cond,
+      η_c 由 ASHRAE 90.1 AHRI 工况 (出水 6.7 ℃, 环境 35 ℃, COP 2.96) 标定。"""
+    P = P or C.params()
     Tlo = np.array([z[0] for z in zones])[:, None]
-    phi = np.clip((Tlo - C.DT_CDU - Tamb[None, :]) / C.ITD_DES, 0.0, 1.0)
+    phi = np.clip((Tlo - P["DT_CDU"] - Tamb[None, :]) / P["ITD_DES"], 0.0, 1.0)
     K = 273.15
-    eta = C.COP_AHRI / ((6.7 - C.DT_EVAP + K) / ((35.0 + C.DT_COND) - (6.7 - C.DT_EVAP)))   # Carnot 比例标定
-    Te = Tlo - C.DT_CDU - C.DT_EVAP + K; Tc = Tamb[None, :] + C.DT_COND + K
-    cop = np.where(Tc - Te > 1e-6, eta * Te / np.maximum(Tc - Te, 1e-6), C.COP_MAX)
-    cop = np.clip(cop, 1.0, C.COP_MAX)
-    return phi, 1.0 / cop, np.full_like(phi, C.A_FC)
+    eta = P["COP_AHRI"] / ((6.7 - P["DT_EVAP"] + K) / ((35.0 + P["DT_COND"]) - (6.7 - P["DT_EVAP"])))
+    Te = Tlo - P["DT_CDU"] - P["DT_EVAP"] + K; Tc = Tamb[None, :] + P["DT_COND"] + K
+    cop = np.where(Tc - Te > 1e-6, eta * Te / np.maximum(Tc - Te, 1e-6), P["COP_MAX"])
+    cop = np.clip(cop, 1.0, P["COP_MAX"])
+    return phi, 1.0 / cop, np.full_like(phi, P["A_FC"])
 
 
-def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=None, cfg=None):
+def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=None, cfg=None, _ro_cuts=None):
     """blocks: [{'d','s','AR','AB','Tamb','gpv'}...]; amb: 每类 d 的模糊集参数 (DRO/SP 概率)。
     返回 (模型, 变量索引字典)。cfg 用于敏感性分析覆盖 config 中的参数。"""
-    P = dict(vars(C)); P.update(cfg or {})
+    P = C.params(cfg)
     reg, coup, prob = VARIANTS[variant]
     M = MILP(); V = {}
-    price = P["_price"] if price is None else price
+    if price is None: raise ValueError("必须给出分时电价 price (式16)")
     # ---------------- 第一阶段容量 式(14)(15) ----------------
     crf = lambda L: P["DISC"] * (1 + P["DISC"]) ** L / ((1 + P["DISC"]) ** L - 1)
     a = {k: v[0] * crf(v[1]) + v[2] for k, v in P["COST"].items()}       # 单位年化费用 a_i (元/单位/年)
@@ -128,7 +132,10 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
         vv = np.array([P["MODES"][k][0] for _, k in ml]); pk = np.array([P["MODES"][k][1] + P["P_HOST"] for _, k in ml])
         # 有效上界(不切除最优解): 因 p_k > p^sl, 最优解中不会出现超过任务需求的运行 GPU
         cumB = np.cumsum(b["AB"])
-        mub = np.array([np.minimum(Nmax, (b["AR"] if r == "R" else cumB) / (dt * P["MODES"][k][0])) for r, k in ml])
+        if P["TIGHT_BIGM"]:
+            mub = np.array([np.minimum(Nmax, (b["AR"] if r == "R" else cumB) / (dt * P["MODES"][k][0])) for r, k in ml])
+        else:                                                                   # 论文原式: 大M = N^max
+            mub = np.full((len(ml), Tt), float(Nmax))
         y["m"] = M.var((len(ml), Tt), 0.0, mub); y["ml"] = ml
         y["U"] = {r: M.var(Tt) for r in "RB"}
         y["PIT"] = M.var(Tt)
@@ -140,7 +147,6 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
         # ---------- 式(2)(3) 实时任务与可延期任务积压 ----------
         y["Bq"] = M.var(T1); M.con([(y["Bq"][1:], 1.0), (y["Bq"][:-1], -1.0), (y["U"]["B"], 1.0)], b["AB"], b["AB"])
         cumA = np.concatenate([[0.0], np.cumsum(b["AB"])])
-        tri = np.tril(np.ones((Tt, Tt)))
         D = P["D_DEADLINE"]; tt = np.arange(D + 1, Tt + 1)                     # t > D
         if slack:
             y["sR"] = M.var(Tt); y["sD"] = M.var(len(tt) + 1)
@@ -171,7 +177,7 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
             for off in (0, 1):
                 M.con([(y["m"][i], 1.0)] + [(y["u"][jj, off:Tt + off], -mub[i]) for jj in safe], hi=0.0)
         # ---------- 式(8)(9) 自然冷却与机械制冷 ----------
-        phi, aMC, aFC = thermal_tables(b["Tamb"], zones)
+        phi, aMC, aFC = thermal_tables(b["Tamb"], zones, P)
         for j in range(len(J)):
             M.con([(y["qFC"][j], 1.0), (V["FC"], -phi[j])], hi=0.0)
             M.con([(y["qFC"][j], 1.0), (y["u"][j, :Tt], -phi[j] * X["FC"])], hi=0.0)
@@ -195,7 +201,7 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
         # ---------- 式(16) 情景日运行费用 ----------
         y["Cop"] = M.var(1, -INF, INF)
         M.row([(y["Cop"], 1.0), (y["Pg"], -dt * price), (y["Pch"], -dt * P["C_VAR_B"]), (y["Pdis"], -dt * P["C_VAR_B"])], 0.0, 0.0)
-        y.update(b=b, phi=phi, aMC=aMC, aFC=aFC, J=J, zones=zones, kaux=kappa_aux, pk=pk, vv=vv)
+        y.update(b=b, phi=phi, aMC=aMC, aFC=aFC, J=J, zones=zones, kaux=kappa_aux, pk=pk, vv=vv, P0=P["P0"])
         V["blocks"].append(y)
     # ---------------- 式(17)(18) 概率层 ----------------
     if slack:  # 样本外评估: 未满足工作量以大罚系数"优先满足", 单独报告, 不计入费用
@@ -204,6 +210,12 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
     nd = n_d
     if prob == "SP" or amb is None:
         for y in V["blocks"]: M.add_cost(y["Cop"], nd[y["b"]["d"]] * y["b"]["p"])
+    elif prob == "RO" and _ro_cuts is not None:   # 割平面主问题: η_d ≥ Σ_s p^(i)_ds C^op_ds
+        V["eta"] = M.var(len(nd), -INF, INF, cost=nd)
+        for d, plist in _ro_cuts.items():
+            ys = [y for y in V["blocks"] if y["b"]["d"] == d]
+            for p in plist:
+                M.row([(V["eta"][d], 1.0)] + [(y["Cop"], -p[y["b"]["s"]]) for y in ys], lo=0.0)
     elif prob == "RO":
         V["eta"] = M.var(len(nd), -INF, INF, cost=nd)
         for y in V["blocks"]: M.con([(V["eta"][y["b"]["d"]], 1.0), (y["Cop"], -1.0)], lo=0.0)
@@ -247,8 +259,32 @@ def extract(sol, V):
                  AR=y["b"]["AR"], AB=y["b"]["AB"], Tamb=y["b"]["Tamb"], kaux=y["kaux"],
                  modes={f"{r_}|{k}": m[i] for i, (r_, k) in enumerate(y["ml"])})
         r["Paux"] = (y["kaux"] - 1) * r["PIT"]
-        r["Ptot"] = y["kaux"] * r["PIT"] + r["PFC"] + r["PMC"] + C.P0
+        r["Ptot"] = y["kaux"] * r["PIT"] + r["PFC"] + r["PMC"] + y["P0"]
         for k in ("sR", "sD"):
             if k in y: r[k] = g(y[k])
         out.append(r)
     return x, out
+
+
+def solve_cutting_plane(blocks, price, n_d, amb, variant="M4-DRO", cfg=None, tol=1.0, max_it=30, tl=C.TIME_LIMIT):
+    """论文第5节的迭代解法 (用于交叉验证对偶重构):
+    主问题  min C_plan + Σ_d n_d η_d,  s.t. η_d ≥ Σ_s p^(i)_ds C^op_ds  (已生成的最坏分布 p^(i)),  式(1)–(16)
+    子问题  p* = argmax_{p∈P_d} Σ_s p_ds C^op_ds  (LP)
+    收敛    Σ_d n_d (Σ_s p*_ds C^op_ds − η_d) ≤ tol, 否则把 p* 作为新割平面加入主问题。"""
+    S = {d: sum(b["d"] == d for b in blocks) for d in range(len(n_d))}
+    hist, cuts = [], {d: [worst_case_p(np.zeros(S[d]), amb[d])] for d in range(len(n_d))}   # 初始割: P_d 中任一可行分布
+    for it in range(max_it):
+        M, V = build(blocks, "M5-RO", price=price, n_d=n_d, amb=amb, cfg=cfg, _ro_cuts=cuts)   # 物理部分与 M4 相同
+        sol, st, obj, g = M.solve(tl=tl)
+        x, out = extract(sol, V)
+        eta = sol[V["eta"]]
+        viol, ub_add = 0.0, 0.0
+        for d in range(len(n_d)):
+            Q = np.array([o["Cop"] for o in out if o["d"] == d])
+            p = worst_case_p(Q, amb[d]); w = float(p @ Q)
+            viol += n_d[d] * (w - eta[d]); ub_add += n_d[d] * w
+            cuts[d].append(p)
+        ub = obj - float(n_d @ eta) + ub_add                       # 当前 x 的真实最坏期望目标 (上界)
+        hist.append(dict(迭代=it + 1, 主问题下界=obj, 当前解上界=ub, 违背量=viol, 绝对间隙=g))
+        if viol <= tol: break
+    return x, hist

@@ -94,7 +94,7 @@ def _fonts(base):
     plt.rcParams.update({
         "font.family": fam, "font.size": base, "axes.unicode_minus": False,
         "mathtext.fontset": "custom", "mathtext.rm": LATIN, "mathtext.it": f"{LATIN}:italic",
-        "mathtext.bf": f"{LATIN}:bold", "mathtext.default": "it",
+        "mathtext.bf": f"{LATIN}:bold", "mathtext.default": "it", "mathtext.fallback": "stix",
         "figure.facecolor": "white", "axes.facecolor": "white", "savefig.facecolor": "white"})
 
 
