@@ -178,6 +178,24 @@ def repair(R, D, E, tl=900):
     return dict(修复日数=len(B), 修复状态=st, 修复成本=sum(R["a"][k] * dx[k] for k in dx), **{f"修复_{k}": v for k, v in dx.items()})
 
 
+def repair_cool(R, D, E, tl=900):
+    """冷却/热安全修复: GPU 台数固定为规划值, 实时到达量截断到 N (GPU 台数不足部分各方案共有, 单列),
+    以最小新增冷源/储能/光伏年化投资使失约测试日在完整物理约束下可安全运行。"""
+    N = R["x"]["N"]
+    bad = E[(E["实时失约"] - E["实时失约_GPU台数受限"] + E["延期失约"]) > 1e-3]
+    if bad.empty: return dict(冷却修复日数=0, 冷却修复成本=0.0, 冷却修复_FC=0.0, 冷却修复_MC=0.0)
+    B = []
+    for j, r in enumerate(bad.itertuples()):
+        b = dict(D["test"][int(r.d)][int(r.i)]); b["AR"] = np.minimum(b["AR"], N * 0.999); B.append(dict(b, d=0, s=j, p=1.0))
+    cfg = dict(R["cfg"] or {}); X = dict(C.XMAX); X["N"] = int(round(N)); cfg["XMAX"] = X
+    M, V = Mo.build(B, HF, x_lb=R["x"], price=D["price"], n_d=np.array([1e-3]), cfg=cfg)
+    sol, st, obj, g = M.solve(tl=tl)
+    if sol is None: return dict(冷却修复日数=len(B), 冷却修复状态=st)
+    x2 = Mo.extract(sol, V)[0]; dx = {k: max(0.0, x2[k] - R["x"][k]) for k in x2}
+    return dict(冷却修复日数=len(B), 冷却修复状态=st, 冷却修复成本=sum(R["a"][k] * dx[k] for k in dx),
+                **{f"冷却修复_{k}": dx[k] for k in ("FC", "MC", "PV", "PB", "EB")})
+
+
 def activity(R):
     """E2 活跃约束统计 (规划情景, 经验概率加权年小时数)。"""
     P = C.params(R["cfg"]); w = []
@@ -212,7 +230,7 @@ def job(name):
     row.update(hf_summary(E, R, D)); row.update(activity(R))
     if PLANS[name]["full"]:
         S = stress(R, D); S.to_csv(RES / f"stress_{name}.csv", index=False)
-        row.update(repair(R, D, E))
+        row.update(repair(R, D, E)); row.update(repair_cool(R, D, E))
     pickle.dump(row, open(RES / f"row_{name}.pkl", "wb"))
     print(f"[done] {name} 复核年化总费用={row['复核年化总费用']:.5e} 实时SLA={row['实时SLA']:.5f} 修复={row.get('修复成本', '-')}", flush=True)
 

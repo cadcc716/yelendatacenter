@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-10-29T07:25:22.885234</dc:date>
+    <dc:date>2026-10-29T09:05:47.333453</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -31,7 +31,7 @@ z
   <g id="axes_1">
    <g id="line2d_1">
     <path d="M 93.543307 99.212598 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #3c5488"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #3c5488"/>
    </g>
    <g id="patch_2">
     <path d="M 93.543307 99.212598 
@@ -45,7 +45,7 @@ z
    </g>
    <g id="line2d_2">
     <path d="M 93.543307 175.748031 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #3c5488"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #3c5488"/>
    </g>
    <g id="patch_3">
     <path d="M 93.543307 175.748031 
@@ -59,7 +59,7 @@ z
    </g>
    <g id="line2d_3">
     <path d="M 93.543307 253.700787 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #3c5488"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #3c5488"/>
    </g>
    <g id="patch_4">
     <path d="M 93.543307 253.700787 
@@ -83,7 +83,7 @@ z
    </g>
    <g id="line2d_4">
     <path d="M 197.007874 80.787402 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #00876c"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #00876c"/>
    </g>
    <g id="patch_6">
     <path d="M 197.007874 80.787402 
@@ -97,7 +97,7 @@ z
    </g>
    <g id="line2d_5">
     <path d="M 119.055118 143.149606 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #3c5488"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #3c5488"/>
    </g>
    <g id="patch_7">
     <path d="M 119.055118 143.149606 
@@ -111,7 +111,7 @@ z
    </g>
    <g id="line2d_6">
     <path d="M 197.007874 199.84252 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #c0392b"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #c0392b"/>
    </g>
    <g id="patch_8">
     <path d="M 197.007874 199.84252 
@@ -125,7 +125,7 @@ z
    </g>
    <g id="line2d_7">
     <path d="M 255.11811 260.787402 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #c0392b"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #c0392b"/>
    </g>
    <g id="patch_9">
     <path d="M 255.11811 260.787402 
@@ -139,7 +139,7 @@ z
    </g>
    <g id="line2d_8">
     <path d="M 119.055118 327.401575 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #3c5488"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #3c5488"/>
    </g>
    <g id="patch_10">
     <path d="M 119.055118 327.401575 
@@ -153,7 +153,7 @@ z
    </g>
    <g id="line2d_9">
     <path d="M 255.11811 102.047244 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #c0392b"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #c0392b"/>
    </g>
    <g id="patch_11">
     <path d="M 255.11811 102.047244 
@@ -167,7 +167,7 @@ z
    </g>
    <g id="line2d_10">
     <path d="M 291.968504 161.574803 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #6e6e6e"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #6e6e6e"/>
    </g>
    <g id="patch_12">
     <path d="M 291.968504 161.574803 
@@ -181,7 +181,7 @@ z
    </g>
    <g id="line2d_11">
     <path d="M 335.905512 177.165354 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #c0392b"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #c0392b"/>
    </g>
    <g id="patch_13">
     <path d="M 335.905512 177.165354 
@@ -195,7 +195,7 @@ z
    </g>
    <g id="line2d_12">
     <path d="M 446.456693 177.165354 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #c0392b"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #c0392b"/>
    </g>
    <g id="patch_14">
     <path d="M 446.456693 177.165354 
@@ -209,7 +209,7 @@ z
    </g>
    <g id="line2d_13">
     <path d="M 379.84252 256.535433 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #c0392b"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #c0392b"/>
    </g>
    <g id="patch_15">
     <path d="M 379.84252 256.535433 
@@ -223,7 +223,7 @@ z
    </g>
    <g id="line2d_14">
     <path d="M 402.519685 256.535433 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #c0392b"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #c0392b"/>
    </g>
    <g id="patch_16">
     <path d="M 402.519685 256.535433 
@@ -238,7 +238,7 @@ z
    <g id="line2d_15">
     <path d="M 119.055118 293.385827 
 L 311.811024 293.385827 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #3c5488"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #3c5488"/>
    </g>
    <g id="patch_17">
     <path d="M 311.811024 293.385827 
@@ -253,7 +253,7 @@ z
    <g id="line2d_16">
     <path d="M 311.811024 293.385827 
 L 470.551181 293.385827 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #3c5488"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #3c5488"/>
    </g>
    <g id="patch_18">
     <path d="M 470.551181 293.385827 
@@ -267,7 +267,7 @@ z
    </g>
    <g id="line2d_17">
     <path d="M 291.968504 321.732283 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #3c5488"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #3c5488"/>
    </g>
    <g id="patch_19">
     <path d="M 291.968504 321.732283 
@@ -281,7 +281,7 @@ z
    </g>
    <g id="line2d_18">
     <path d="M 337.322835 321.732283 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #c0392b"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #c0392b"/>
    </g>
    <g id="patch_20">
     <path d="M 337.322835 321.732283 
@@ -295,7 +295,7 @@ z
    </g>
    <g id="line2d_19">
     <path d="M 382.677165 321.732283 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke: #00876c"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke: #00876c"/>
    </g>
    <g id="patch_21">
     <path d="M 382.677165 321.732283 
@@ -309,7 +309,7 @@ z
    </g>
    <g id="line2d_20">
     <path d="M 437.952756 321.732283 
-" clip-path="url(#p99a1961f91)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #6e6e6e"/>
+" clip-path="url(#p70fd26210f)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #6e6e6e"/>
    </g>
    <g id="patch_22">
     <path d="M 437.952756 321.732283 
@@ -332,7 +332,7 @@ Q 8.503937 7.086614 8.503937 10.488189
 L 8.503937 37.700787 
 Q 8.503937 41.102362 11.905512 41.102362 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #f4f4f4; stroke: #6e6e6e; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #f4f4f4; stroke: #6e6e6e; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_24">
     <path d="M 267.023622 41.102362 
@@ -345,7 +345,7 @@ Q 263.622047 7.086614 263.622047 10.488189
 L 263.622047 37.700787 
 Q 263.622047 41.102362 267.023622 41.102362 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #f4f4f4; stroke: #6e6e6e; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #f4f4f4; stroke: #6e6e6e; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_25">
     <path d="M 11.905512 124.724409 
@@ -358,7 +358,7 @@ Q 8.503937 75.11811 8.503937 78.519685
 L 8.503937 121.322835 
 Q 8.503937 124.724409 11.905512 124.724409 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #edf1f9; stroke: #3c5488; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #edf1f9; stroke: #3c5488; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_26">
     <path d="M 11.905512 199.84252 
@@ -371,7 +371,7 @@ Q 8.503937 150.23622 8.503937 153.637795
 L 8.503937 196.440945 
 Q 8.503937 199.84252 11.905512 199.84252 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #edf1f9; stroke: #3c5488; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #edf1f9; stroke: #3c5488; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_27">
     <path d="M 11.905512 282.047244 
@@ -384,7 +384,7 @@ Q 8.503937 225.354331 8.503937 228.755906
 L 8.503937 278.645669 
 Q 8.503937 282.047244 11.905512 282.047244 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #edf1f9; stroke: #3c5488; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #edf1f9; stroke: #3c5488; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_28">
     <path d="M 113.385827 341.574803 
@@ -392,7 +392,7 @@ L 119.055118 341.574803
 L 119.055118 76.535433 
 L 113.385827 76.535433 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #3c5488"/>
+" clip-path="url(#p70fd26210f)" style="fill: #3c5488"/>
    </g>
    <g id="patch_29">
     <path d="M 142.299213 80.787402 
@@ -405,7 +405,7 @@ Q 138.897638 45.354331 138.897638 48.755906
 L 138.897638 77.385827 
 Q 138.897638 80.787402 142.299213 80.787402 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #e6f3ef; stroke: #00876c; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #e6f3ef; stroke: #00876c; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_30">
     <path d="M 142.299213 199.84252 
@@ -418,7 +418,7 @@ Q 138.897638 90.708661 138.897638 94.110236
 L 138.897638 196.440945 
 Q 138.897638 199.84252 142.299213 199.84252 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #e6f3ef; stroke: #00876c; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #e6f3ef; stroke: #00876c; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_31">
     <path d="M 147.685039 123.307087 
@@ -431,7 +431,7 @@ Q 145.984252 110.551181 145.984252 112.251969
 L 145.984252 121.606299 
 Q 145.984252 123.307087 147.685039 123.307087 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #ffffff; stroke: #00876c; stroke-width: 0.6; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #ffffff; stroke: #00876c; stroke-width: 0.6; stroke-linejoin: miter"/>
    </g>
    <g id="patch_32">
     <path d="M 147.685039 138.897638 
@@ -444,7 +444,7 @@ Q 145.984252 126.141732 145.984252 127.84252
 L 145.984252 137.19685 
 Q 145.984252 138.897638 147.685039 138.897638 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #ffffff; stroke: #00876c; stroke-width: 0.6; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #ffffff; stroke: #00876c; stroke-width: 0.6; stroke-linejoin: miter"/>
    </g>
    <g id="patch_33">
     <path d="M 147.685039 154.488189 
@@ -457,7 +457,7 @@ Q 145.984252 141.732283 145.984252 143.433071
 L 145.984252 152.787402 
 Q 145.984252 154.488189 147.685039 154.488189 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #ffffff; stroke: #00876c; stroke-width: 0.6; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #ffffff; stroke: #00876c; stroke-width: 0.6; stroke-linejoin: miter"/>
    </g>
    <g id="patch_34">
     <path d="M 142.299213 273.543307 
@@ -470,7 +470,7 @@ Q 138.897638 223.937008 138.897638 227.338583
 L 138.897638 270.141732 
 Q 138.897638 273.543307 142.299213 273.543307 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #fbece9; stroke: #c0392b; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #fbece9; stroke: #c0392b; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_35">
     <path d="M 142.299213 341.574803 
@@ -483,7 +483,7 @@ Q 138.897638 313.228346 138.897638 316.629921
 L 138.897638 338.173228 
 Q 138.897638 341.574803 142.299213 341.574803 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #edf1f9; stroke: #3c5488; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #edf1f9; stroke: #3c5488; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_36">
     <path d="M 295.370079 177.165354 
@@ -496,7 +496,7 @@ Q 291.968504 75.11811 291.968504 78.519685
 L 291.968504 173.76378 
 Q 291.968504 177.165354 295.370079 177.165354 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #fbece9; stroke: #c0392b; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #fbece9; stroke: #c0392b; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_37">
     <path d="M 295.370079 273.543307 
@@ -509,7 +509,7 @@ Q 291.968504 208.346457 291.968504 211.748031
 L 291.968504 270.141732 
 Q 291.968504 273.543307 295.370079 273.543307 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #fbece9; stroke: #c0392b; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #fbece9; stroke: #c0392b; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_38">
     <path d="M 405.92126 273.543307 
@@ -522,7 +522,7 @@ Q 402.519685 208.346457 402.519685 211.748031
 L 402.519685 270.141732 
 Q 402.519685 273.543307 405.92126 273.543307 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #fbece9; stroke: #c0392b; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #fbece9; stroke: #c0392b; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_39">
     <path d="M 386.362205 273.543307 
@@ -535,13 +535,13 @@ Q 384.094488 208.346457 384.094488 210.614173
 L 384.094488 271.275591 
 Q 384.094488 273.543307 386.362205 273.543307 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #ffffff; stroke: #888888; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #ffffff; stroke: #888888; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="text_1">
     <!-- 外生不确定情景 $\xi_{ds}$ -->
     <g transform="translate(97.073701 17.288189) scale(0.08 -0.08)">
      <defs>
-      <path id="SciMixSerif-Regular-ae6" d="M 4519 163 
+      <path id="SciMixSerif-Regular-af8" d="M 4519 163 
 Q 4519 -306 4538 -769 
 Q 4288 -744 4038 -769 
 Q 4056 -306 4056 163 
@@ -579,7 +579,7 @@ Q 1569 3238 1463 3025
 Q 1994 2481 2450 1881 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bd4" d="M 6131 25 
+      <path id="SciMixSerif-Regular-bf5" d="M 6131 25 
 Q 6113 -181 6131 -388 
 Q 5756 -369 5375 -369 
 L 1125 -369 
@@ -655,7 +655,7 @@ Q 1769 1575 444 756
 Q 331 1025 75 1169 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bed" d="M 4788 -769 
+      <path id="SciMixSerif-Regular-c10" d="M 4788 -769 
 Q 4556 -744 4325 -769 
 Q 4344 -344 4344 81 
 L 4344 1081 
@@ -753,7 +753,7 @@ L 2044 425
 L 2044 2475 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-afa" d="M 2957 2850 
+      <path id="SciMixSerif-Regular-b0d" d="M 2957 2850 
 L 1463 2850 
 Q 1132 2850 794 2831 
 Q 813 3013 794 3194 
@@ -801,7 +801,7 @@ L 957 4200
 L 957 3350 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b37" d="M 5069 -69 
+      <path id="SciMixSerif-Regular-b4f" d="M 5069 -69 
 L 5069 419 
 L 2994 419 
 L 2994 125 
@@ -892,7 +892,7 @@ Q 512 2856 250 2200
 L -163 2381 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b76" d="M 5582 -669 
+      <path id="SciMixSerif-Regular-b92" d="M 5582 -669 
 Q 4869 -138 4075 275 
 L 4288 681 
 Q 5113 256 5857 -300 
@@ -1070,13 +1070,13 @@ Q 2163 1116 2163 863
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-ae6" transform="translate(0 0.328125)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd4" transform="translate(100 0.328125)"/>
+     <use xlink:href="#SciMixSerif-Regular-af8" transform="translate(0 0.328125)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf5" transform="translate(100 0.328125)"/>
      <use xlink:href="#SciMixSerif-Regular-a37" transform="translate(200 0.328125)"/>
-     <use xlink:href="#SciMixSerif-Regular-bed" transform="translate(300 0.328125)"/>
-     <use xlink:href="#SciMixSerif-Regular-afa" transform="translate(400 0.328125)"/>
-     <use xlink:href="#SciMixSerif-Regular-b37" transform="translate(500 0.328125)"/>
-     <use xlink:href="#SciMixSerif-Regular-b76" transform="translate(600 0.328125)"/>
+     <use xlink:href="#SciMixSerif-Regular-c10" transform="translate(300 0.328125)"/>
+     <use xlink:href="#SciMixSerif-Regular-b0d" transform="translate(400 0.328125)"/>
+     <use xlink:href="#SciMixSerif-Regular-b4f" transform="translate(500 0.328125)"/>
+     <use xlink:href="#SciMixSerif-Regular-b92" transform="translate(600 0.328125)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(700 0.328125)"/>
      <use xlink:href="#SciMixSerif-Italic-370" transform="translate(725 0.328125)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(767.822266 -13.44375) scale(0.7)"/>
@@ -1087,7 +1087,7 @@ z
     <!-- 负荷 $A^{\mathrm{R}}_{dst},A^{\mathrm{B}}_{dst}$；光伏出力系数 $g^{\mathrm{PV}}_{dst}$；环境温度 $T_{\mathrm{amb},dst}$ -->
     <g transform="translate(52.063701 27.318613) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-c60" d="M 6244 -475 
+      <path id="SciMixSerif-Regular-c8d" d="M 6244 -475 
 L 5994 -906 
 L 4769 -219 
 L 3525 425 
@@ -1133,7 +1133,7 @@ Q 1294 944 1294 1400
 L 1288 3213 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c3a" d="M 2800 156 
+      <path id="SciMixSerif-Regular-c63" d="M 2800 156 
 L 2369 156 
 L 2369 2375 
 L 4044 2375 
@@ -1338,7 +1338,7 @@ L 984 0
 L 184 0 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-cc6" d="M 3575 2525 
+      <path id="SciMixSerif-Regular-cfb" d="M 3575 2525 
 L 2869 2525 
 L 2869 3250 
 L 3575 3250 
@@ -1354,7 +1354,7 @@ L 3575 738
 L 3575 75 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a74" d="M 4169 -688 
+      <path id="SciMixSerif-Regular-a7a" d="M 4169 -688 
 Q 3707 -644 3569 -231 
 Q 3507 -50 3507 194 
 L 3507 2250 
@@ -1408,7 +1408,7 @@ Q 1838 3863 2357 3044
 L 1938 2775 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a54" d="M 5113 3500 
+      <path id="SciMixSerif-Regular-a58" d="M 5113 3500 
 Q 4756 4038 4325 4519 
 L 4694 4850 
 Q 5150 4344 5525 3775 
@@ -1457,7 +1457,7 @@ Q 1544 4469 1681 5050
 Q 1913 4963 2181 4925 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a8a" d="M 5394 -594 
+      <path id="SciMixSerif-Regular-a92" d="M 5394 -594 
 Q 5144 -569 4900 -594 
 Q 4913 -356 4913 -119 
 L 425 -119 
@@ -1497,7 +1497,7 @@ L 5375 325
 Q 5375 -138 5394 -594 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a9a" d="M 2675 2900 
+      <path id="SciMixSerif-Regular-aa3" d="M 2675 2900 
 L 2675 3356 
 L 1444 3356 
 Q 1000 3356 557 3331 
@@ -1529,7 +1529,7 @@ Q 2075 788 2375 1466
 Q 2675 2144 2675 2900 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c0b" d="M 6281 6 
+      <path id="SciMixSerif-Regular-c31" d="M 6281 6 
 L 5975 -375 
 L 5025 375 
 L 4056 1081 
@@ -1591,7 +1591,7 @@ Q 3069 -306 3112 -268
 Q 3156 -231 3156 -75 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b62" d="M 257 1500 
+      <path id="SciMixSerif-Regular-b7d" d="M 257 1500 
 Q 269 1663 257 1819 
 Q 544 1806 838 1806 
 L 1163 1806 
@@ -1770,7 +1770,7 @@ L 3188 4191
 L 4550 4191 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bd0" d="M 6156 1350 
+      <path id="SciMixSerif-Regular-bf1" d="M 6156 1350 
 L 5769 1063 
 L 5125 1906 
 L 4450 2706 
@@ -1829,7 +1829,7 @@ Q 588 225 206 81
 Q 175 375 6 575 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-ae1" d="M 4781 -650 
+      <path id="SciMixSerif-Regular-af2" d="M 4781 -650 
 Q 4494 -650 4334 -484 
 Q 4175 -319 4175 -56 
 L 4175 325 
@@ -1931,7 +1931,7 @@ L 175 144
 Q 125 438 -32 625 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bbf" d="M 6163 -113 
+      <path id="SciMixSerif-Regular-bdf" d="M 6163 -113 
 Q 6144 -269 6163 -425 
 Q 5869 -413 5575 -413 
 L 2069 -413 
@@ -2002,7 +2002,7 @@ Q 1306 4688 1706 4188
 L 1338 3913 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b1a" d="M 1857 1488 
+      <path id="SciMixSerif-Regular-b30" d="M 1857 1488 
 Q 1875 1663 1857 1838 
 Q 2175 1819 2500 1819 
 L 5225 1819 
@@ -2193,8 +2193,8 @@ L 428 4225
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-c60" transform="translate(0 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c3a" transform="translate(100 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-c8d" transform="translate(0 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-c63" transform="translate(100 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(200 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-24" transform="translate(225 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-35" transform="translate(292.648307 36.865625) scale(0.7)"/>
@@ -2207,13 +2207,13 @@ z
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(470.596094 -36.707812) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(505.596094 -36.707812) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(532.837305 -36.707812) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc6" transform="translate(554.580859 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-a74" transform="translate(654.580859 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-a54" transform="translate(754.580859 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-a8a" transform="translate(854.580859 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-a9a" transform="translate(954.580859 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c0b" transform="translate(1054.580859 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b62" transform="translate(1154.580859 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfb" transform="translate(554.580859 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-a7a" transform="translate(654.580859 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-a58" transform="translate(754.580859 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-a92" transform="translate(854.580859 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-aa3" transform="translate(954.580859 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-c31" transform="translate(1054.580859 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b7d" transform="translate(1154.580859 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(1254.580859 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-4a" transform="translate(1279.580859 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-33" transform="translate(1333.493932 37.926563) scale(0.7)"/>
@@ -2221,11 +2221,11 @@ z
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(1329.580859 -36.707812) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(1364.580859 -36.707812) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(1391.82207 -36.707812) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc6" transform="translate(1425.271667 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd0" transform="translate(1525.271667 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-ae1" transform="translate(1625.271667 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-bbf" transform="translate(1725.271667 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b1a" transform="translate(1825.271667 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfb" transform="translate(1425.271667 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf1" transform="translate(1525.271667 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-af2" transform="translate(1625.271667 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-bdf" transform="translate(1725.271667 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b30" transform="translate(1825.271667 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(1925.271667 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-37" transform="translate(1950.271667 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-44" transform="translate(2005.886901 -13.63125) scale(0.7)"/>
@@ -2236,10 +2236,10 @@ z
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(2189.014831 -13.63125) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(2216.256042 -13.63125) scale(0.7)"/>
     </g>
-    <!-- 有限支持情景 $s\in𝒮_d$，概率 $\boldsymbol{p}_d\in𝒫_d$（式17） -->
+    <!-- 有限支持情景 $s\in𝒮_d$，概率 $\boldsymbol{p}_d\in𝒫_d$（式30） -->
     <g transform="translate(62.668701 37.511269) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-b7c" d="M 4613 44 
+      <path id="SciMixSerif-Regular-b98" d="M 4613 44 
 L 4613 831 
 L 2263 831 
 L 2275 169 
@@ -2289,7 +2289,7 @@ L 2257 1188
 L 4613 1188 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-ca6" d="M 2838 4956 
+      <path id="SciMixSerif-Regular-cd8" d="M 2838 4956 
 L 5413 4956 
 L 5413 2338 
 L 3956 2338 
@@ -2350,7 +2350,7 @@ L 844 19
 Q 844 -419 869 -850 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b59" d="M 1169 2525 
+      <path id="SciMixSerif-Regular-b74" d="M 1169 2525 
 Q 1188 2744 1169 2956 
 Q 1569 2938 1969 2938 
 L 2813 2938 
@@ -2389,7 +2389,7 @@ Q 3800 1675 4200 2544
 L 2044 2544 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b4a" d="M 3900 713 
+      <path id="SciMixSerif-Regular-b64" d="M 3900 713 
 L 3538 394 
 L 2775 1263 
 L 3138 1581 
@@ -2543,7 +2543,7 @@ Q 1888 1914 2185 1661
 Q 2483 1408 2541 915 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-cc4" d="M 3594 75 
+      <path id="SciMixSerif-Regular-cf9" d="M 3594 75 
 L 3119 -825 
 L 2844 -825 
 L 3225 0 
@@ -2553,7 +2553,7 @@ L 3594 738
 L 3594 75 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b9d" d="M 5450 -663 
+      <path id="SciMixSerif-Regular-bbb" d="M 5450 -663 
 Q 5156 -663 4997 -494 
 Q 4838 -325 4838 -56 
 L 4838 1056 
@@ -2653,7 +2653,7 @@ Q 869 1813 675 1338
 L 400 681 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bcf" d="M 3350 -763 
+      <path id="SciMixSerif-Regular-bf0" d="M 3350 -763 
 Q 3119 -738 2888 -763 
 Q 2907 -331 2907 100 
 L 2907 688 
@@ -2827,7 +2827,7 @@ Q 4326 4397 4941 4019
 Q 5171 4166 5478 4282 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-cc2" d="M 5438 -1094 
+      <path id="SciMixSerif-Regular-cf7" d="M 5438 -1094 
 L 5106 -1094 
 Q 4306 -100 4175 1231 
 Q 4156 1438 4156 1656 
@@ -2838,7 +2838,7 @@ Q 4638 3169 4625 1681
 Q 4625 188 5438 -1094 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b20" d="M 5063 4006 
+      <path id="SciMixSerif-Regular-b36" d="M 5063 4006 
 Q 4694 4481 4257 4894 
 L 4600 5256 
 Q 5063 4813 5457 4306 
@@ -2888,33 +2888,61 @@ Q 3532 2688 3519 3606
 L 963 3606 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-14" d="M 1959 250 
-L 2816 166 
-L 2816 0 
-L 563 0 
-L 563 166 
-L 1422 250 
-L 1422 3669 
-L 575 3366 
-L 575 3531 
-L 1797 4225 
-L 1959 4225 
-L 1959 250 
+      <path id="SciMixSerif-Regular-16" d="M 2950 1141 
+Q 2950 575 2562 256 
+Q 2175 -63 1466 -63 
+Q 872 -63 341 72 
+L 306 953 
+L 513 953 
+L 653 366 
+Q 775 297 998 247 
+Q 1222 197 1416 197 
+Q 1906 197 2140 422 
+Q 2375 647 2375 1172 
+Q 2375 1584 2159 1798 
+Q 1944 2013 1491 2034 
+L 1044 2059 
+L 1044 2316 
+L 1491 2344 
+Q 1844 2363 2012 2563 
+Q 2181 2763 2181 3169 
+Q 2181 3591 1998 3783 
+Q 1816 3975 1416 3975 
+Q 1250 3975 1069 3929 
+Q 888 3884 750 3809 
+L 641 3297 
+L 434 3297 
+L 434 4103 
+Q 744 4184 969 4211 
+Q 1194 4238 1416 4238 
+Q 2759 4238 2759 3206 
+Q 2759 2772 2520 2514 
+Q 2281 2256 1844 2194 
+Q 2413 2128 2681 1867 
+Q 2950 1606 2950 1141 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-1a" d="M 628 3200 
-L 422 3200 
-L 422 4191 
-L 3016 4191 
-L 3016 3950 
-L 1147 0 
-L 744 0 
-L 2578 3713 
-L 738 3713 
-L 628 3200 
+      <path id="SciMixSerif-Regular-13" d="M 2956 2113 
+Q 2956 -63 1581 -63 
+Q 919 -63 581 493 
+Q 244 1050 244 2113 
+Q 244 3153 581 3704 
+Q 919 4256 1606 4256 
+Q 2269 4256 2612 3711 
+Q 2956 3166 2956 2113 
+z
+M 2381 2113 
+Q 2381 3119 2190 3562 
+Q 2000 4006 1581 4006 
+Q 1175 4006 997 3587 
+Q 819 3169 819 2113 
+Q 819 1050 1000 617 
+Q 1181 184 1581 184 
+Q 1994 184 2187 639 
+Q 2381 1094 2381 2113 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-cc3" d="M 2244 1656 
+      <path id="SciMixSerif-Regular-cf8" d="M 2244 1656 
 Q 2244 306 1519 -788 
 Q 1413 -950 1294 -1094 
 L 963 -1094 
@@ -2927,38 +2955,38 @@ Q 2244 1763 2244 1656
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-b7c" transform="translate(0 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-ca6" transform="translate(100 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-b59" transform="translate(200 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-b4a" transform="translate(300 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-b37" transform="translate(400 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-b76" transform="translate(500 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-b98" transform="translate(0 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cd8" transform="translate(100 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-b74" transform="translate(200 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-b64" transform="translate(300 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-b4f" transform="translate(400 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-b92" transform="translate(500 0.234375)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(600 0.234375)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(625 0.234375)"/>
      <use xlink:href="#STIXGeneral-Regular-41b" transform="translate(678.359375 0.234375)"/>
      <use xlink:href="#STIXGeneral-Regular-9a0" transform="translate(761.302673 0.234375)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(836.405959 -13.5375) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc4" transform="translate(873.701272 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-b9d" transform="translate(973.701272 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-bcf" transform="translate(1073.701272 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf9" transform="translate(873.701272 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-bbb" transform="translate(973.701272 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf0" transform="translate(1073.701272 0.234375)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(1173.701272 0.234375)"/>
      <use xlink:href="#DejaVuSans-BoldOblique-53" transform="translate(1198.701272 0.234375)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(1271.086663 -13.5375) scale(0.7)"/>
      <use xlink:href="#STIXGeneral-Regular-41b" transform="translate(1322.825334 0.234375)"/>
      <use xlink:href="#STIXGeneral-Regular-99e" transform="translate(1405.768633 0.234375)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(1497.571901 -13.5375) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(1534.867213 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(1634.867213 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(1734.867213 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-1a" transform="translate(1784.867213 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(1834.867213 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(1534.867213 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(1634.867213 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-16" transform="translate(1734.867213 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-13" transform="translate(1784.867213 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(1834.867213 0.234375)"/>
     </g>
    </g>
    <g id="text_3">
     <!-- 第一阶段容量决策 -->
     <g transform="translate(345.007874 17.276939) scale(0.08 -0.08)">
      <defs>
-      <path id="SciMixSerif-Regular-c01" d="M 988 2306 
+      <path id="SciMixSerif-Regular-c25" d="M 988 2306 
 L 3113 2306 
 L 3113 2956 
 L 1669 2956 
@@ -3052,7 +3080,7 @@ L 5075 2694
 Q 5544 2694 6019 2719 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-ca2" d="M 5013 -769 
+      <path id="SciMixSerif-Regular-cd4" d="M 5013 -769 
 Q 4763 -744 4513 -769 
 Q 4538 -313 4538 150 
 L 4538 1819 
@@ -3109,7 +3137,7 @@ L 832 19
 Q 838 -419 857 -850 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-ba4" d="M 2557 2369 
+      <path id="SciMixSerif-Regular-bc2" d="M 2557 2369 
 Q 2538 2194 2557 2019 
 Q 2232 2038 1907 2038 
 L 1044 2038 
@@ -3184,7 +3212,7 @@ Q 4794 1425 4913 2200
 L 3688 2200 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-afe" d="M 1969 -763 
+      <path id="SciMixSerif-Regular-b11" d="M 1969 -763 
 Q 1731 -738 1494 -763 
 Q 1519 -325 1519 106 
 L 1519 1194 
@@ -3245,7 +3273,7 @@ L 4394 -13
 L 4394 1044 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c95" d="M 5957 -138 
+      <path id="SciMixSerif-Regular-cc7" d="M 5957 -138 
 Q 5938 -281 5957 -431 
 Q 5688 -419 5419 -419 
 L 832 -419 
@@ -3328,7 +3356,7 @@ L 4582 4119
 L 1538 4119 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a84" d="M 2500 1831 
+      <path id="SciMixSerif-Regular-a8b" d="M 2500 1831 
 Q 2138 1831 1769 1813 
 Q 1794 2013 1769 2206 
 Q 2138 2194 2500 2194 
@@ -3380,7 +3408,7 @@ Q 1094 4700 1438 4094
 L 1063 3825 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c03" d="M 1513 2350 
+      <path id="SciMixSerif-Regular-c27" d="M 1513 2350 
 L 1513 2319 
 L 2938 2319 
 L 2938 2794 
@@ -3470,18 +3498,18 @@ L 1425 5213
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-c01"/>
+     <use xlink:href="#SciMixSerif-Regular-c25"/>
      <use xlink:href="#SciMixSerif-Regular-a32" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-ca2" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-ba4" transform="translate(300 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-afe" transform="translate(400 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c95" transform="translate(500 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a84" transform="translate(600 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c03" transform="translate(700 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cd4" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bc2" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-b11" transform="translate(400 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cc7" transform="translate(500 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a8b" transform="translate(600 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c27" transform="translate(700 0)"/>
     </g>
    </g>
    <g id="text_4">
-    <!-- $\boldsymbol{x}=(N,K^{\mathrm{PV}},P^{\mathrm{B}},E^{\mathrm{B}},K^{\mathrm{FC}},K^{\mathrm{MC}})$（式14–15） -->
+    <!-- $\boldsymbol{x}=(N,K^{\mathrm{PV}},P^{\mathrm{B}},E^{\mathrm{B}},K^{\mathrm{FC}},K^{\mathrm{MC}})$（式26–28） -->
     <g transform="translate(314.532874 27.808613) scale(0.07 -0.07)">
      <defs>
       <path id="DejaVuSans-BoldOblique-5b" d="M 1416 1791 
@@ -3729,24 +3757,59 @@ Q 1131 -344 731 -698
 Q 331 -1053 -303 -1363 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-17" d="M 2531 922 
-L 2531 0 
-L 1994 0 
-L 1994 922 
-L 125 922 
-L 125 1338 
-L 2172 4213 
-L 2531 4213 
-L 2531 1369 
-L 3100 1369 
-L 3100 922 
-L 2531 922 
+      <path id="SciMixSerif-Regular-15" d="M 2847 0 
+L 281 0 
+L 281 459 
+L 863 988 
+Q 1422 1478 1684 1781 
+Q 1947 2084 2061 2406 
+Q 2175 2728 2175 3144 
+Q 2175 3550 1990 3762 
+Q 1806 3975 1388 3975 
+Q 1222 3975 1047 3929 
+Q 872 3884 738 3809 
+L 628 3297 
+L 422 3297 
+L 422 4103 
+Q 991 4238 1388 4238 
+Q 2075 4238 2420 3952 
+Q 2766 3666 2766 3144 
+Q 2766 2794 2630 2483 
+Q 2494 2172 2212 1864 
+Q 1931 1556 1281 1003 
+Q 1003 766 691 481 
+L 2847 481 
+L 2847 0 
 z
-M 1994 3478 
-L 1978 3478 
-L 478 1369 
-L 1994 1369 
-L 1994 3478 
+" transform="scale(0.015625)"/>
+      <path id="SciMixSerif-Regular-19" d="M 3009 1300 
+Q 3009 647 2679 292 
+Q 2350 -63 1728 -63 
+Q 1022 -63 648 487 
+Q 275 1038 275 2069 
+Q 275 2744 472 3234 
+Q 669 3725 1023 3981 
+Q 1378 4238 1844 4238 
+Q 2300 4238 2753 4128 
+L 2753 3406 
+L 2547 3406 
+L 2438 3834 
+Q 2334 3891 2159 3933 
+Q 1984 3975 1844 3975 
+Q 1388 3975 1133 3533 
+Q 878 3091 853 2241 
+Q 1363 2509 1875 2509 
+Q 2428 2509 2718 2198 
+Q 3009 1888 3009 1300 
+z
+M 1716 184 
+Q 2094 184 2262 429 
+Q 2431 675 2431 1241 
+Q 2431 1753 2270 1981 
+Q 2109 2209 1759 2209 
+Q 1331 2209 850 2053 
+Q 850 1100 1065 642 
+Q 1281 184 1716 184 
 z
 " transform="scale(0.015625)"/>
       <path id="SciMixSerif-Regular-7df" d="M 3244 1650 
@@ -3756,30 +3819,42 @@ L -44 1650
 L 3244 1650 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-18" d="M 1516 2450 
-Q 2241 2450 2595 2153 
-Q 2950 1856 2950 1247 
-Q 2950 616 2565 276 
-Q 2181 -63 1466 -63 
-Q 872 -63 406 72 
-L 372 953 
-L 578 953 
-L 719 366 
-Q 856 291 1048 244 
-Q 1241 197 1416 197 
-Q 1909 197 2142 430 
-Q 2375 663 2375 1216 
-Q 2375 1603 2275 1801 
-Q 2175 2000 1956 2094 
-Q 1738 2188 1369 2188 
-Q 1084 2188 813 2113 
-L 513 2113 
-L 513 4191 
-L 2638 4191 
-L 2638 3713 
-L 794 3713 
-L 794 2375 
-Q 1131 2450 1516 2450 
+      <path id="SciMixSerif-Regular-1b" d="M 2828 3169 
+Q 2828 2825 2661 2586 
+Q 2494 2347 2209 2222 
+Q 2566 2091 2761 1811 
+Q 2956 1531 2956 1131 
+Q 2956 538 2622 237 
+Q 2288 -63 1581 -63 
+Q 244 -63 244 1131 
+Q 244 1547 444 1820 
+Q 644 2094 984 2222 
+Q 713 2347 542 2584 
+Q 372 2822 372 3169 
+Q 372 3688 689 3972 
+Q 1006 4256 1606 4256 
+Q 2188 4256 2508 3973 
+Q 2828 3691 2828 3169 
+z
+M 2394 1131 
+Q 2394 1631 2198 1856 
+Q 2003 2081 1581 2081 
+Q 1169 2081 987 1867 
+Q 806 1653 806 1131 
+Q 806 603 990 393 
+Q 1175 184 1581 184 
+Q 1997 184 2195 401 
+Q 2394 619 2394 1131 
+z
+M 2266 3169 
+Q 2266 3600 2097 3803 
+Q 1928 4006 1588 4006 
+Q 1256 4006 1095 3809 
+Q 934 3613 934 3169 
+Q 934 2734 1090 2545 
+Q 1247 2356 1588 2356 
+Q 1938 2356 2102 2548 
+Q 2266 2741 2266 3169 
 z
 " transform="scale(0.015625)"/>
      </defs>
@@ -3806,19 +3881,19 @@ z
      <use xlink:href="#SciMixSerif-Regular-30" transform="translate(1090.463997 33.009375) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-26" transform="translate(1152.705208 33.009375) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-c" transform="translate(1201.689974 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(1234.990755 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(1334.990755 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(1434.990755 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-17" transform="translate(1484.990755 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(1234.990755 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(1334.990755 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(1434.990755 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-19" transform="translate(1484.990755 0.875)"/>
      <use xlink:href="#SciMixSerif-Regular-7df" transform="translate(1534.990755 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(1584.990755 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-18" transform="translate(1634.990755 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(1684.990755 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(1584.990755 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-1b" transform="translate(1634.990755 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(1684.990755 0.875)"/>
     </g>
-    <!-- 各设备框中对应容量变量；第二阶段运行量 $\boldsymbol{y}_{ds}$（式1–13） -->
+    <!-- 各设备框中对应容量变量；第二阶段运行量 $\boldsymbol{y}_{ds}$（式1–25） -->
     <g transform="translate(287.547874 37.476269) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-ac0" d="M 2100 -769 
+      <path id="SciMixSerif-Regular-ace" d="M 2100 -769 
 Q 1850 -744 1600 -769 
 Q 1625 -313 1625 150 
 L 1625 1431 
@@ -3861,7 +3936,7 @@ L 2294 4019
 Q 2757 3406 3232 2969 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c54" d="M 2694 2225 
+      <path id="SciMixSerif-Regular-c7f" d="M 2694 2225 
 Q 2719 2425 2694 2619 
 Q 3063 2600 3425 2600 
 L 5369 2600 
@@ -3925,7 +4000,7 @@ Q 1444 4769 1813 4194
 L 1413 3913 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-ae3" d="M 1850 -769 
+      <path id="SciMixSerif-Regular-af5" d="M 1850 -769 
 Q 1607 -744 1363 -769 
 Q 1388 -325 1388 125 
 L 1388 1825 
@@ -3986,7 +4061,7 @@ L 2169 4175
 Q 2650 3669 3082 3325 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b97" d="M 5975 1019 
+      <path id="SciMixSerif-Regular-bb4" d="M 5975 1019 
 Q 5957 850 5975 681 
 Q 5663 700 5350 700 
 L 4075 700 
@@ -4092,7 +4167,7 @@ L 807 2075
 L 2713 2075 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b00" d="M 3744 1375 
+      <path id="SciMixSerif-Regular-b14" d="M 3744 1375 
 Q 3532 2000 3157 2538 
 L 3569 2831 
 Q 3988 2231 4219 1538 
@@ -4142,7 +4217,7 @@ Q 2257 3150 2394 4025
 L 1250 4025 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b18" d="M 6138 163 
+      <path id="SciMixSerif-Regular-b2e" d="M 6138 163 
 Q 6119 -25 6138 -213 
 Q 5788 -200 5438 -200 
 L 1738 -200 
@@ -4189,7 +4264,7 @@ Q 794 1419 781 2169
 L 738 4756 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-ab7" d="M 3700 350 
+      <path id="SciMixSerif-Regular-ac4" d="M 3700 350 
 Q 4500 -213 5719 -163 
 Q 5563 -375 5582 -638 
 Q 4407 -694 3394 75 
@@ -4246,7 +4321,7 @@ Q 3869 1119 4132 1788
 L 2469 1788 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a44" d="M 6044 400 
+      <path id="SciMixSerif-Regular-a47" d="M 6044 400 
 Q 6025 175 6044 -56 
 Q 5625 -31 5206 -31 
 L 1000 -31 
@@ -4267,7 +4342,7 @@ L 4575 4369
 Q 4994 4369 5419 4394 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c7b" d="M 1119 2463 
+      <path id="SciMixSerif-Regular-caa" d="M 1119 2463 
 L 888 2463 
 Q 538 2463 188 2444 
 Q 207 2638 188 2825 
@@ -4329,7 +4404,7 @@ L 4913 4844
 Q 5263 4844 5613 4863 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c40" d="M 4413 -6 
+      <path id="SciMixSerif-Regular-c69" d="M 4413 -6 
 L 4413 2606 
 L 3263 2606 
 Q 2900 2606 2538 2588 
@@ -4397,78 +4472,84 @@ L 1269 -44
 L 422 3500 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-16" d="M 2950 1141 
-Q 2950 575 2562 256 
-Q 2175 -63 1466 -63 
-Q 872 -63 341 72 
-L 306 953 
-L 513 953 
-L 653 366 
-Q 775 297 998 247 
-Q 1222 197 1416 197 
-Q 1906 197 2140 422 
-Q 2375 647 2375 1172 
-Q 2375 1584 2159 1798 
-Q 1944 2013 1491 2034 
-L 1044 2059 
-L 1044 2316 
-L 1491 2344 
-Q 1844 2363 2012 2563 
-Q 2181 2763 2181 3169 
-Q 2181 3591 1998 3783 
-Q 1816 3975 1416 3975 
-Q 1250 3975 1069 3929 
-Q 888 3884 750 3809 
-L 641 3297 
-L 434 3297 
-L 434 4103 
-Q 744 4184 969 4211 
-Q 1194 4238 1416 4238 
-Q 2759 4238 2759 3206 
-Q 2759 2772 2520 2514 
-Q 2281 2256 1844 2194 
-Q 2413 2128 2681 1867 
-Q 2950 1606 2950 1141 
+      <path id="SciMixSerif-Regular-14" d="M 1959 250 
+L 2816 166 
+L 2816 0 
+L 563 0 
+L 563 166 
+L 1422 250 
+L 1422 3669 
+L 575 3366 
+L 575 3531 
+L 1797 4225 
+L 1959 4225 
+L 1959 250 
+z
+" transform="scale(0.015625)"/>
+      <path id="SciMixSerif-Regular-18" d="M 1516 2450 
+Q 2241 2450 2595 2153 
+Q 2950 1856 2950 1247 
+Q 2950 616 2565 276 
+Q 2181 -63 1466 -63 
+Q 872 -63 406 72 
+L 372 953 
+L 578 953 
+L 719 366 
+Q 856 291 1048 244 
+Q 1241 197 1416 197 
+Q 1909 197 2142 430 
+Q 2375 663 2375 1216 
+Q 2375 1603 2275 1801 
+Q 2175 2000 1956 2094 
+Q 1738 2188 1369 2188 
+Q 1084 2188 813 2113 
+L 513 2113 
+L 513 4191 
+L 2638 4191 
+L 2638 3713 
+L 794 3713 
+L 794 2375 
+Q 1131 2450 1516 2450 
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-ac0" transform="translate(0 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c54" transform="translate(100 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-ae3" transform="translate(200 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b97" transform="translate(300 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-ace" transform="translate(0 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-c7f" transform="translate(100 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-af5" transform="translate(200 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-bb4" transform="translate(300 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-a3e" transform="translate(400 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b00" transform="translate(500 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b18" transform="translate(600 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-afe" transform="translate(700 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c95" transform="translate(800 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-ab7" transform="translate(900 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c95" transform="translate(1000 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc6" transform="translate(1100 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c01" transform="translate(1200 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-a44" transform="translate(1300 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-ca2" transform="translate(1400 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-ba4" transform="translate(1500 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c7b" transform="translate(1600 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c40" transform="translate(1700 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c95" transform="translate(1800 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b14" transform="translate(500 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b2e" transform="translate(600 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b11" transform="translate(700 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cc7" transform="translate(800 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-ac4" transform="translate(900 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cc7" transform="translate(1000 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfb" transform="translate(1100 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-c25" transform="translate(1200 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-a47" transform="translate(1300 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cd4" transform="translate(1400 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-bc2" transform="translate(1500 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-caa" transform="translate(1600 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-c69" transform="translate(1700 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cc7" transform="translate(1800 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(1900 0.140625)"/>
      <use xlink:href="#DejaVuSans-BoldOblique-5c" transform="translate(1925 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(1990.988906 -13.63125) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(2025.988906 -13.63125) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(2055.52543 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(2155.52543 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(2055.52543 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(2155.52543 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-14" transform="translate(2255.52543 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-7df" transform="translate(2305.52543 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(2355.52543 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-16" transform="translate(2405.52543 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(2455.52543 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(2355.52543 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-18" transform="translate(2405.52543 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(2455.52543 0.140625)"/>
     </g>
    </g>
    <g id="text_5">
     <!-- 外部电网 -->
     <g transform="translate(35.023622 85.269685) scale(0.08 -0.08)">
      <defs>
-      <path id="SciMixSerif-Regular-c90" d="M 1163 -763 
+      <path id="SciMixSerif-Regular-cc2" d="M 1163 -763 
 Q 925 -738 694 -763 
 Q 713 -331 713 106 
 L 713 1925 
@@ -4539,7 +4620,7 @@ L 4407 75
 Q 4407 -388 4425 -856 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bd8" d="M 3250 -694 
+      <path id="SciMixSerif-Regular-bf9" d="M 3250 -694 
 Q 2950 -694 2762 -500 
 Q 2575 -306 2575 31 
 L 2575 1094 
@@ -4594,7 +4675,7 @@ L 938 2900
 L 2575 2900 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c24" d="M 1038 163 
+      <path id="SciMixSerif-Regular-c4a" d="M 1038 163 
 Q 1038 -300 1063 -756 
 Q 813 -731 563 -756 
 Q 588 -300 588 163 
@@ -4639,36 +4720,16 @@ L 1038 163
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-ae6"/>
-     <use xlink:href="#SciMixSerif-Regular-c90" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd8" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c24" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-af8"/>
+     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf9" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c4a" transform="translate(300 0)"/>
     </g>
    </g>
    <g id="text_6">
     <!-- $\mathrm{0}\leq P^{\mathrm{grid}}_{dst}\leq P^{\mathrm{grid,max}}$ -->
     <g transform="translate(25.438622 103.705384) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-13" d="M 2956 2113 
-Q 2956 -63 1581 -63 
-Q 919 -63 581 493 
-Q 244 1050 244 2113 
-Q 244 3153 581 3704 
-Q 919 4256 1606 4256 
-Q 2269 4256 2612 3711 
-Q 2956 3166 2956 2113 
-z
-M 2381 2113 
-Q 2381 3119 2190 3562 
-Q 2000 4006 1581 4006 
-Q 1175 4006 997 3587 
-Q 819 3169 819 2113 
-Q 819 1050 1000 617 
-Q 1181 184 1581 184 
-Q 1994 184 2187 639 
-Q 2381 1094 2381 2113 
-z
-" transform="scale(0.015625)"/>
       <path id="SciMixSerif-Italic-85c" d="M 303 2047 
 L 303 2203 
 L 3281 3669 
@@ -4875,10 +4936,10 @@ z
      <use xlink:href="#SciMixSerif-Regular-44" transform="translate(662.558411 32.73125) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-5b" transform="translate(693.627747 32.73125) scale(0.7)"/>
     </g>
-    <!-- 分时电价 $c^{e}_{dt}$（式16） -->
-    <g transform="translate(18.578622 112.673041) scale(0.07 -0.07)">
+    <!-- 分时电价 $c^{e}_{dt}$（式24,29） -->
+    <g transform="translate(14.203622 112.673041) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-a8b" d="M 2088 2169 
+      <path id="SciMixSerif-Regular-a93" d="M 2088 2169 
 Q 1688 2169 1288 2150 
 Q 1306 2363 1288 2581 
 Q 1688 2563 2088 2563 
@@ -4919,7 +4980,7 @@ Q 1550 3638 1669 3881
 Q 1931 4438 2106 5050 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b6f" d="M 3588 1119 
+      <path id="SciMixSerif-Regular-b8b" d="M 3588 1119 
 Q 3244 1863 2813 2556 
 L 3232 2813 
 Q 3675 2094 4032 1331 
@@ -4973,7 +5034,7 @@ L 1857 906
 L 1857 2488 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a51" d="M 4931 -769 
+      <path id="SciMixSerif-Regular-a55" d="M 4931 -769 
 Q 4687 -744 4437 -769 
 Q 4462 -313 4462 144 
 L 4462 1888 
@@ -5074,71 +5135,92 @@ Q 1147 2419 997 2119
 Q 847 1819 788 1488 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-19" d="M 3009 1300 
-Q 3009 647 2679 292 
-Q 2350 -63 1728 -63 
-Q 1022 -63 648 487 
-Q 275 1038 275 2069 
-Q 275 2744 472 3234 
-Q 669 3725 1023 3981 
-Q 1378 4238 1844 4238 
-Q 2300 4238 2753 4128 
-L 2753 3406 
-L 2547 3406 
-L 2438 3834 
-Q 2334 3891 2159 3933 
-Q 1984 3975 1844 3975 
-Q 1388 3975 1133 3533 
-Q 878 3091 853 2241 
-Q 1363 2509 1875 2509 
-Q 2428 2509 2718 2198 
-Q 3009 1888 3009 1300 
+      <path id="SciMixSerif-Regular-17" d="M 2531 922 
+L 2531 0 
+L 1994 0 
+L 1994 922 
+L 125 922 
+L 125 1338 
+L 2172 4213 
+L 2531 4213 
+L 2531 1369 
+L 3100 1369 
+L 3100 922 
+L 2531 922 
 z
-M 1716 184 
-Q 2094 184 2262 429 
-Q 2431 675 2431 1241 
-Q 2431 1753 2270 1981 
-Q 2109 2209 1759 2209 
-Q 1331 2209 850 2053 
-Q 850 1100 1065 642 
-Q 1281 184 1716 184 
+M 1994 3478 
+L 1978 3478 
+L 478 1369 
+L 1994 1369 
+L 1994 3478 
+z
+" transform="scale(0.015625)"/>
+      <path id="SciMixSerif-Regular-1c" d="M 206 2913 
+Q 206 3544 559 3891 
+Q 913 4238 1556 4238 
+Q 2272 4238 2605 3722 
+Q 2938 3206 2938 2106 
+Q 2938 1053 2509 495 
+Q 2081 -63 1306 -63 
+Q 797 -63 372 44 
+L 372 769 
+L 575 769 
+L 684 319 
+Q 784 272 953 234 
+Q 1122 197 1294 197 
+Q 1794 197 2062 636 
+Q 2331 1075 2359 1928 
+Q 1884 1663 1394 1663 
+Q 841 1663 523 1992 
+Q 206 2322 206 2913 
+z
+M 1563 3988 
+Q 781 3988 781 2900 
+Q 781 2422 968 2194 
+Q 1156 1966 1550 1966 
+Q 1953 1966 2363 2131 
+Q 2363 3091 2173 3539 
+Q 1984 3988 1563 3988 
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-a8b" transform="translate(0 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b6f" transform="translate(100 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd8" transform="translate(200 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-a51" transform="translate(300 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-a93" transform="translate(0 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b8b" transform="translate(100 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf9" transform="translate(200 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-a55" transform="translate(300 0.765625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(400 0.765625)"/>
      <use xlink:href="#SciMixSerif-Italic-46" transform="translate(425 0.765625)"/>
      <use xlink:href="#SciMixSerif-Italic-48" transform="translate(473.304401 38.179688) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(469.384766 -36.082812) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(504.384766 -36.082812) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(526.12832 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(626.12832 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(726.12832 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-19" transform="translate(776.12832 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(826.12832 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(526.12832 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(626.12832 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(726.12832 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-17" transform="translate(776.12832 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-f" transform="translate(826.12832 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(851.12832 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-1c" transform="translate(901.12832 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(951.12832 0.765625)"/>
     </g>
    </g>
    <g id="text_7">
     <!-- 光伏 -->
     <g transform="translate(43.023622 160.207795) scale(0.08 -0.08)">
-     <use xlink:href="#SciMixSerif-Regular-a74"/>
-     <use xlink:href="#SciMixSerif-Regular-a54" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a7a"/>
+     <use xlink:href="#SciMixSerif-Regular-a58" transform="translate(100 0)"/>
     </g>
    </g>
    <g id="text_8">
     <!-- 容量 $K^{\mathrm{PV}}$ -->
     <g transform="translate(37.373622 179.173495) scale(0.07 -0.07)">
-     <use xlink:href="#SciMixSerif-Regular-afe" transform="translate(0 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c95" transform="translate(100 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b11" transform="translate(0 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cc7" transform="translate(100 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(200 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-2e" transform="translate(225 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-33" transform="translate(298.189167 32.275) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-39" transform="translate(337.119831 32.275) scale(0.7)"/>
     </g>
-    <!-- $P^{\mathrm{PV}}_{dst}\leq K^{\mathrm{PV}}g^{\mathrm{PV}}_{dst}$（式10） -->
+    <!-- $P^{\mathrm{PV}}_{dst}\leq K^{\mathrm{PV}}g^{\mathrm{PV}}_{dst}$（式19） -->
     <g transform="translate(17.633622 187.826151) scale(0.07 -0.07)">
      <use xlink:href="#SciMixSerif-Italic-33" transform="translate(0 0.375)"/>
      <use xlink:href="#SciMixSerif-Regular-33" transform="translate(67.573932 38.160938) scale(0.7)"/>
@@ -5156,18 +5238,18 @@ z
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(458.088099 -36.473437) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(493.088099 -36.473437) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(520.32931 -36.473437) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(553.778906 0.375)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(653.778906 0.375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(553.778906 0.375)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(653.778906 0.375)"/>
      <use xlink:href="#SciMixSerif-Regular-14" transform="translate(753.778906 0.375)"/>
-     <use xlink:href="#SciMixSerif-Regular-13" transform="translate(803.778906 0.375)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(853.778906 0.375)"/>
+     <use xlink:href="#SciMixSerif-Regular-1c" transform="translate(803.778906 0.375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(853.778906 0.375)"/>
     </g>
    </g>
    <g id="text_9">
     <!-- 电池储能 -->
     <g transform="translate(35.023622 235.342156) scale(0.08 -0.08)">
      <defs>
-      <path id="SciMixSerif-Regular-bae" d="M 2588 3344 
+      <path id="SciMixSerif-Regular-bcc" d="M 2588 3344 
 Q 2588 3800 2563 4256 
 Q 2813 4231 3063 4256 
 Q 3038 3800 3038 3344 
@@ -5234,7 +5316,7 @@ Q 1563 4688 2038 4188
 L 1594 3913 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a6f" d="M 3994 -769 
+      <path id="SciMixSerif-Regular-a75" d="M 3994 -769 
 Q 3769 -744 3538 -769 
 Q 3556 -344 3556 81 
 L 3556 1469 
@@ -5324,7 +5406,7 @@ Q 1425 4469 1556 5050
 Q 1769 4963 2019 4925 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c2e" d="M 4000 -6 
+      <path id="SciMixSerif-Regular-c55" d="M 4000 -6 
 Q 4000 -125 4056 -212 
 Q 4113 -300 4206 -300 
 L 5531 -294 
@@ -5417,10 +5499,10 @@ L 2444 944
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-bd8"/>
-     <use xlink:href="#SciMixSerif-Regular-bae" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a6f" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c2e" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf9"/>
+     <use xlink:href="#SciMixSerif-Regular-bcc" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a75" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c55" transform="translate(300 0)"/>
     </g>
    </g>
    <g id="text_10">
@@ -5471,9 +5553,9 @@ z
      <use xlink:href="#SciMixSerif-Italic-f" transform="translate(116.558698 0.765625)"/>
      <use xlink:href="#SciMixSerif-Italic-28" transform="translate(156.002057 0.765625)"/>
      <use xlink:href="#SciMixSerif-Regular-25" transform="translate(223.57599 32.9) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc6" transform="translate(272.560755 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd8" transform="translate(372.560755 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c95" transform="translate(472.560755 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfb" transform="translate(272.560755 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf9" transform="translate(372.560755 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cc7" transform="translate(472.560755 0.765625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(572.560755 0.765625)"/>
      <use xlink:href="#SciMixSerif-Italic-36" transform="translate(597.560755 0.765625)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(647.560755 -13.00625) scale(0.7)"/>
@@ -5561,7 +5643,7 @@ Q 2150 1291 2204 1156
 Q 2259 1022 2259 825 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a46" d="M 6138 75 
+      <path id="SciMixSerif-Regular-a49" d="M 6138 75 
 Q 6113 -144 6138 -363 
 Q 5738 -338 5338 -338 
 L 913 -338 
@@ -5594,7 +5676,7 @@ L 1925 1706
 L 3750 1706 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b66" d="M 4144 163 
+      <path id="SciMixSerif-Regular-b82" d="M 4144 163 
 Q 4144 -300 4163 -763 
 Q 3913 -738 3663 -763 
 Q 3682 -300 3682 163 
@@ -5673,59 +5755,32 @@ z
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(245.596094 -36.835938) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(280.596094 -36.835938) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(307.837305 -36.835938) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc4" transform="translate(336.070807 0.0125)"/>
-     <use xlink:href="#SciMixSerif-Regular-a46" transform="translate(436.070807 0.0125)"/>
-     <use xlink:href="#SciMixSerif-Regular-b66" transform="translate(536.070807 0.0125)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf9" transform="translate(336.070807 0.0125)"/>
+     <use xlink:href="#SciMixSerif-Regular-a49" transform="translate(436.070807 0.0125)"/>
+     <use xlink:href="#SciMixSerif-Regular-b82" transform="translate(536.070807 0.0125)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(636.070807 0.0125)"/>
      <use xlink:href="#SciMixSerif-Italic-45" transform="translate(661.070807 0.0125)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(711.070807 -13.759375) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(746.070807 -13.759375) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(773.312018 -13.759375) scale(0.7)"/>
     </g>
-    <!-- （式11–12） -->
+    <!-- （式20–23） -->
     <g transform="translate(31.773622 271.95249) scale(0.07 -0.07)">
-     <defs>
-      <path id="SciMixSerif-Regular-15" d="M 2847 0 
-L 281 0 
-L 281 459 
-L 863 988 
-Q 1422 1478 1684 1781 
-Q 1947 2084 2061 2406 
-Q 2175 2728 2175 3144 
-Q 2175 3550 1990 3762 
-Q 1806 3975 1388 3975 
-Q 1222 3975 1047 3929 
-Q 872 3884 738 3809 
-L 628 3297 
-L 422 3297 
-L 422 4103 
-Q 991 4238 1388 4238 
-Q 2075 4238 2420 3952 
-Q 2766 3666 2766 3144 
-Q 2766 2794 2630 2483 
-Q 2494 2172 2212 1864 
-Q 1931 1556 1281 1003 
-Q 1003 766 691 481 
-L 2847 481 
-L 2847 0 
-z
-" transform="scale(0.015625)"/>
-     </defs>
-     <use xlink:href="#SciMixSerif-Regular-cc2"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(250 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-13" transform="translate(250 0)"/>
      <use xlink:href="#SciMixSerif-Regular-7df" transform="translate(300 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(350 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(400 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(450 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(350 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-16" transform="translate(400 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(450 0)"/>
     </g>
    </g>
    <g id="text_11">
     <!-- 交流母线 -->
     <g style="fill: #3c5488" transform="translate(102.220472 63.857037) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-a47" d="M 6050 -494 
+      <path id="SciMixSerif-Regular-a4a" d="M 6050 -494 
 Q 5882 -706 5894 -981 
 Q 5132 -1006 4413 -715 
 Q 3694 -425 3119 163 
@@ -5776,7 +5831,7 @@ Q 3200 4981 3644 4456
 L 3263 4138 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bb4" d="M 5332 -663 
+      <path id="SciMixSerif-Regular-bd4" d="M 5332 -663 
 Q 5025 -663 4859 -484 
 Q 4694 -306 4694 -31 
 L 4694 1319 
@@ -5872,7 +5927,7 @@ Q 1432 4688 1863 4188
 L 1457 3913 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-ba5" d="M 3175 1019 
+      <path id="SciMixSerif-Regular-bc3" d="M 3175 1019 
 Q 2838 1606 2413 2144 
 L 2813 2456 
 Q 3256 1894 3613 1269 
@@ -5931,7 +5986,7 @@ L 4294 813
 L 4450 2538 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c15" d="M 5350 4444 
+      <path id="SciMixSerif-Regular-c3a" d="M 5350 4444 
 L 5013 4094 
 L 4332 4763 
 L 4669 5106 
@@ -6015,18 +6070,18 @@ Q 1388 5006 1432 5131
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-a47"/>
-     <use xlink:href="#SciMixSerif-Regular-bb4" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-ba5" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c15" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a4a"/>
+     <use xlink:href="#SciMixSerif-Regular-bd4" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bc3" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c3a" transform="translate(300 0)"/>
     </g>
-    <!-- （式13） -->
+    <!-- （式25） -->
     <g style="fill: #3c5488" transform="translate(102.220472 71.888991) scale(0.07 -0.07)">
-     <use xlink:href="#SciMixSerif-Regular-cc2"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-16" transform="translate(250 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-18" transform="translate(250 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(300 0)"/>
     </g>
    </g>
    <g id="text_12">
@@ -6073,7 +6128,7 @@ z
     <!-- 计算任务 -->
     <g transform="translate(182.007874 54.923484) scale(0.075 -0.075)">
      <defs>
-      <path id="SciMixSerif-Regular-c4e" d="M 4569 -769 
+      <path id="SciMixSerif-Regular-c77" d="M 4569 -769 
 Q 4313 -738 4056 -769 
 Q 4081 -294 4081 175 
 L 4081 2806 
@@ -6118,7 +6173,7 @@ Q 1488 4769 1869 4194
 L 1450 3913 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c05" d="M 4419 -800 
+      <path id="SciMixSerif-Regular-c29" d="M 4419 -800 
 Q 4194 -781 3969 -800 
 Q 3988 -388 3988 31 
 L 3988 413 
@@ -6208,7 +6263,7 @@ Q 719 4025 1138 4713
 L 1425 5213 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a52" d="M 5981 -113 
+      <path id="SciMixSerif-Regular-a56" d="M 5981 -113 
 Q 5963 -306 5981 -506 
 Q 5619 -488 5256 -488 
 L 3056 -488 
@@ -6255,7 +6310,7 @@ Q 1619 4394 1788 5056
 Q 2038 4963 2325 4919 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a9e" d="M 4113 -113 
+      <path id="SciMixSerif-Regular-aa7" d="M 4113 -113 
 L 4113 1413 
 L 3038 1413 
 Q 2819 644 2309 65 
@@ -6306,17 +6361,17 @@ Q 2725 3663 3157 3313
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-c4e"/>
-     <use xlink:href="#SciMixSerif-Regular-c05" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a52" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a9e" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c77"/>
+     <use xlink:href="#SciMixSerif-Regular-c29" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a56" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-aa7" transform="translate(300 0)"/>
     </g>
    </g>
    <g id="text_16">
-    <!-- 实时：$U^{\mathrm{R}}_{dst}=A^{\mathrm{R}}_{dst}$（式2） -->
-    <g transform="translate(162.423874 66.47521) scale(0.066 -0.066)">
+    <!-- 实时：$U^{\mathrm{R}}_{dst}=A^{\mathrm{R}}_{dst}$（式4） -->
+    <g transform="translate(164.519874 66.655428) scale(0.062 -0.062)">
      <defs>
-      <path id="SciMixSerif-Regular-afb" d="M 1025 1175 
+      <path id="SciMixSerif-Regular-b0e" d="M 1025 1175 
 Q 694 1175 356 1163 
 Q 375 1344 356 1525 
 Q 694 1506 1025 1506 
@@ -6371,7 +6426,7 @@ L 919 4013
 L 919 3156 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-cc5" d="M 3556 2525 
+      <path id="SciMixSerif-Regular-cfa" d="M 3556 2525 
 L 2844 2525 
 L 2844 3250 
 L 3556 3250 
@@ -6411,9 +6466,9 @@ L 4059 3944
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-afb" transform="translate(0 0.421875)"/>
-     <use xlink:href="#SciMixSerif-Regular-b6f" transform="translate(100 0.421875)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc5" transform="translate(200 0.421875)"/>
+     <use xlink:href="#SciMixSerif-Regular-b0e" transform="translate(0 0.421875)"/>
+     <use xlink:href="#SciMixSerif-Regular-b8b" transform="translate(100 0.421875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfa" transform="translate(200 0.421875)"/>
      <use xlink:href="#SciMixSerif-Italic-38" transform="translate(300 0.421875)"/>
      <use xlink:href="#SciMixSerif-Regular-35" transform="translate(378.706745 37.146875) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(372.216797 -36.426562) scale(0.7)"/>
@@ -6425,15 +6480,15 @@ z
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(613.652734 -36.426562) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(648.652734 -36.426562) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(675.893945 -36.426562) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(697.6375 0.421875)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(797.6375 0.421875)"/>
-     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(897.6375 0.421875)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(947.6375 0.421875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(697.6375 0.421875)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(797.6375 0.421875)"/>
+     <use xlink:href="#SciMixSerif-Regular-17" transform="translate(897.6375 0.421875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(947.6375 0.421875)"/>
     </g>
-    <!-- 延期：$A^{\mathrm{B}}_{dst}\!\rightarrow\!B_{dst}\!\rightarrow\!U^{\mathrm{B}}_{dst}$，期限 $D$（式2–3） -->
-    <g transform="translate(137.475874 75.458428) scale(0.066 -0.066)">
+    <!-- 延期：$A^{\mathrm{B}}_{dst}\!\rightarrow\!B_{dst}\!\rightarrow\!U^{\mathrm{B}}_{dst}$，期限 $D$（式5–6） -->
+    <g transform="translate(141.083874 75.09421) scale(0.062 -0.062)">
      <defs>
-      <path id="SciMixSerif-Regular-b1c" d="M 1031 4563 
+      <path id="SciMixSerif-Regular-b32" d="M 1031 4563 
 Q 669 4563 306 4550 
 Q 325 4744 306 4944 
 Q 669 4925 1031 4925 
@@ -6486,7 +6541,7 @@ L 3956 1169
 L 3956 4563 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b7f" d="M 5469 94 
+      <path id="SciMixSerif-Regular-b9b" d="M 5469 94 
 L 5469 1463 
 L 4363 1463 
 Q 4269 0 3294 -750 
@@ -6644,9 +6699,9 @@ L 2450 4191
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-b1c" transform="translate(0 0.228125)"/>
-     <use xlink:href="#SciMixSerif-Regular-b7f" transform="translate(100 0.228125)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc5" transform="translate(200 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-b32" transform="translate(0 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-b9b" transform="translate(100 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfa" transform="translate(200 0.228125)"/>
      <use xlink:href="#SciMixSerif-Italic-24" transform="translate(300 0.228125)"/>
      <use xlink:href="#SciMixSerif-Regular-25" transform="translate(367.648307 37.160938) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(361.083984 -36.620312) scale(0.7)"/>
@@ -6663,22 +6718,22 @@ z
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(871.98224 -36.620312) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(906.98224 -36.620312) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(934.223451 -36.620312) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc4" transform="translate(955.967006 0.228125)"/>
-     <use xlink:href="#SciMixSerif-Regular-b7f" transform="translate(1055.967006 0.228125)"/>
-     <use xlink:href="#SciMixSerif-Regular-ca6" transform="translate(1155.967006 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf9" transform="translate(955.967006 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-b9b" transform="translate(1055.967006 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-cd8" transform="translate(1155.967006 0.228125)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(1255.967006 0.228125)"/>
      <use xlink:href="#SciMixSerif-Italic-27" transform="translate(1280.967006 0.228125)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(1353.183803 0.228125)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(1453.183803 0.228125)"/>
-     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(1553.183803 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(1353.183803 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(1453.183803 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-18" transform="translate(1553.183803 0.228125)"/>
      <use xlink:href="#SciMixSerif-Regular-7df" transform="translate(1603.183803 0.228125)"/>
-     <use xlink:href="#SciMixSerif-Regular-16" transform="translate(1653.183803 0.228125)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(1703.183803 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-19" transform="translate(1653.183803 0.228125)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(1703.183803 0.228125)"/>
     </g>
    </g>
    <g id="text_17">
-    <!-- GPU 集群（式1） -->
-    <g transform="translate(166.005999 100.680236) scale(0.08 -0.08)">
+    <!-- GPU 集群（式1–3） -->
+    <g transform="translate(162.005999 100.680236) scale(0.08 -0.08)">
      <defs>
       <path id="SciMixSerif-Regular-2a" d="M 4013 219 
 Q 3650 100 3259 18 
@@ -6732,7 +6787,7 @@ Q 3622 856 3622 1416
 L 3622 3944 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-cac" d="M 3388 81 
+      <path id="SciMixSerif-Regular-cde" d="M 3388 81 
 Q 3388 -344 3406 -769 
 Q 3181 -744 2950 -769 
 Q 2969 -344 2969 81 
@@ -6827,7 +6882,7 @@ Q 1800 3444 2031 3444
 L 3106 3444 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c28" d="M 4769 -769 
+      <path id="SciMixSerif-Regular-c4e" d="M 4769 -769 
 Q 4544 -744 4313 -769 
 Q 4338 -350 4338 75 
 L 4338 813 
@@ -6938,12 +6993,14 @@ z
      <use xlink:href="#SciMixSerif-Regular-33" transform="translate(72.21875 0)"/>
      <use xlink:href="#SciMixSerif-Regular-38" transform="translate(127.828125 0)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(200.046875 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-cac" transform="translate(225.046875 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c28" transform="translate(325.046875 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(425.046875 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(525.046875 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cde" transform="translate(225.046875 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c4e" transform="translate(325.046875 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(425.046875 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(525.046875 0)"/>
      <use xlink:href="#SciMixSerif-Regular-14" transform="translate(625.046875 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(675.046875 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-7df" transform="translate(675.046875 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-16" transform="translate(725.046875 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(775.046875 0)"/>
     </g>
    </g>
    <g id="text_18">
@@ -6987,7 +7044,7 @@ L 2372 4225
 L 1669 250 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b91" d="M 6031 500 
+      <path id="SciMixSerif-Regular-bae" d="M 6031 500 
 L 5613 275 
 L 5044 1269 
 L 4450 2225 
@@ -7063,7 +7120,7 @@ L 1419 2438
 Q 963 1144 419 263 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bf4" d="M 3250 2419 
+      <path id="SciMixSerif-Regular-c18" d="M 3250 2419 
 Q 3469 2325 3700 2275 
 Q 3344 1113 2413 -125 
 Q 2257 38 2038 81 
@@ -7145,8 +7202,8 @@ z
      <use xlink:href="#SciMixSerif-Italic-4e" transform="translate(0 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-14" transform="translate(44.384766 -13.63125) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(81.680078 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b91" transform="translate(106.680078 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-bf4" transform="translate(206.680078 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-bae" transform="translate(106.680078 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-c18" transform="translate(206.680078 0.140625)"/>
     </g>
    </g>
    <g id="text_19">
@@ -7178,7 +7235,7 @@ L 2650 481
 L 2566 0 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bb5" d="M 5169 4394 
+      <path id="SciMixSerif-Regular-bd5" d="M 5169 4394 
 L 4800 4081 
 L 4200 4781 
 L 4569 5094 
@@ -7244,7 +7301,7 @@ Q 1550 4688 2019 4188
 L 1581 3913 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c97" d="M 6212 -575 
+      <path id="SciMixSerif-Regular-cca" d="M 6212 -575 
 L 5931 -944 
 L 5119 -356 
 L 4294 188 
@@ -7336,7 +7393,7 @@ Q 181 2538 431 3013
 Q 894 3906 1056 5044 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-cb7" d="M 2025 975 
+      <path id="SciMixSerif-Regular-ceb" d="M 2025 975 
 Q 2357 1563 2557 2269 
 Q 2788 2175 3038 2138 
 Q 2694 1100 2006 275 
@@ -7429,9 +7486,9 @@ z
      <use xlink:href="#SciMixSerif-Italic-4e" transform="translate(0 0.875)"/>
      <use xlink:href="#SciMixSerif-Italic-15" transform="translate(44.384766 -12.896875) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(81.680078 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-bb5" transform="translate(106.680078 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-c97" transform="translate(206.680078 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-cb7" transform="translate(306.680078 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-bd5" transform="translate(106.680078 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cca" transform="translate(206.680078 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-ceb" transform="translate(306.680078 0.875)"/>
     </g>
    </g>
    <g id="text_20">
@@ -7473,7 +7530,7 @@ Q 2803 656 2343 296
 Q 1884 -63 1116 -63 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bbb" d="M 2719 1794 
+      <path id="SciMixSerif-Regular-bdb" d="M 2719 1794 
 Q 2419 1794 2119 1781 
 Q 2138 1944 2119 2106 
 Q 2419 2094 2719 2094 
@@ -7546,7 +7603,7 @@ Q 1400 4688 1819 4188
 L 1425 3913 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a4a" d="M 3819 956 
+      <path id="SciMixSerif-Regular-a4d" d="M 3819 956 
 Q 2906 2231 2706 4175 
 Q 2613 4169 2513 4163 
 Q 2531 4381 2513 4600 
@@ -7586,20 +7643,20 @@ z
      <use xlink:href="#SciMixSerif-Italic-4e" transform="translate(0 0.84375)"/>
      <use xlink:href="#SciMixSerif-Italic-16" transform="translate(44.384766 -12.928125) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(81.680078 0.84375)"/>
-     <use xlink:href="#SciMixSerif-Regular-bbb" transform="translate(106.680078 0.84375)"/>
-     <use xlink:href="#SciMixSerif-Regular-c97" transform="translate(206.680078 0.84375)"/>
-     <use xlink:href="#SciMixSerif-Regular-cb7" transform="translate(306.680078 0.84375)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(406.680078 0.84375)"/>
-     <use xlink:href="#SciMixSerif-Regular-a4a" transform="translate(506.680078 0.84375)"/>
+     <use xlink:href="#SciMixSerif-Regular-bdb" transform="translate(106.680078 0.84375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cca" transform="translate(206.680078 0.84375)"/>
+     <use xlink:href="#SciMixSerif-Regular-ceb" transform="translate(306.680078 0.84375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(406.680078 0.84375)"/>
+     <use xlink:href="#SciMixSerif-Regular-a4d" transform="translate(506.680078 0.84375)"/>
      <use xlink:href="#SciMixSerif-Regular-25" transform="translate(606.680078 0.84375)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(673.379297 0.84375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(673.379297 0.84375)"/>
     </g>
    </g>
    <g id="text_21">
     <!-- 配置 $N$；模式分配 $m_{rkdst}$（$v_{rk},p_{rk}$） -->
     <g transform="translate(144.962874 174.501526) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-c91" d="M 4394 -669 
+      <path id="SciMixSerif-Regular-cc3" d="M 4394 -669 
 Q 4088 -669 3922 -487 
 Q 3757 -306 3757 -31 
 L 3757 2975 
@@ -7686,7 +7743,7 @@ L 1663 3888
 L 1925 3888 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c26" d="M 6125 -244 
+      <path id="SciMixSerif-Regular-c4c" d="M 6125 -244 
 Q 6113 -381 6125 -525 
 Q 5869 -513 5607 -513 
 L 632 -513 
@@ -7767,7 +7824,7 @@ Q 763 4581 688 5175
 L 5657 5175 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b9e" d="M 2875 756 
+      <path id="SciMixSerif-Regular-bbc" d="M 2875 756 
 Q 2594 756 2319 744 
 Q 2338 894 2319 1044 
 Q 2594 1031 2875 1031 
@@ -7973,15 +8030,15 @@ L 803 334
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-c91" transform="translate(0 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-c26" transform="translate(100 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(0 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-c4c" transform="translate(100 0.875)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(200 0.875)"/>
      <use xlink:href="#SciMixSerif-Italic-31" transform="translate(225 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc6" transform="translate(291.699219 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-b9e" transform="translate(391.699219 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(491.699219 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-a8b" transform="translate(591.699219 0.875)"/>
-     <use xlink:href="#SciMixSerif-Regular-c91" transform="translate(691.699219 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfb" transform="translate(291.699219 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-bbc" transform="translate(391.699219 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(491.699219 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-a93" transform="translate(591.699219 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(691.699219 0.875)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(791.699219 0.875)"/>
      <use xlink:href="#SciMixSerif-Italic-50" transform="translate(816.699219 0.875)"/>
      <use xlink:href="#SciMixSerif-Italic-55" transform="translate(888.916016 -12.896875) scale(0.7)"/>
@@ -7989,7 +8046,7 @@ z
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(947.226562 -12.896875) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(982.226562 -12.896875) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(1009.467773 -12.896875) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(1031.211328 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(1031.211328 0.875)"/>
      <use xlink:href="#SciMixSerif-Italic-59" transform="translate(1131.211328 0.875)"/>
      <use xlink:href="#SciMixSerif-Italic-55" transform="translate(1175.596094 -12.896875) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-4e" transform="translate(1202.837305 -12.896875) scale(0.7)"/>
@@ -7997,12 +8054,12 @@ z
      <use xlink:href="#SciMixSerif-Italic-53" transform="translate(1275.645312 0.875)"/>
      <use xlink:href="#SciMixSerif-Italic-55" transform="translate(1325.645312 -12.896875) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-4e" transform="translate(1352.886523 -12.896875) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(1386.251172 0.875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(1386.251172 0.875)"/>
     </g>
     <!-- 休眠功率 $p^{\mathrm{sl}}$；IT功率 $P^{\mathrm{IT}}_{dst}$ -->
     <g transform="translate(158.752874 183.609182) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-a55" d="M 4138 144 
+      <path id="SciMixSerif-Regular-a59" d="M 4138 144 
 Q 4138 -313 4163 -769 
 Q 3913 -744 3663 -769 
 Q 3688 -313 3688 144 
@@ -8047,7 +8104,7 @@ Q 1506 4469 1638 5050
 Q 1863 4963 2125 4925 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-be7" d="M 4550 2750 
+      <path id="SciMixSerif-Regular-c09" d="M 4550 2750 
 L 4550 2344 
 L 5557 2344 
 Q 5863 2344 6175 2363 
@@ -8117,7 +8174,7 @@ L 1513 406
 L 1513 1444 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a9c" d="M 3813 2713 
+      <path id="SciMixSerif-Regular-aa5" d="M 3813 2713 
 L 3813 3406 
 L 3313 3406 
 Q 2931 3406 2550 3388 
@@ -8217,19 +8274,19 @@ L 984 0
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-a55" transform="translate(0 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-be7" transform="translate(100 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-a9c" transform="translate(200 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-bcf" transform="translate(300 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-a59" transform="translate(0 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-c09" transform="translate(100 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-aa5" transform="translate(200 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf0" transform="translate(300 0.234375)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(400 0.234375)"/>
      <use xlink:href="#SciMixSerif-Italic-53" transform="translate(425 0.234375)"/>
      <use xlink:href="#SciMixSerif-Regular-56" transform="translate(478.919635 32.36875) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-4f" transform="translate(506.160846 32.36875) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc6" transform="translate(527.904401 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfb" transform="translate(527.904401 0.234375)"/>
      <use xlink:href="#SciMixSerif-Regular-2c" transform="translate(627.904401 0.234375)"/>
      <use xlink:href="#SciMixSerif-Regular-37" transform="translate(661.205182 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-a9c" transform="translate(722.289167 0.234375)"/>
-     <use xlink:href="#SciMixSerif-Regular-bcf" transform="translate(822.289167 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-aa5" transform="translate(722.289167 0.234375)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf0" transform="translate(822.289167 0.234375)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(922.289167 0.234375)"/>
      <use xlink:href="#SciMixSerif-Italic-33" transform="translate(947.289167 0.234375)"/>
      <use xlink:href="#SciMixSerif-Regular-2c" transform="translate(1014.863099 36.959375) scale(0.7)"/>
@@ -8300,7 +8357,7 @@ z
     <!-- 空气侧散热 -->
     <g transform="translate(177.007874 234.081083) scale(0.08 -0.08)">
      <defs>
-      <path id="SciMixSerif-Regular-bfa" d="M 5838 -169 
+      <path id="SciMixSerif-Regular-c1e" d="M 5838 -169 
 Q 5819 -350 5838 -531 
 Q 5500 -513 5163 -513 
 L 1038 -513 
@@ -8354,7 +8411,7 @@ L 1069 3975
 L 1069 3194 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-ba9" d="M 5000 3644 
+      <path id="SciMixSerif-Regular-bc7" d="M 5000 3644 
 Q 4975 3425 5000 3213 
 Q 4600 3231 4200 3231 
 L 2419 3231 
@@ -8402,7 +8459,7 @@ Q 5257 13 5619 -175
 Q 5619 306 5594 788 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a64" d="M 5419 4113 
+      <path id="SciMixSerif-Regular-a69" d="M 5419 4113 
 Q 5419 4556 5394 5006 
 Q 5638 4981 5875 5006 
 Q 5856 4556 5856 4113 
@@ -8468,7 +8525,7 @@ Q 1363 4469 1481 5050
 Q 1688 4963 1925 4925 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b61" d="M 1044 2444 
+      <path id="SciMixSerif-Regular-b7c" d="M 1044 2444 
 L 1044 2413 
 L 2969 2413 
 L 2969 -194 
@@ -8559,7 +8616,7 @@ Q 5032 2181 5057 3419
 L 4257 3419 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bc5" d="M 1713 994 
+      <path id="SciMixSerif-Regular-be6" d="M 1713 994 
 Q 1494 681 850 681 
 Q 913 969 732 1206 
 Q 882 1181 1082 1178 
@@ -8652,11 +8709,11 @@ L 469 -819
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-bfa"/>
-     <use xlink:href="#SciMixSerif-Regular-ba9" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a64" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-b61" transform="translate(300 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bc5" transform="translate(400 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c1e"/>
+     <use xlink:href="#SciMixSerif-Regular-bc7" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a69" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-b7c" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-be6" transform="translate(400 0)"/>
     </g>
    </g>
    <g id="text_24">
@@ -8733,7 +8790,7 @@ Q 1963 2759 1606 2759
 Q 794 2759 794 1459 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c2a" d="M 4513 -669 
+      <path id="SciMixSerif-Regular-c51" d="M 4513 -669 
 Q 4200 -669 4037 -481 
 Q 3875 -294 3875 -6 
 L 3875 1338 
@@ -8872,21 +8929,21 @@ z
      <use xlink:href="#SciMixSerif-Italic-33" transform="translate(338.965234 0.796875)"/>
      <use xlink:href="#SciMixSerif-Regular-2c" transform="translate(406.539167 32.93125) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-37" transform="translate(429.849714 32.93125) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc4" transform="translate(474.903815 0.796875)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd8" transform="translate(574.903815 0.796875)"/>
-     <use xlink:href="#SciMixSerif-Regular-c2a" transform="translate(674.903815 0.796875)"/>
-     <use xlink:href="#SciMixSerif-Regular-c0b" transform="translate(774.903815 0.796875)"/>
-     <use xlink:href="#SciMixSerif-Regular-b62" transform="translate(874.903815 0.796875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf9" transform="translate(474.903815 0.796875)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf9" transform="translate(574.903815 0.796875)"/>
+     <use xlink:href="#SciMixSerif-Regular-c51" transform="translate(674.903815 0.796875)"/>
+     <use xlink:href="#SciMixSerif-Regular-c31" transform="translate(774.903815 0.796875)"/>
+     <use xlink:href="#SciMixSerif-Regular-b7d" transform="translate(874.903815 0.796875)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(974.903815 0.796875)"/>
      <use xlink:href="#SciMixSerif-Italic-44" transform="translate(999.903815 0.796875)"/>
      <use xlink:href="#SciMixSerif-Regular-44" transform="translate(1053.816888 32.93125) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-4c" transform="translate(1084.886224 32.93125) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-55" transform="translate(1104.334466 32.93125) scale(0.7)"/>
     </g>
-    <!-- （电耗计入 $\kappa_{\mathrm{aux}}$，式13） -->
+    <!-- （电耗计入 $\kappa_{\mathrm{aux}}$，式18） -->
     <g transform="translate(159.312874 262.226938) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-a77" d="M 6169 -456 
+      <path id="SciMixSerif-Regular-a7d" d="M 6169 -456 
 Q 5894 -575 5757 -844 
 Q 4350 -181 3950 1494 
 Q 3825 2000 3716 2537 
@@ -8910,21 +8967,21 @@ Q 5219 -31 6169 -456
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(0 0.59375)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd8" transform="translate(100 0.59375)"/>
-     <use xlink:href="#SciMixSerif-Regular-c2a" transform="translate(200 0.59375)"/>
-     <use xlink:href="#SciMixSerif-Regular-c4e" transform="translate(300 0.59375)"/>
-     <use xlink:href="#SciMixSerif-Regular-a77" transform="translate(400 0.59375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(0 0.59375)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf9" transform="translate(100 0.59375)"/>
+     <use xlink:href="#SciMixSerif-Regular-c51" transform="translate(200 0.59375)"/>
+     <use xlink:href="#SciMixSerif-Regular-c77" transform="translate(300 0.59375)"/>
+     <use xlink:href="#SciMixSerif-Regular-a7d" transform="translate(400 0.59375)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(500 0.59375)"/>
      <use xlink:href="#SciMixSerif-Italic-36c" transform="translate(525 0.59375)"/>
      <use xlink:href="#SciMixSerif-Regular-44" transform="translate(572.998047 -13.178125) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-58" transform="translate(604.067383 -13.178125) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-5b" transform="translate(639.067383 -13.178125) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc4" transform="translate(676.362695 0.59375)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(776.362695 0.59375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf9" transform="translate(676.362695 0.59375)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(776.362695 0.59375)"/>
      <use xlink:href="#SciMixSerif-Regular-14" transform="translate(876.362695 0.59375)"/>
-     <use xlink:href="#SciMixSerif-Regular-16" transform="translate(926.362695 0.59375)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(976.362695 0.59375)"/>
+     <use xlink:href="#SciMixSerif-Regular-1b" transform="translate(926.362695 0.59375)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(976.362695 0.59375)"/>
     </g>
    </g>
    <g id="text_25">
@@ -8947,7 +9004,7 @@ z
     <!-- 排至 -->
     <g style="fill: #c0392b" transform="translate(259.389764 249.256467) scale(0.065 -0.065)">
      <defs>
-      <path id="SciMixSerif-Regular-b52" d="M 6175 1125 
+      <path id="SciMixSerif-Regular-b6c" d="M 6175 1125 
 Q 6156 963 6175 800 
 Q 5875 813 5569 813 
 L 4825 813 
@@ -9034,7 +9091,7 @@ L 244 1294
 Q 194 1581 25 1769 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c31" d="M 6138 -6 
+      <path id="SciMixSerif-Regular-c59" d="M 6138 -6 
 Q 6113 -206 6138 -400 
 Q 5769 -388 5406 -388 
 L 844 -388 
@@ -9087,20 +9144,20 @@ Q 5769 -25 6138 -6
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-b52"/>
-     <use xlink:href="#SciMixSerif-Regular-c31" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-b6c"/>
+     <use xlink:href="#SciMixSerif-Regular-c59" transform="translate(100 0)"/>
     </g>
     <!-- 环境 -->
     <g style="fill: #c0392b" transform="translate(259.389764 256.683225) scale(0.065 -0.065)">
-     <use xlink:href="#SciMixSerif-Regular-bd0"/>
-     <use xlink:href="#SciMixSerif-Regular-ae1" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf1"/>
+     <use xlink:href="#SciMixSerif-Regular-af2" transform="translate(100 0)"/>
     </g>
    </g>
    <g id="text_27">
     <!-- 其他辅助负荷 $P^{\mathrm{0}}_{dst}$ -->
     <g transform="translate(170.022874 329.011575) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-a7b" d="M 5432 -869 
+      <path id="SciMixSerif-Regular-a82" d="M 5432 -869 
 Q 4675 -138 3713 288 
 L 3907 731 
 Q 4950 269 5769 -525 
@@ -9161,7 +9218,7 @@ L 2119 1069
 L 4050 1069 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a4c" d="M 3069 -694 
+      <path id="SciMixSerif-Regular-a50" d="M 3069 -694 
 Q 2813 -694 2603 -506 
 Q 2394 -319 2394 81 
 L 2394 2563 
@@ -9224,7 +9281,7 @@ Q 1394 4469 1519 5050
 Q 1725 4963 1969 4925 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c75" d="M 5569 4413 
+      <path id="SciMixSerif-Regular-ca4" d="M 5569 4413 
 L 5225 4100 
 L 4650 4725 
 L 4994 5044 
@@ -9339,7 +9396,7 @@ L 850 4400
 Q 969 4800 1069 5200 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-aa0" d="M 2338 -463 
+      <path id="SciMixSerif-Regular-aa9" d="M 2338 -463 
 Q 4113 575 4038 3350 
 Q 3294 3344 3038 3331 
 Q 3056 3525 3038 3713 
@@ -9397,12 +9454,12 @@ L 2238 1731
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-a7b" transform="translate(0 0.035938)"/>
-     <use xlink:href="#SciMixSerif-Regular-a4c" transform="translate(100 0.035938)"/>
-     <use xlink:href="#SciMixSerif-Regular-c75" transform="translate(200 0.035938)"/>
-     <use xlink:href="#SciMixSerif-Regular-aa0" transform="translate(300 0.035938)"/>
-     <use xlink:href="#SciMixSerif-Regular-c60" transform="translate(400 0.035938)"/>
-     <use xlink:href="#SciMixSerif-Regular-c3a" transform="translate(500 0.035938)"/>
+     <use xlink:href="#SciMixSerif-Regular-a82" transform="translate(0 0.035938)"/>
+     <use xlink:href="#SciMixSerif-Regular-a50" transform="translate(100 0.035938)"/>
+     <use xlink:href="#SciMixSerif-Regular-ca4" transform="translate(200 0.035938)"/>
+     <use xlink:href="#SciMixSerif-Regular-aa9" transform="translate(300 0.035938)"/>
+     <use xlink:href="#SciMixSerif-Regular-c8d" transform="translate(400 0.035938)"/>
+     <use xlink:href="#SciMixSerif-Regular-c63" transform="translate(500 0.035938)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(600 0.035938)"/>
      <use xlink:href="#SciMixSerif-Italic-33" transform="translate(625 0.035938)"/>
      <use xlink:href="#SciMixSerif-Regular-13" transform="translate(692.573932 37.45) scale(0.7)"/>
@@ -9412,10 +9469,10 @@ z
     </g>
    </g>
    <g id="text_28">
-    <!-- 液冷环路（式4–5） -->
-    <g transform="translate(357.181102 85.269685) scale(0.08 -0.08)">
+    <!-- 液冷环路（式7–10） -->
+    <g transform="translate(355.181102 85.269685) scale(0.08 -0.08)">
      <defs>
-      <path id="SciMixSerif-Regular-bba" d="M 2807 94 
+      <path id="SciMixSerif-Regular-bda" d="M 2807 94 
 Q 2807 -331 2825 -763 
 Q 2594 -738 2363 -763 
 Q 2382 -331 2382 94 
@@ -9492,7 +9549,7 @@ Q 1257 4688 1638 4188
 L 1282 3913 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a86" d="M 2944 1513 
+      <path id="SciMixSerif-Regular-a8d" d="M 2944 1513 
 Q 2594 1513 2250 1500 
 Q 2269 1688 2250 1875 
 Q 2594 1863 2944 1863 
@@ -9543,7 +9600,7 @@ Q 1006 4244 1431 3694
 L 1088 3375 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c6c" d="M 4544 2625 
+      <path id="SciMixSerif-Regular-c9b" d="M 4544 2625 
 Q 5075 1969 6107 1869 
 Q 5932 1694 5913 1444 
 Q 4938 1544 4282 2325 
@@ -9614,24 +9671,37 @@ L 2044 4594
 L 838 4594 
 z
 " transform="scale(0.015625)"/>
+      <path id="SciMixSerif-Regular-1a" d="M 628 3200 
+L 422 3200 
+L 422 4191 
+L 3016 4191 
+L 3016 3950 
+L 1147 0 
+L 744 0 
+L 2578 3713 
+L 738 3713 
+L 628 3200 
+z
+" transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-bba"/>
-     <use xlink:href="#SciMixSerif-Regular-a86" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd0" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c6c" transform="translate(300 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(400 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(500 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-17" transform="translate(600 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bda"/>
+     <use xlink:href="#SciMixSerif-Regular-a8d" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf1" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c9b" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(400 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(500 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-1a" transform="translate(600 0)"/>
      <use xlink:href="#SciMixSerif-Regular-7df" transform="translate(650 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-18" transform="translate(700 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(750 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(700 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-13" transform="translate(750 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(800 0)"/>
     </g>
    </g>
    <g id="text_29">
     <!-- 等效热容 $C_w$；等效温度 $T^w_{dst}$；温区选择 $u_{jdst}\in\{\mathrm{0,1}\}$ -->
     <g transform="translate(314.146102 102.274921) scale(0.07 -0.07)">
      <defs>
-      <path id="SciMixSerif-Regular-c02" d="M 1156 969 
+      <path id="SciMixSerif-Regular-c26" d="M 1156 969 
 Q 863 969 569 956 
 Q 588 1113 569 1275 
 Q 863 1256 1156 1256 
@@ -9719,7 +9789,7 @@ Q 719 4069 1138 4738
 L 1425 5219 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b5e" d="M 2844 219 
+      <path id="SciMixSerif-Regular-b79" d="M 2844 219 
 L 2519 -119 
 L 1900 450 
 Q 1638 -113 1275 -459 
@@ -9841,7 +9911,7 @@ Q 4222 2528 3963 2053
 L 2813 -63 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-aa3" d="M 4594 4238 
+      <path id="SciMixSerif-Regular-aad" d="M 4594 4238 
 Q 4819 4063 5075 3938 
 Q 4488 3106 3875 2419 
 Q 4669 1713 5388 931 
@@ -9868,7 +9938,7 @@ L 5369 5000
 Q 5700 5000 6025 5013 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c88" d="M 1263 2419 
+      <path id="SciMixSerif-Regular-cb8" d="M 1263 2419 
 L 738 2419 
 Q 425 2419 113 2400 
 Q 132 2569 113 2738 
@@ -9953,7 +10023,7 @@ Q 2550 2838 2800 2838
 L 3807 2838 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b49" d="M 4463 -775 
+      <path id="SciMixSerif-Regular-b63" d="M 4463 -775 
 Q 4219 -750 3975 -775 
 Q 4000 -331 4000 119 
 L 4000 469 
@@ -10158,29 +10228,29 @@ L 113 -856
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-c02" transform="translate(0 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b5e" transform="translate(100 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-bc5" transform="translate(200 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-afe" transform="translate(300 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-c26" transform="translate(0 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b79" transform="translate(100 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-be6" transform="translate(200 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b11" transform="translate(300 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(400 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-26" transform="translate(425 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-5a" transform="translate(491.699219 -13.63125) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc6" transform="translate(540.683984 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c02" transform="translate(640.683984 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b5e" transform="translate(740.683984 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-bbf" transform="translate(840.683984 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b1a" transform="translate(940.683984 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfb" transform="translate(540.683984 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-c26" transform="translate(640.683984 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b79" transform="translate(740.683984 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-bdf" transform="translate(840.683984 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b30" transform="translate(940.683984 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(1040.683984 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-37" transform="translate(1065.683984 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-5a" transform="translate(1127.789167 37.554688) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(1121.299219 -36.707812) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(1156.299219 -36.707812) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(1183.54043 -36.707812) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc6" transform="translate(1205.283984 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-bbf" transform="translate(1305.283984 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-aa3" transform="translate(1405.283984 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c88" transform="translate(1505.283984 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b49" transform="translate(1605.283984 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfb" transform="translate(1205.283984 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-bdf" transform="translate(1305.283984 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-aad" transform="translate(1405.283984 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cb8" transform="translate(1505.283984 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b63" transform="translate(1605.283984 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(1705.283984 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-58" transform="translate(1730.283984 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-4d" transform="translate(1780.283984 -13.63125) scale(0.7)"/>
@@ -10201,7 +10271,7 @@ L 339.307087 140.314961
 L 339.307087 123.307087 
 L 304.724409 123.307087 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #f7fbff; stroke: #888888; stroke-width: 0.5; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #f7fbff; stroke: #888888; stroke-width: 0.5; stroke-linejoin: miter"/>
    </g>
    <g id="patch_41">
     <path d="M 339.307087 140.314961 
@@ -10209,7 +10279,7 @@ L 373.889764 140.314961
 L 373.889764 123.307087 
 L 339.307087 123.307087 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #deebf7; stroke: #888888; stroke-width: 0.5; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #deebf7; stroke: #888888; stroke-width: 0.5; stroke-linejoin: miter"/>
    </g>
    <g id="patch_42">
     <path d="M 373.889764 140.314961 
@@ -10217,7 +10287,7 @@ L 408.472441 140.314961
 L 408.472441 123.307087 
 L 373.889764 123.307087 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #c6dbef; stroke: #888888; stroke-width: 0.5; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #c6dbef; stroke: #888888; stroke-width: 0.5; stroke-linejoin: miter"/>
    </g>
    <g id="patch_43">
     <path d="M 408.472441 140.314961 
@@ -10225,7 +10295,7 @@ L 443.055118 140.314961
 L 443.055118 123.307087 
 L 408.472441 123.307087 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #fdd0a2; stroke: #888888; stroke-width: 0.5; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #fdd0a2; stroke: #888888; stroke-width: 0.5; stroke-linejoin: miter"/>
    </g>
    <g id="patch_44">
     <path d="M 443.055118 140.314961 
@@ -10233,7 +10303,7 @@ L 477.637795 140.314961
 L 477.637795 123.307087 
 L 443.055118 123.307087 
 z
-" clip-path="url(#p99a1961f91)" style="fill: #fcbba1; stroke: #888888; stroke-width: 0.5; stroke-linejoin: miter"/>
+" clip-path="url(#p70fd26210f)" style="fill: #fcbba1; stroke: #888888; stroke-width: 0.5; stroke-linejoin: miter"/>
    </g>
    <g id="text_30">
     <!-- $j$ -->
@@ -10305,8 +10375,8 @@ Q 1388 3950 1388 4044
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-bbf" transform="translate(0 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-aa3" transform="translate(100 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-bdf" transform="translate(0 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-aad" transform="translate(100 0.765625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(200 0.765625)"/>
      <use xlink:href="#SciMixSerif-Italic-3e" transform="translate(225 0.765625)"/>
      <use xlink:href="#SciMixSerif-Italic-37" transform="translate(263.916016 0.765625)"/>
@@ -10336,10 +10406,10 @@ z
     </g>
    </g>
    <g id="text_32">
-    <!-- 热点约束：$\overline{T}_j+R^{\mathrm{th}}_{rk}h_{rk}\leq T^{\mathrm{chip,max}}$（式6） -->
-    <g transform="translate(334.163102 167.662772) scale(0.068 -0.068)">
+    <!-- 热点约束：$\overline{T}_j+R^{\mathrm{th}}_{rk}h_{rk}\leq T^{\mathrm{chip,max}}$（式11） -->
+    <g transform="translate(332.463102 167.662772) scale(0.068 -0.068)">
      <defs>
-      <path id="SciMixSerif-Regular-bc4" d="M 1457 913 
+      <path id="SciMixSerif-Regular-be5" d="M 1457 913 
 L 1025 913 
 L 1025 3113 
 L 2613 3113 
@@ -10391,7 +10461,7 @@ Q 1188 -369 869 -1063
 L 469 -788 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c11" d="M 4182 1319 
+      <path id="SciMixSerif-Regular-c36" d="M 4182 1319 
 Q 3788 1975 3319 2575 
 L 3713 2881 
 Q 4200 2256 4607 1569 
@@ -10449,7 +10519,7 @@ Q 788 3975 1225 4881
 Q 1282 5006 1325 5131 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b86" d="M 2775 1713 
+      <path id="SciMixSerif-Regular-ba2" d="M 2775 1713 
 L 1669 1713 
 L 1669 1331 
 L 1225 1331 
@@ -10629,11 +10699,11 @@ Q 2388 184 2388 1503
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-bc5" transform="translate(0 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-bc4" transform="translate(100 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c11" transform="translate(200 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b86" transform="translate(300 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc5" transform="translate(400 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-be6" transform="translate(0 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-be5" transform="translate(100 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-c36" transform="translate(200 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-ba2" transform="translate(300 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfa" transform="translate(400 0.765625)"/>
      <use xlink:href="#SciMixSerif-Italic-37" transform="translate(500 1.265625)"/>
      <use xlink:href="#SciMixSerif-Italic-4d" transform="translate(556.418594 -13.00625) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-e" transform="translate(592.605508 0.765625)"/>
@@ -10655,10 +10725,11 @@ z
      <use xlink:href="#SciMixSerif-Regular-50" transform="translate(1203.455326 32.9) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-44" transform="translate(1257.903568 32.9) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-5b" transform="translate(1288.972904 32.9) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(1326.268216 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(1426.268216 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-19" transform="translate(1526.268216 0.765625)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(1576.268216 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(1326.268216 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(1426.268216 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(1526.268216 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(1576.268216 0.765625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(1626.268216 0.765625)"/>
      <path d="M 500 84.75 
 L 500 91 
 L 555.615234 91 
@@ -10807,7 +10878,7 @@ z
     <!-- 模式门控 -->
     <g style="fill: #6e6e6e" transform="translate(261.143307 170.631456) scale(0.062 -0.062)">
      <defs>
-      <path id="SciMixSerif-Regular-c9b" d="M 5175 4244 
+      <path id="SciMixSerif-Regular-cce" d="M 5175 4244 
 L 3588 4244 
 Q 3169 4244 2750 4225 
 Q 2775 4456 2750 4681 
@@ -10839,7 +10910,7 @@ Q 1750 4888 2163 4288
 L 1731 3994 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b54" d="M 6100 -225 
+      <path id="SciMixSerif-Regular-b6e" d="M 6100 -225 
 Q 6088 -388 6100 -550 
 Q 5800 -538 5500 -538 
 L 2788 -538 
@@ -10923,24 +10994,25 @@ Q 194 1581 25 1769
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-b9e"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c9b" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-b54" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bbc"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cce" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-b6e" transform="translate(300 0)"/>
     </g>
-    <!-- （式7） -->
-    <g style="fill: #6e6e6e" transform="translate(262.693307 177.38219) scale(0.062 -0.062)">
-     <use xlink:href="#SciMixSerif-Regular-cc2"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-1a" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(250 0)"/>
+    <!-- （式12） -->
+    <g style="fill: #6e6e6e" transform="translate(261.143307 177.38219) scale(0.062 -0.062)">
+     <use xlink:href="#SciMixSerif-Regular-cf7"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(250 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(300 0)"/>
     </g>
    </g>
    <g id="text_36">
     <!-- 自然冷却 -->
     <g transform="translate(319.905512 218.318031) scale(0.08 -0.08)">
      <defs>
-      <path id="SciMixSerif-Regular-c30" d="M 1350 -769 
+      <path id="SciMixSerif-Regular-c58" d="M 1350 -769 
 Q 1106 -744 863 -769 
 Q 888 -313 888 138 
 L 888 4063 
@@ -10978,7 +11050,7 @@ L 4875 113
 L 4875 1088 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bc6" d="M 5681 3975 
+      <path id="SciMixSerif-Regular-be7" d="M 5681 3975 
 L 5344 3663 
 L 4525 4531 
 L 4863 4850 
@@ -11059,7 +11131,7 @@ Q 1194 -456 875 -1050
 L 475 -813 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-aab" d="M 5369 4281 
+      <path id="SciMixSerif-Regular-ab5" d="M 5369 4281 
 L 4256 4281 
 L 4263 138 
 Q 4263 -313 4288 -769 
@@ -11120,17 +11192,17 @@ Q 3031 2656 3381 2669
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-c30"/>
-     <use xlink:href="#SciMixSerif-Regular-bc6" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a86" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-aab" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c58"/>
+     <use xlink:href="#SciMixSerif-Regular-be7" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a8d" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-ab5" transform="translate(300 0)"/>
     </g>
    </g>
    <g id="text_37">
     <!-- 容量 $K^{\mathrm{FC}}$ -->
     <g transform="translate(322.747512 240.481397) scale(0.068 -0.068)">
-     <use xlink:href="#SciMixSerif-Regular-afe" transform="translate(0 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c95" transform="translate(100 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b11" transform="translate(0 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cc7" transform="translate(100 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(200 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-2e" transform="translate(225 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-29" transform="translate(298.189167 32.275) scale(0.7)"/>
@@ -11228,50 +11300,10 @@ L 237.202539 -46.064063
 z
 "/>
     </g>
-    <!-- 电耗 $a^{\mathrm{FC}}_{jdst}$（式8） -->
-    <g transform="translate(311.119512 257.734272) scale(0.068 -0.068)">
-     <defs>
-      <path id="SciMixSerif-Regular-1b" d="M 2828 3169 
-Q 2828 2825 2661 2586 
-Q 2494 2347 2209 2222 
-Q 2566 2091 2761 1811 
-Q 2956 1531 2956 1131 
-Q 2956 538 2622 237 
-Q 2288 -63 1581 -63 
-Q 244 -63 244 1131 
-Q 244 1547 444 1820 
-Q 644 2094 984 2222 
-Q 713 2347 542 2584 
-Q 372 2822 372 3169 
-Q 372 3688 689 3972 
-Q 1006 4256 1606 4256 
-Q 2188 4256 2508 3973 
-Q 2828 3691 2828 3169 
-z
-M 2394 1131 
-Q 2394 1631 2198 1856 
-Q 2003 2081 1581 2081 
-Q 1169 2081 987 1867 
-Q 806 1653 806 1131 
-Q 806 603 990 393 
-Q 1175 184 1581 184 
-Q 1997 184 2195 401 
-Q 2394 619 2394 1131 
-z
-M 2266 3169 
-Q 2266 3600 2097 3803 
-Q 1928 4006 1588 4006 
-Q 1256 4006 1095 3809 
-Q 934 3613 934 3169 
-Q 934 2734 1090 2545 
-Q 1247 2356 1588 2356 
-Q 1938 2356 2102 2548 
-Q 2266 2741 2266 3169 
-z
-" transform="scale(0.015625)"/>
-     </defs>
-     <use xlink:href="#SciMixSerif-Regular-bd8" transform="translate(0 0.232812)"/>
-     <use xlink:href="#SciMixSerif-Regular-c2a" transform="translate(100 0.232812)"/>
+    <!-- 电耗 $a^{\mathrm{FC}}_{jdst}$（式13–14,17） -->
+    <g transform="translate(300.069512 257.734272) scale(0.068 -0.068)">
+     <use xlink:href="#SciMixSerif-Regular-bf9" transform="translate(0 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-c51" transform="translate(100 0.232812)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(200 0.232812)"/>
      <use xlink:href="#SciMixSerif-Italic-44" transform="translate(225 0.232812)"/>
      <use xlink:href="#SciMixSerif-Regular-29" transform="translate(278.913073 37.646875) scale(0.7)"/>
@@ -11280,17 +11312,24 @@ z
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(294.448242 -36.615625) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(329.448242 -36.615625) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(356.689453 -36.615625) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(378.433008 0.232812)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(478.433008 0.232812)"/>
-     <use xlink:href="#SciMixSerif-Regular-1b" transform="translate(578.433008 0.232812)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(628.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(378.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(478.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(578.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-16" transform="translate(628.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-7df" transform="translate(678.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(728.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-17" transform="translate(778.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-f" transform="translate(828.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(853.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-1a" transform="translate(903.433008 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(953.433008 0.232812)"/>
     </g>
    </g>
    <g id="text_38">
     <!-- 机械制冷 -->
     <g transform="translate(430.456693 218.318031) scale(0.08 -0.08)">
      <defs>
-      <path id="SciMixSerif-Regular-b84" d="M 5938 -738 
+      <path id="SciMixSerif-Regular-ba0" d="M 5938 -738 
 L 5156 -738 
 Q 4713 -719 4563 -381 
 Q 4494 -231 4484 16 
@@ -11343,7 +11382,7 @@ Q 1081 1813 838 1338
 L 494 681 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b9a" d="M 5688 4388 
+      <path id="SciMixSerif-Regular-bb8" d="M 5688 4388 
 L 5344 4075 
 L 4644 4838 
 L 4988 5156 
@@ -11439,7 +11478,7 @@ Q 932 1813 725 1338
 L 425 681 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a95" d="M 50 3388 
+      <path id="SciMixSerif-Regular-a9e" d="M 50 3388 
 Q 632 4000 888 5050 
 Q 1119 4975 1363 4944 
 Q 1282 4531 1088 4138 
@@ -11518,17 +11557,17 @@ Q 4638 1200 4657 756
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-b84"/>
-     <use xlink:href="#SciMixSerif-Regular-b9a" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a95" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a86" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-ba0"/>
+     <use xlink:href="#SciMixSerif-Regular-bb8" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a9e" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a8d" transform="translate(300 0)"/>
     </g>
    </g>
    <g id="text_39">
     <!-- 容量 $K^{\mathrm{MC}}$ -->
     <g transform="translate(432.516693 240.481397) scale(0.068 -0.068)">
-     <use xlink:href="#SciMixSerif-Regular-afe" transform="translate(0 0.140625)"/>
-     <use xlink:href="#SciMixSerif-Regular-c95" transform="translate(100 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-b11" transform="translate(0 0.140625)"/>
+     <use xlink:href="#SciMixSerif-Regular-cc7" transform="translate(100 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(200 0.140625)"/>
      <use xlink:href="#SciMixSerif-Italic-2e" transform="translate(225 0.140625)"/>
      <use xlink:href="#SciMixSerif-Regular-30" transform="translate(298.189167 32.275) scale(0.7)"/>
@@ -11548,40 +11587,10 @@ z
      <use xlink:href="#SciMixSerif-Regular-30" transform="translate(322.10431 32.367187) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-26" transform="translate(384.345521 32.367187) scale(0.7)"/>
     </g>
-    <!-- 电耗 $a^{\mathrm{MC}}_{jdst}$（式9） -->
-    <g transform="translate(421.262693 257.734272) scale(0.068 -0.068)">
-     <defs>
-      <path id="SciMixSerif-Regular-1c" d="M 206 2913 
-Q 206 3544 559 3891 
-Q 913 4238 1556 4238 
-Q 2272 4238 2605 3722 
-Q 2938 3206 2938 2106 
-Q 2938 1053 2509 495 
-Q 2081 -63 1306 -63 
-Q 797 -63 372 44 
-L 372 769 
-L 575 769 
-L 684 319 
-Q 784 272 953 234 
-Q 1122 197 1294 197 
-Q 1794 197 2062 636 
-Q 2331 1075 2359 1928 
-Q 1884 1663 1394 1663 
-Q 841 1663 523 1992 
-Q 206 2322 206 2913 
-z
-M 1563 3988 
-Q 781 3988 781 2900 
-Q 781 2422 968 2194 
-Q 1156 1966 1550 1966 
-Q 1953 1966 2363 2131 
-Q 2363 3091 2173 3539 
-Q 1984 3988 1563 3988 
-z
-" transform="scale(0.015625)"/>
-     </defs>
-     <use xlink:href="#SciMixSerif-Regular-bd8" transform="translate(0 0.232812)"/>
-     <use xlink:href="#SciMixSerif-Regular-c2a" transform="translate(100 0.232812)"/>
+    <!-- 电耗 $a^{\mathrm{MC}}_{jdst}$（式15,17） -->
+    <g transform="translate(415.312693 257.734272) scale(0.068 -0.068)">
+     <use xlink:href="#SciMixSerif-Regular-bf9" transform="translate(0 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-c51" transform="translate(100 0.232812)"/>
      <use xlink:href="#SciMixSerif-Regular-3" transform="translate(200 0.232812)"/>
      <use xlink:href="#SciMixSerif-Italic-44" transform="translate(225 0.232812)"/>
      <use xlink:href="#SciMixSerif-Regular-30" transform="translate(278.913073 37.646875) scale(0.7)"/>
@@ -11590,10 +11599,14 @@ z
      <use xlink:href="#SciMixSerif-Italic-47" transform="translate(294.448242 -36.615625) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-56" transform="translate(329.448242 -36.615625) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-57" transform="translate(356.689453 -36.615625) scale(0.7)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(390.139049 0.232812)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(490.139049 0.232812)"/>
-     <use xlink:href="#SciMixSerif-Regular-1c" transform="translate(590.139049 0.232812)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(640.139049 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(390.139049 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(490.139049 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(590.139049 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-18" transform="translate(640.139049 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-f" transform="translate(690.139049 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(715.139049 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-1a" transform="translate(765.139049 0.232812)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(815.139049 0.232812)"/>
     </g>
    </g>
    <g id="text_40">
@@ -11624,7 +11637,7 @@ z
     <!-- 室外环境 -->
     <g transform="translate(393.342626 254.544882) rotate(-90) scale(0.068 -0.068)">
      <defs>
-      <path id="SciMixSerif-Regular-afc" d="M 6075 -113 
+      <path id="SciMixSerif-Regular-b0f" d="M 6075 -113 
 Q 6056 -288 6075 -463 
 Q 5750 -450 5425 -450 
 L 825 -450 
@@ -11694,10 +11707,10 @@ L 731 3338
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-afc"/>
-     <use xlink:href="#SciMixSerif-Regular-ae6" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd0" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-ae1" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-b0f"/>
+     <use xlink:href="#SciMixSerif-Regular-af8" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf1" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-af2" transform="translate(300 0)"/>
     </g>
    </g>
    <g id="text_43">
@@ -11814,7 +11827,7 @@ z
    </g>
    <g id="line2d_21">
     <defs>
-     <path id="m1aa0c3a91f" d="M 0 1.1 
+     <path id="m4ca0cd45c1" d="M 0 1.1 
 C 0.291723 1.1 0.571538 0.984097 0.777817 0.777817 
 C 0.984097 0.571538 1.1 0.291723 1.1 0 
 C 1.1 -0.291723 0.984097 -0.571538 0.777817 -0.777817 
@@ -11826,41 +11839,41 @@ C -0.571538 0.984097 -0.291723 1.1 0 1.1
 z
 " style="stroke: #3c5488"/>
     </defs>
-    <g clip-path="url(#p99a1961f91)">
-     <use xlink:href="#m1aa0c3a91f" x="311.811024" y="293.385827" style="fill: #3c5488; stroke: #3c5488"/>
+    <g clip-path="url(#p70fd26210f)">
+     <use xlink:href="#m4ca0cd45c1" x="311.811024" y="293.385827" style="fill: #3c5488; stroke: #3c5488"/>
     </g>
    </g>
    <g id="text_45">
     <!-- 电能流 -->
     <g transform="translate(308.409449 323.880526) scale(0.068 -0.068)">
-     <use xlink:href="#SciMixSerif-Regular-bd8"/>
-     <use xlink:href="#SciMixSerif-Regular-c2e" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bb4" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf9"/>
+     <use xlink:href="#SciMixSerif-Regular-c55" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bd4" transform="translate(200 0)"/>
     </g>
    </g>
    <g id="text_46">
     <!-- 热量流 -->
     <g transform="translate(353.76378 323.880526) scale(0.068 -0.068)">
-     <use xlink:href="#SciMixSerif-Regular-bc5"/>
-     <use xlink:href="#SciMixSerif-Regular-c95" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bb4" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-be6"/>
+     <use xlink:href="#SciMixSerif-Regular-cc7" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bd4" transform="translate(200 0)"/>
     </g>
    </g>
    <g id="text_47">
     <!-- 算力任务流 -->
     <g transform="translate(399.11811 323.880526) scale(0.068 -0.068)">
-     <use xlink:href="#SciMixSerif-Regular-c05"/>
-     <use xlink:href="#SciMixSerif-Regular-a9a" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a52" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a9e" transform="translate(300 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bb4" transform="translate(400 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c29"/>
+     <use xlink:href="#SciMixSerif-Regular-aa3" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a56" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-aa7" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bd4" transform="translate(400 0)"/>
     </g>
    </g>
    <g id="text_48">
     <!-- 信息/约束耦合 -->
     <g transform="translate(454.393701 323.790744) scale(0.068 -0.068)">
      <defs>
-      <path id="SciMixSerif-Regular-a66" d="M 3094 -769 
+      <path id="SciMixSerif-Regular-a6b" d="M 3094 -769 
 Q 2850 -744 2613 -769 
 Q 2638 -325 2638 113 
 L 2638 1325 
@@ -11927,7 +11940,7 @@ Q 1563 4469 1700 5050
 Q 1938 4963 2213 4925 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b35" d="M 1188 1500 
+      <path id="SciMixSerif-Regular-b4d" d="M 1188 1500 
 Q 1225 2281 1225 3065 
 Q 1225 3850 1188 4631 
 L 2269 4631 
@@ -11997,7 +12010,7 @@ Q 794 -25 369 -688
 L -56 -475 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-c2b" d="M 4213 1713 
+      <path id="SciMixSerif-Regular-c52" d="M 4213 1713 
 L 3207 1713 
 L 3207 69 
 Q 3207 -344 3225 -756 
@@ -12114,7 +12127,7 @@ L 1250 1131
 Q 857 519 325 125 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-ac1" d="M 3213 4825 
+      <path id="SciMixSerif-Regular-acf" d="M 3213 4825 
 Q 4044 3150 6100 2681 
 Q 5888 2513 5832 2250 
 Q 5269 2388 4725 2700 
@@ -12154,20 +12167,20 @@ L 4663 1281
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-a66"/>
-     <use xlink:href="#SciMixSerif-Regular-b35" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a6b"/>
+     <use xlink:href="#SciMixSerif-Regular-b4d" transform="translate(100 0)"/>
      <use xlink:href="#SciMixSerif-Regular-12" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c11" transform="translate(227.78125 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-b86" transform="translate(327.78125 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c2b" transform="translate(427.78125 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-ac1" transform="translate(527.78125 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c36" transform="translate(227.78125 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-ba2" transform="translate(327.78125 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c52" transform="translate(427.78125 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-acf" transform="translate(527.78125 0)"/>
     </g>
    </g>
    <g id="text_49">
     <!-- 注：$\kappa_{\mathrm{aux}}=\mathrm{1}+\delta_e+a^{\mathrm{circ}}\beta_{\mathrm{liq}}+a^{\mathrm{air}}(\mathrm{1}-\beta_{\mathrm{liq}})$， -->
     <g transform="translate(291.968504 337.157551) scale(0.064 -0.064)">
      <defs>
-      <path id="SciMixSerif-Regular-bb1" d="M 6163 -156 
+      <path id="SciMixSerif-Regular-bd0" d="M 6163 -156 
 Q 6144 -338 6163 -519 
 Q 5825 -506 5494 -506 
 L 2488 -506 
@@ -12264,8 +12277,8 @@ Q 1038 184 1341 184
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-bb1" transform="translate(0 0.421875)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc5" transform="translate(100 0.421875)"/>
+     <use xlink:href="#SciMixSerif-Regular-bd0" transform="translate(0 0.421875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cfa" transform="translate(100 0.421875)"/>
      <use xlink:href="#SciMixSerif-Italic-36c" transform="translate(200 0.421875)"/>
      <use xlink:href="#SciMixSerif-Regular-44" transform="translate(247.998047 -13.35) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-58" transform="translate(279.067383 -13.35) scale(0.7)"/>
@@ -12298,12 +12311,12 @@ z
      <use xlink:href="#SciMixSerif-Regular-4c" transform="translate(1532.740208 -13.35) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Regular-54" transform="translate(1552.188451 -13.35) scale(0.7)"/>
      <use xlink:href="#SciMixSerif-Italic-c" transform="translate(1589.483763 0.421875)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc4" transform="translate(1622.784544 0.421875)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf9" transform="translate(1622.784544 0.421875)"/>
     </g>
-    <!-- 含配电损耗、主循环泵与空气侧电耗（式13）。 -->
+    <!-- 含配电损耗、主循环泵与空气侧电耗（式17,18,25）。 -->
     <g transform="translate(291.968504 345.993551) scale(0.064 -0.064)">
      <defs>
-      <path id="SciMixSerif-Regular-ac7" d="M 1638 2469 
+      <path id="SciMixSerif-Regular-ad5" d="M 1638 2469 
 Q 1656 2656 1638 2844 
 Q 1988 2831 2338 2831 
 L 3488 2831 
@@ -12351,7 +12364,7 @@ L 4669 -138
 L 4669 1063 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b4f" d="M 4657 556 
+      <path id="SciMixSerif-Regular-b69" d="M 4657 556 
 Q 5500 81 6294 -481 
 L 6019 -863 
 Q 5250 -319 4425 150 
@@ -12424,7 +12437,7 @@ L 300 1294
 Q 238 1581 32 1769 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-a41" d="M 6138 44 
+      <path id="SciMixSerif-Regular-a42" d="M 6138 44 
 Q 6113 -163 6138 -369 
 Q 5756 -350 5375 -350 
 L 875 -350 
@@ -12465,7 +12478,7 @@ Q 3125 4950 3644 4375
 L 3269 4038 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-b2d" d="M 3731 -769 
+      <path id="SciMixSerif-Regular-b45" d="M 3731 -769 
 Q 3500 -744 3269 -769 
 Q 3294 -344 3294 81 
 L 3294 2619 
@@ -12544,7 +12557,7 @@ Q 681 3850 1119 4488
 Q 1319 4788 1500 5094 
 z
 " transform="scale(0.015625)"/>
-      <path id="SciMixSerif-Regular-bb2" d="M 1719 2500 
+      <path id="SciMixSerif-Regular-bd1" d="M 1719 2500 
 Q 1775 3019 1750 3456 
 Q 1088 3044 369 2875 
 Q 344 3144 163 3350 
@@ -12660,28 +12673,34 @@ Q 1819 -456 1819 0
 z
 " transform="scale(0.015625)"/>
      </defs>
-     <use xlink:href="#SciMixSerif-Regular-ac7"/>
-     <use xlink:href="#SciMixSerif-Regular-c91" transform="translate(100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd8" transform="translate(200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-b4f" transform="translate(300 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c2a" transform="translate(400 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-ad5"/>
+     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf9" transform="translate(200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-b69" transform="translate(300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c51" transform="translate(400 0)"/>
      <use xlink:href="#SciMixSerif-Regular-a2e" transform="translate(500 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a41" transform="translate(600 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-b2d" transform="translate(700 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd0" transform="translate(800 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bb2" transform="translate(900 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a42" transform="translate(600 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-b45" transform="translate(700 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf1" transform="translate(800 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bd1" transform="translate(900 0)"/>
      <use xlink:href="#SciMixSerif-Regular-a38" transform="translate(1000 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bfa" transform="translate(1100 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-ba9" transform="translate(1200 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a64" transform="translate(1300 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-bd8" transform="translate(1400 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-c2a" transform="translate(1500 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc2" transform="translate(1600 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-b20" transform="translate(1700 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c1e" transform="translate(1100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bc7" transform="translate(1200 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a69" transform="translate(1300 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-bf9" transform="translate(1400 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-c51" transform="translate(1500 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf7" transform="translate(1600 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-b36" transform="translate(1700 0)"/>
      <use xlink:href="#SciMixSerif-Regular-14" transform="translate(1800 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-16" transform="translate(1850 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-cc3" transform="translate(1900 0)"/>
-     <use xlink:href="#SciMixSerif-Regular-a2f" transform="translate(2000 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-1a" transform="translate(1850 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-f" transform="translate(1900 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-14" transform="translate(1925 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-1b" transform="translate(1975 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-f" transform="translate(2025 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-15" transform="translate(2050 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-18" transform="translate(2100 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-cf8" transform="translate(2150 0)"/>
+     <use xlink:href="#SciMixSerif-Regular-a2f" transform="translate(2250 0)"/>
     </g>
    </g>
    <g id="text_50">
@@ -12737,7 +12756,7 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="p99a1961f91">
+  <clipPath id="p70fd26210f">
    <rect x="0" y="0" width="498.897638" height="357.165354"/>
   </clipPath>
  </defs>

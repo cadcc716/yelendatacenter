@@ -1,6 +1,6 @@
 """
 论文示意图 (矢量 PDF/SVG + 600 dpi PNG):
-  F1 系统结构图 —— 电能流、热量流、算力任务流、信息/约束耦合, 模块与变量与式(1)–(18)一致
+  F1 系统结构图 —— 电能流、热量流、算力任务流、信息/约束耦合, 模块与变量与修订版式(1)–(32)一致
   F2 研究框架图 —— 研究问题 → 模型 → 方法 → 实验 → 输出
   F3 求解流程图 —— 数据输入 → 情景与模糊集 → 模型构建 → MILP 分支定界迭代与收敛判断 → 重调度/校验 → 输出
 坐标单位为 cm; 字体: 西文/公式 Times New Roman, 中文宋体 (plot_style 自动合并)。
@@ -70,28 +70,28 @@ def fig_system():
     fig, ax = canvas(W, H)
     # ---- 顶部: 外生情景与第一阶段容量 ----
     box(ax, 0.3, 11.15, 8.6, 1.2, "负荷 $A^{\\mathrm{R}}_{dst},A^{\\mathrm{B}}_{dst}$；光伏出力系数 $g^{\\mathrm{PV}}_{dst}$；"
-        "环境温度 $T_{\\mathrm{amb},dst}$\n有限支持情景 $s\\in𝒮_d$，概率 $\\boldsymbol{p}_d\\in𝒫_d$（式17）",
+        "环境温度 $T_{\\mathrm{amb},dst}$\n有限支持情景 $s\\in𝒮_d$，概率 $\\boldsymbol{p}_d\\in𝒫_d$（式30）",
         "信", title="外生不确定情景 $\\xi_{ds}$", fs=7)
     box(ax, 9.3, 11.15, 8.0, 1.2, "$\\boldsymbol{x}=(N,K^{\\mathrm{PV}},P^{\\mathrm{B}},E^{\\mathrm{B}},K^{\\mathrm{FC}},"
-        "K^{\\mathrm{MC}})$（式14–15）\n各设备框中对应容量变量；第二阶段运行量 $\\boldsymbol{y}_{ds}$（式1–13）",
+        "K^{\\mathrm{MC}})$（式26–28）\n各设备框中对应容量变量；第二阶段运行量 $\\boldsymbol{y}_{ds}$（式1–25）",
         "信", title="第一阶段容量决策", fs=7)
     # ---- 电源侧与母线 ----
-    box(ax, 0.3, 8.2, 3.0, 1.75, "$\\mathrm{0}\\leq P^{\\mathrm{grid}}_{dst}\\leq P^{\\mathrm{grid,max}}$\n分时电价 $c^{e}_{dt}$（式16）",
+    box(ax, 0.3, 8.2, 3.0, 1.75, "$\\mathrm{0}\\leq P^{\\mathrm{grid}}_{dst}\\leq P^{\\mathrm{grid,max}}$\n分时电价 $c^{e}_{dt}$（式24,29）",
         "电", title="外部电网", fs=7)
-    box(ax, 0.3, 5.55, 3.0, 1.75, "容量 $K^{\\mathrm{PV}}$\n$P^{\\mathrm{PV}}_{dst}\\leq K^{\\mathrm{PV}}g^{\\mathrm{PV}}_{dst}$（式10）",
+    box(ax, 0.3, 5.55, 3.0, 1.75, "容量 $K^{\\mathrm{PV}}$\n$P^{\\mathrm{PV}}_{dst}\\leq K^{\\mathrm{PV}}g^{\\mathrm{PV}}_{dst}$（式19）",
         "电", title="光伏", fs=7)
     box(ax, 0.3, 2.65, 3.0, 2.0, "$P^{\\mathrm{B}},E^{\\mathrm{B}}$；电量 $S_{dst}$\n$P^{\\mathrm{ch}}_{dst},P^{\\mathrm{dis}}_{dst}$，"
-        "互斥 $b_{dst}$\n（式11–12）", "电", title="电池储能", fs=7)
+        "互斥 $b_{dst}$\n（式20–23）", "电", title="电池储能", fs=7)
     ax.add_patch(Rectangle((4.0, 0.55), 0.2, 9.35, fc=EC["电"], ec="none", zorder=2))
-    ax.text(4.1, 10.0, "交流母线\n（式13）", ha="center", va="bottom", fontsize=7, color=EC["电"], linespacing=1.15)
+    ax.text(4.1, 10.0, "交流母线\n（式25）", ha="center", va="bottom", fontsize=7, color=EC["电"], linespacing=1.15)
     arrow(ax, [(3.3, 9.1), (4.0, 9.1)], "电", "$P^{\\mathrm{grid}}$", loff=(0, 0.08))
     arrow(ax, [(3.3, 6.4), (4.0, 6.4)], "电", "$P^{\\mathrm{PV}}$", loff=(0, 0.08))
     arrow(ax, [(3.3, 3.65), (4.0, 3.65)], "电", "$P^{\\mathrm{ch}}$/$P^{\\mathrm{dis}}$", loff=(0, -0.1), va="top", both=True, fs=6.2)
     # ---- 计算任务 → GPU 集群 ----
-    box(ax, 4.9, 9.75, 4.1, 1.25, "实时：$U^{\\mathrm{R}}_{dst}=A^{\\mathrm{R}}_{dst}$（式2）\n延期：$A^{\\mathrm{B}}_{dst}\\!\\rightarrow\\!B_{dst}"
-        "\\!\\rightarrow\\!U^{\\mathrm{B}}_{dst}$，期限 $D$（式2–3）", "算", title="计算任务", fs=6.6, tfs=7.5)
+    box(ax, 4.9, 9.75, 4.1, 1.25, "实时：$U^{\\mathrm{R}}_{dst}=A^{\\mathrm{R}}_{dst}$（式4）\n延期：$A^{\\mathrm{B}}_{dst}\\!\\rightarrow\\!B_{dst}"
+        "\\!\\rightarrow\\!U^{\\mathrm{B}}_{dst}$，期限 $D$（式5–6）", "算", title="计算任务", fs=6.2, tfs=7.5)
     arrow(ax, [(6.95, 9.75), (6.95, 9.4)], "算")
-    box(ax, 4.9, 5.55, 4.1, 3.85, "", "算", title="GPU 集群（式1）", )
+    box(ax, 4.9, 5.55, 4.1, 3.85, "", "算", title="GPU 集群（式1–3）", )
     for i, (nm, v) in enumerate([("$k_1$ 标称", "$v_{rk},p_{rk}$"), ("$k_2$ 浅锁频", ""), ("$k_3$ 深锁频（仅B）", "")]):
         box(ax, 5.15, 8.25 - i * 0.55, 3.6, 0.45, nm, "无", ec=EC["算"], fs=6.8, r=0.06, lw=0.6)
     ax.text(6.95, 6.35, "配置 $N$；模式分配 $m_{rkdst}$（$v_{rk},p_{rk}$）\n休眠功率 $p^{\\mathrm{sl}}$；IT功率 $P^{\\mathrm{IT}}_{dst}$",
@@ -99,7 +99,7 @@ def fig_system():
     arrow(ax, [(4.2, 7.55), (4.9, 7.55)], "电", "$\\kappa_{\\mathrm{aux}}P^{\\mathrm{IT}}$", loff=(0.02, 0.08), fs=6.6)
     # ---- 空气侧与其他辅助负荷 ----
     box(ax, 4.9, 2.95, 4.1, 1.75, "$(\\mathrm{1}-\\beta_{\\mathrm{liq}})P^{\\mathrm{IT}}$，电耗系数 $a^{\\mathrm{air}}$\n"
-        "（电耗计入 $\\kappa_{\\mathrm{aux}}$，式13）", "热", title="空气侧散热", fs=7)
+        "（电耗计入 $\\kappa_{\\mathrm{aux}}$，式18）", "热", title="空气侧散热", fs=7)
     arrow(ax, [(6.95, 5.55), (6.95, 4.7)], "热", "$(\\mathrm{1}-\\beta_{\\mathrm{liq}})P^{\\mathrm{IT}}$", loff=(0.1, -0.05),
           ha="left", va="center", fs=6.6)
     arrow(ax, [(9.0, 3.4), (9.75, 3.4)], "热")
@@ -107,7 +107,7 @@ def fig_system():
     box(ax, 4.9, 0.55, 4.1, 1.0, "其他辅助负荷 $P^{\\mathrm{0}}_{dst}$", "电", fs=7)
     arrow(ax, [(4.2, 1.05), (4.9, 1.05)], "电")
     # ---- 液冷环路 ----
-    box(ax, 10.3, 6.35, 7.0, 3.6, "", "热", title="液冷环路（式4–5）")
+    box(ax, 10.3, 6.35, 7.0, 3.6, "", "热", title="液冷环路（式7–10）")
     ax.text(13.8, 9.05, "等效热容 $C_w$；等效温度 $T^w_{dst}$；温区选择 $u_{jdst}\\in\\{\\mathrm{0,1}\\}$", ha="center", va="center",
             fontsize=7)
     zones = C.ZONES; x0, wz = 10.75, 6.1 / len(zones)
@@ -117,17 +117,17 @@ def fig_system():
         ax.text(x0 + (i + 0.5) * wz, 7.95, f"{lo:g}–{hi:g}", ha="center", va="center", fontsize=6.5, zorder=4)
     ax.text(x0 - 0.05, 7.95, "$j$", ha="right", va="center", fontsize=7)
     ax.text(13.8, 7.45, "温区 $[\\underline{T}_j,\\overline{T}_j]$ / ℃", ha="center", va="top", fontsize=6.5)
-    ax.text(13.8, 6.75, "热点约束：$\\overline{T}_j+R^{\\mathrm{th}}_{rk}h_{rk}\\leq T^{\\mathrm{chip,max}}$（式6）",
+    ax.text(13.8, 6.75, "热点约束：$\\overline{T}_j+R^{\\mathrm{th}}_{rk}h_{rk}\\leq T^{\\mathrm{chip,max}}$（式11）",
             ha="center", va="center", fontsize=6.8)
     arrow(ax, [(9.0, 9.0), (10.3, 9.0)], "热", "$\\beta_{\\mathrm{liq}}P^{\\mathrm{IT}}$", loff=(0, 0.08), fs=6.6)
     arrow(ax, [(10.3, 6.9), (9.0, 6.9)], "信", "$u_{jdst}\\!\\rightarrow\\!𝒥^{\\mathrm{safe}}_{rk}$",
           loff=(0, 0.1), fs=6.2)
-    ax.text(9.65, 6.78, "模式门控\n（式7）", ha="center", va="top", fontsize=6.2, color=EC["信"], linespacing=1.1)
+    ax.text(9.65, 6.78, "模式门控\n（式12）", ha="center", va="top", fontsize=6.2, color=EC["信"], linespacing=1.1)
     # ---- 冷源与环境 ----
     box(ax, 10.3, 2.95, 3.1, 2.3, "容量 $K^{\\mathrm{FC}}$\n$q^{\\mathrm{FC}}_{jdst}\\leq\\underline{\\phi}\\,_{jdst}K^{\\mathrm{FC}}$\n"
-        "电耗 $a^{\\mathrm{FC}}_{jdst}$（式8）", "热", title="自然冷却", fs=6.8)
+        "电耗 $a^{\\mathrm{FC}}_{jdst}$（式13–14,17）", "热", title="自然冷却", fs=6.8)
     box(ax, 14.2, 2.95, 3.1, 2.3, "容量 $K^{\\mathrm{MC}}$\n$q^{\\mathrm{MC}}_{jdst}\\leq K^{\\mathrm{MC}}$\n"
-        "电耗 $a^{\\mathrm{MC}}_{jdst}$（式9）", "热", title="机械制冷", fs=6.8)
+        "电耗 $a^{\\mathrm{MC}}_{jdst}$（式15,17）", "热", title="机械制冷", fs=6.8)
     arrow(ax, [(11.85, 6.35), (11.85, 5.25)], "热", "$q^{\\mathrm{FC}}_{jdst}$", loff=(0.08, 0), ha="left", va="center", fs=6.6)
     arrow(ax, [(15.75, 6.35), (15.75, 5.25)], "热", "$q^{\\mathrm{MC}}_{jdst}$", loff=(0.08, 0), ha="left", va="center",
           fs=6.6)
@@ -148,7 +148,7 @@ def fig_system():
         xx = lx + [0, 1.6, 3.2, 5.15][i]
         arrow(ax, [(xx, ly), (xx + 0.5, ly)], k); ax.text(xx + 0.58, ly, t, va="center", fontsize=6.8)
     ax.text(lx, 0.62, "注：$\\kappa_{\\mathrm{aux}}=\\mathrm{1}+\\delta_e+a^{\\mathrm{circ}}\\beta_{\\mathrm{liq}}+a^{\\mathrm{air}}"
-            "(\\mathrm{1}-\\beta_{\\mathrm{liq}})$，\n含配电损耗、主循环泵与空气侧电耗（式13）。", fontsize=6.4, va="center", linespacing=1.3)
+            "(\\mathrm{1}-\\beta_{\\mathrm{liq}})$，\n含配电损耗、主循环泵与空气侧电耗（式17,18,25）。", fontsize=6.4, va="center", linespacing=1.3)
     save(fig, "F1_系统结构图")
 
 
@@ -168,19 +168,19 @@ def fig_framework():
     Q = [("Q1 算力调节", "GPU 运行模式改变处理速率与\n功耗，如何进入容量规划？"),
          ("Q2 热—算耦合", "液冷温度如何反向限制 GPU\n模式，并决定冷源配置？"),
          ("Q3 不确定性", "负荷—气象—光伏联合分布\n难以准确估计时如何配置？")]
-    Mm = [("GPU 模式与任务模型", "式(1)–(3)：$m_{rkdst}$，$U^r_{dst}$，$B_{dst}$"),
-          ("液冷热动态与热安全", "式(4)–(7)：$T^w_{dst}$，$u_{jdst}$，$𝒥^{\\mathrm{safe}}_{rk}$"),
-          ("冷源·光伏·储能·功率平衡", "式(8)–(13)：$q^{\\mathrm{FC}},q^{\\mathrm{MC}},P^{\\mathrm{grid}},S_{dst}$"),
-          ("两阶段有限支持矩 DRO", "式(14)–(18)：$\\boldsymbol{x}$，$𝒫_d$，$Q_{ds}(\\boldsymbol{x})$")]
-    Me = [("数据驱动情景", "BurstGPT 轨迹、典型年气象、\n分时电价 → 联合日\nk-medoids → $𝒮_d,\\hat{p}_d$"),
-          ("模糊集估计", "bootstrap 估计 $\\delta_d,v^{\\pm}_{d\\ell}$\n验证集校准\n非空性 LP 检验"),
-          ("精确重构与求解", "内层最大化 LP 强对偶\n→ 单一 MILP；有效不等式\nHiGHS 分支定界"),
-          ("交叉验证与后处理", "割平面迭代（第5节）\n验证等价性；固定 $\\boldsymbol{x}$\n重调度 $Q_{ds}(\\boldsymbol{x})$")]
-    Ex = [("基准与消融", "Baseline、M1 调频\nM2 热耦合、M3"),
-          ("概率模型对比", "M3-SP、M4-DRO\nM5-RO、M6 极端支持"),
-          ("物理一致性校验", "功率/热平衡残差、热点\n温度、SOC、任务完成"),
-          ("样本外与分布偏移", "123 个测试日\n指数倾斜 $\\theta$"),
-          ("敏感性分析", "$\\kappa$、峰谷浮动\n$R^{\\mathrm{th}}$、$\\beta_{\\mathrm{liq}}$、$C_w$")]
+    Mm = [("GPU 模式与任务模型", "式(1)–(6)：$m_{rkdst}$，$U^r_{dst}$，$P^{\\mathrm{IT}}_{dst}$，$B_{dst}$"),
+          ("液冷热动态与热安全", "式(7)–(12)：$T^w_{dst}$，$u_{jdst}$，$𝒥^{\\mathrm{safe}}_{rk}$"),
+          ("冷源·光伏·储能·功率平衡", "式(13)–(29)：$q^{\\mathrm{FC}},q^{\\mathrm{MC}},P^{\\mathrm{grid}},S_{dst}$"),
+          ("两阶段有限支持条件 DRO", "式(30)–(32)：$\\boldsymbol{x}$，$𝒫_d$，$Q_{ds}(\\boldsymbol{x})$")]
+    Me = [("数据驱动情景", "BurstGPT、典型年气象、分时电价\n时间顺序 训练/验证/测试\n代表日+极端日+设计日 → $𝒮_d,\\hat{p}_d$"),
+          ("模糊集估计", "bootstrap 估计 $\\delta_d,v^{\\pm}_{d\\ell}$\n验证块校准 $\\kappa_\\delta,\\kappa_v$\n非空性 LP 检验"),
+          ("直接求解（4.1节）", "内层最大化 LP 强对偶\n→ 单一 MILP\nHiGHS 分支定界"),
+          ("概率割平面（4.2节）", "MILP 主问题 + LP 概率子问题\n上下界收敛判据（式36）\n与直接求解对照")]
+    Ex = [("E1 物理机制消融", "M0–M3 两因素（$a$, $b$）\n+ M0-W45 静态温水设计"),
+          ("E2 容量互补与统一复核", "统一物理评价器；交互项 $I_{GT}$\n修复成本；同容量运行比较"),
+          ("E3 不确定性与压力测试", "U0/U-SP/U1/U2/U3；$\\kappa$ 前沿\n连续多日 ST1–ST3"),
+          ("E4 适用边界", "GPU 投资、气候窗口\n任务结构、温区精度"),
+          ("E5 求解效率", "直接 MILP 与概率割平面\n规模递增对照")]
     def stack(x, items, kind, top=9.65, bottom=1.95, fs=6.8):
         n = len(items); g = 0.18; h = (top - bottom - g * (n - 1)) / n; ys = []
         for i, (t, s) in enumerate(items):
@@ -216,18 +216,18 @@ def fig_flow():
     steps = [
         ("数据输入", "BurstGPT 请求轨迹（$A^{\\mathrm{R}},A^{\\mathrm{B}}$）、EPW 典型年气象、分时电价 $c^{e}_{dt}$、设备参数表", "信"),
         ("预处理", "调度日窗口（6:00 起）与规模化；PVWatts 计算 $g^{\\mathrm{PV}}_{dst}$；\n温区系数 $\\underline{\\phi}\\,_{jdst}$、"
-                   "制冷电耗 $a^{\\mathrm{MC}}_{jdst}$；安全模式集 $𝒥^{\\mathrm{safe}}_{rk}$（式6）", "信"),
-        ("情景构建", "季节类别 $d$，联合日（气象×负荷）；训练/测试划分；\nk-medoids 得有限支持 $𝒮_d$ 与经验概率 $\\hat{p}_{ds}$", "电"),
-        ("模糊集估计（式17）", "$\\hat{\\mu}_d$、$\\rho_{\\ell,ds}$；bootstrap 得 $\\delta^{\\mathrm{0}}_d,v^{\\mathrm{0}\\pm}_{d\\ell}$；"
-                             "验证集校准 $\\kappa_\\delta,\\kappa_v$", "电"),
+                   "制冷电耗 $a^{\\mathrm{MC}}_{jdst}$；安全模式集 $𝒥^{\\mathrm{safe}}_{rk}$（式11）", "信"),
+        ("情景构建", "季节类别 $d$；按时间顺序划分训练/验证/封存测试；k-medoids 代表日\n+ 训练极端日 + ASHRAE 设计极端日 → 有限支持 $𝒮_d$ 与 $\\hat{p}_{ds}$", "电"),
+        ("模糊集估计（式30）", "$\\hat{\\mu}_d$、$\\rho_{\\ell,ds}$；bootstrap 得 $\\delta^{\\mathrm{0}}_d,v^{\\mathrm{0}\\pm}_{d\\ell}$；"
+                             "验证块校准 $\\kappa_\\delta,\\kappa_v$", "电"),
         None,                                                     # 判断 1
-        ("模型构建", "第一阶段 $\\boldsymbol{x}$（式14–15）+ 情景运行约束（式1–13,16）\n内层最大化（$\\boldsymbol{p}_d\\in𝒫_d$）"
-                    "以 LP 对偶替换 → 单一 MILP（式18）", "热"),
+        ("模型构建", "第一阶段 $\\boldsymbol{x}$（式26–28）+ 情景运行约束（式1–25,29）\n内层最大化（$\\boldsymbol{p}_d\\in𝒫_d$）"
+                    "以 LP 对偶替换 → 单一 MILP（式31–32）", "热"),
         ("MILP 求解（分支定界）", "LP 松弛 → 分支 → 更新可行上界与对偶下界", "热"),
         None,                                                     # 判断 2
-        ("重调度与校验", "固定 $\\boldsymbol{x}^*$ 逐情景求 $Q_{ds}(\\boldsymbol{x}^*)$；校验式(4)(13)残差、"
+        ("重调度与校验", "固定 $\\boldsymbol{x}^*$ 逐情景求 $Q_{ds}(\\boldsymbol{x}^*)$；校验式(7)(25)残差、"
                          "热点温度、SOC、任务完成", "算"),
-        ("评估与输出", "样本外/分布偏移评估、敏感性分析；输出 $\\boldsymbol{x}^*,\\boldsymbol{y}^*_{ds},\\boldsymbol{p}^*_d$", "算"),
+        ("评估与输出", "统一物理评价器复核封存测试日、修复成本、压力测试；输出 $\\boldsymbol{x}^*,\\boldsymbol{y}^*_{ds},\\boldsymbol{p}^*_d$", "算"),
     ]
     hs = [0.95, 1.2, 1.2, 1.0, 1.0, 1.2, 0.9, 1.0, 1.2, 1.0]
     y = 15.0; centers = []
@@ -260,12 +260,12 @@ def fig_flow():
     yd2 = centers[7][0]; ys = centers[6][0]
     arrow(ax, [(cx - 2.6, yd2), (0.8, yd2), (0.8, ys), (x0, ys)], "热")
     ax.text(0.95, yd2 + 0.08, "否：继续分支", fontsize=7, va="bottom")
-    # ---- 右侧: 割平面交叉验证 (论文第5节迭代算法) ----
+    # ---- 右侧: 概率割平面 (修订版 4.2 节, E5 对照) ----
     rx, rw = 11.15, 5.6
     ytop = centers[5][0] + 0.6
     ax.add_patch(FancyBboxPatch((rx - 0.2, centers[8][0] - 0.75), rw + 0.4, ytop - centers[8][0] + 1.25,
                                 boxstyle="round,pad=0,rounding_size=0.12", fc="none", ec="#888888", lw=0.7, ls="--"))
-    ax.text(rx + rw / 2, ytop + 0.35, "交叉验证：逐次加入最坏分布约束（论文第5节）", ha="center", va="center", fontsize=7.5,
+    ax.text(rx + rw / 2, ytop + 0.35, "交叉验证：概率割平面（4.2节，E5 对照）", ha="center", va="center", fontsize=7.5,
             fontweight="bold")
     yb = [ytop - 0.15 - 1.3, ytop - 0.15 - 2.95, ytop - 0.15 - 4.5]
     box(ax, rx, yb[0], rw, 1.3, "$\\min C^{\\mathrm{plan}}+\\sum_d n_d\\eta_d$，$\\eta_d\\geq\\sum_s p^{(i)}_{ds}C^{\\mathrm{op}}_{ds}$"
@@ -284,7 +284,7 @@ def fig_flow():
     arrow(ax, [(rx + rw / 2 + 2.6, yc3), (rx + rw + 0.15, yc3), (rx + rw + 0.15, yb[0] + 0.65), (rx + rw, yb[0] + 0.65)], "电")
     ax.text(rx + rw + 0.22, (yc3 + yb[0]) / 2, "否：加入割平面", rotation=90, fontsize=6.6, ha="left", va="center")
     arrow(ax, [(rx + rw / 2, yc3 - 0.5), (rx + rw / 2, centers[8][0] + 0.15)], "电")
-    box(ax, rx, centers[8][0] - 0.55, rw, 0.7, "是：与对偶重构目标值、容量比较（verify.py）", "无", ec="#888888", fs=6.8)
+    box(ax, rx, centers[8][0] - 0.55, rw, 0.7, "是：与对偶重构目标值、容量比较（E5）", "无", ec="#888888", fs=6.8)
     arrow(ax, [(x0 + bw, centers[5][0]), (rx - 0.2, centers[5][0])], "信")
     ax.text((x0 + bw + rx - 0.2) / 2, centers[5][0] - 0.1, "同一\n模型", fontsize=6.4, ha="center", va="top", color=EC["信"],
             linespacing=1.1)

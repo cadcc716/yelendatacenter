@@ -70,6 +70,13 @@ def amb_set(Ztr, Zva, Fs, A, kind, kappa, rng):
                 cal=dict(kappa=kappa, kappa_delta=kd, kappa_v=kv, tau=tau))
 
 
+def ashrae_extreme(epw, n=C.DESIGN_RETURN_N):
+    """EPW 文件头 DESIGN CONDITIONS (ASHRAE 2009 气候设计数据) 中 n 年一遇极端最高干球温度 (n = 5/10/20/50)。"""
+    f = open(C.RAW / epw, encoding="latin-1").readlines()[1].strip().split(",")
+    i = f.index("Extremes"); pos = {5: 10, 10: 12, 20: 14, 50: 16}[n]   # Extremes 段: n=5,10,20,50 年一遇 (min, max) 成对
+    return float(f[i + pos])
+
+
 def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", r_mean=C.R_MEAN_GPU, b_mean=C.B_MEAN_GPU, kappa=1.0):
     rng = np.random.default_rng(C.SEED)
     AR, AB = load_workload()
@@ -88,6 +95,9 @@ def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", r_mean=C.R_MEAN_GPU, b_me
     out["risk_A"] = A
     day = lambda w, l: dict(AR=AR[l], AB=AB[l], Tamb=Tamb[w], gpv=gpv[w], w=int(w), l=int(l), month=int(month[w]))
     # ---------- 季节条件支持集 ----------
+    T_des = ashrae_extreme(epw)
+    hot_w = max(blocks["tr"][0], key=lambda w: Tamb[w].max()); hot_d = season[month[hot_w]]
+    out["design"] = dict(T=T_des, base_day=int(hot_w), season=int(hot_d), n=C.DESIGN_RETURN_N)
     sup, ambs, cal, U0, Tbar, val_days, test_days = [], {"U2": [], "U3": []}, [], [], [], [], []
     Fall_tr, Fall_va, sup_raw = [], [], []
     for d, name in enumerate(C.SEASONS):
@@ -107,11 +117,21 @@ def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", r_mean=C.R_MEAN_GPU, b_me
         p = np.r_[pr * len(rest) / len(tr), np.full(len(ext), 1.0 / len(tr))]
         tag = [f"代表日{i + 1}" for i in range(C.N_MED)] + [f"极端:{f}" for f in C.EXTREMES]
         Fs = Ztr[idx]
+        dsg = None
+        if d == hot_d:
+            # 设计极端日 (5.4.2 独立历史资料): 训练集最热日的逐时温度整体平移至 ASHRAE n 年一遇极端最高温度,
+            # 负荷与光伏取该日实况; 经验概率 0, 只作为支撑点 (运行可行性硬约束 + 模糊集可分配概率)
+            j = [k for k, (w, _) in enumerate(tr) if w == hot_w][0]; w0, l0 = tr[j]
+            Td = Tamb[w0] + (T_des - Tamb[w0].max())
+            Fd = feats(Td[None], gpv[[w0]], AR[[l0]], AB[[l0]]); Fs = np.vstack([Fs, (Fd - m0) / s0])
+            p = np.r_[p, 0.0]; tag = tag + [f"设计极端日{T_des:.1f}℃"]
+            dsg = dict(d=d, s=len(idx), p=0.0, tag=tag[-1], AR=AR[l0], AB=AB[l0], Tamb=Td, gpv=gpv[w0], w=int(w0), l=int(l0),
+                       month=int(month[w0]))
         for kind, key in (("sym", "U2"), ("semi", "U3")):
             a = amb_set(Ztr, Zva, Fs, A, kind, kappa, np.random.default_rng([C.SEED, d, len(key)]))
             ambs[key].append(a); cal.append(dict(模型=key, 类别=name, 训练日=len(tr), 验证日=len(va), **a["cal"]))
-        sup.append([dict(d=d, s=j, p=float(p[j]), tag=tag[j], **day(*tr[i])) for j, i in enumerate(idx)])
-        Fall_tr.append(Ftr); Fall_va.append(Fva); sup_raw.append(Ftr[idx])
+        sup.append([dict(d=d, s=j, p=float(p[j]), tag=tag[j], **day(*tr[i])) for j, i in enumerate(idx)] + ([dsg] if dsg else []))
+        Fall_tr.append(Ftr); Fall_va.append(Fva); sup_raw.append(Fs * s0 + m0)
         Tm = Tamb[[w for w, _ in tr]].mean(0); Tbar.append(Tm)
         U0.append(dict(d=d, s=0, p=1.0, tag="均值轨迹", AR=AR[[l for _, l in tr]].mean(0), AB=AB[[l for _, l in tr]].mean(0),
                        Tamb=Tm, gpv=gpv[[w for w, _ in tr]].mean(0), w=-1, l=-1, month=0))
