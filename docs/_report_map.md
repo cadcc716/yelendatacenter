@@ -15,8 +15,8 @@
 | (9) | 机械制冷容量与门控 | `q^{MC}≤K^{MC}`；`q^{MC}≤K^{MC,max}u` | $a^{MC}=1/COP(T̲_j,T_{amb})$，Carnot 比例按 ASHRAE 90.1 标定 |
 | (10) | 光伏与电网上限 | `PPV ≤ K^{PV} g^{PV}`；`Pg∈[0,P^{grid,max}]` | 允许弃光、不售电 |
 | (11) | 储能电量状态 | `S[t+1]=(1-δ_B)S[t]+Δt(η_cP^{ch}-P^{dis}/η_d)` | — |
-| (12) | SOC 边界、倍率、互斥、初末 SOC | `σ_min E ≤ S ≤ σ_max E`；`P ≤ P^B`；`b`；`P^B≤c^{max}E^B` | `RELAX_B=True` 时 $b$ 松弛，校验表“同时充放电h”=0 证明松弛精确 |
+| (12) | SOC 边界、倍率、互斥、初末 SOC | `σ_min E ≤ S ≤ σ_max E`；`P ≤ P^B`；`b`；`P^B≤c^{max}E^B` | $b\in\{0,1\}$ 按论文实现（`RELAX_B=False`）；校验表“同时充放电h”=0 |
 | (13) | 电功率平衡 | `Pg+PPV+Pdis-Pch = κ_aux P^{IT}+Σ(a^{FC}q^{FC}+a^{MC}q^{MC})+P_0` | $\kappa_{aux}=1+\delta_e+a^{circ}\beta+a^{air}(1-\beta)$ |
 | (16) | 情景日运行费用 | `M.row(Cop = Δt Σ c_t Pg + c^{var,B}(Pch+Pdis))` | — |
-| (17) | 有限支持矩模糊集 | `data_prep.build()`：特征 $F$、$\hat\mu$、bootstrap 估计 $\delta$、$v^\pm$；`worst_case_p()` | 构造时断言 $\hat p\in\mathcal P_d$（非空） |
-| (18) | 两阶段 DRO 目标 | `prob=="DRO"`：内层 $\max_p$ 的 LP 强对偶 → $\lambda_d+\alpha^\top(\hat\mu+\delta)-\beta^\top(\hat\mu-\delta)+\gamma^{+\top}v^++\gamma^{-\top}v^-$，并对每个 $s$ 加 $\lambda_d+(\alpha-\beta)^\top F_s+\gamma^{+\top}[\rho]_+^2+\gamma^{-\top}[-\rho]_+^2\ge C^{op}_{ds}$ | 单一 MILP 精确求解；SP/RO 为同一框架的特例 |
+| (17) | 有限支持矩模糊集 | `data_prep.build()`：特征 $F$；$\hat\mu$=训练日经验均值；bootstrap 估计 $\delta^0$、$v^{0\pm}$ 并经验证集校准 $\kappa_\delta,\kappa_v$；`nonempty_tau()` LP 检验非空；`worst_case_p()` | 若 $\mathcal P_d=\emptyset$ 则按最小放大 τ 扩大并报告 |
+| (18) | 两阶段 DRO 目标 | `prob=="DRO"`：内层 $\max_p$ 的 LP 强对偶 → $\lambda_d+\alpha^\top(\hat\mu+\delta)-\beta^\top(\hat\mu-\delta)+\gamma^{+\top}v^++\gamma^{-\top}v^-$，并对每个 $s$ 加 $\lambda_d+(\alpha-\beta)^\top F_s+\gamma^{+\top}[\rho]_+^2+\gamma^{-\top}[-\rho]_+^2\ge C^{op}_{ds}$ | 单一 MILP 精确求解；SP/RO 为同一框架的特例；`solve_cutting_plane()` 为论文第 5 节迭代算法，用于交叉验证 |
