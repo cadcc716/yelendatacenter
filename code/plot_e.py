@@ -455,19 +455,29 @@ def fig14():
 def fig15():
     f = RES / "bench_all.csv"
     if not f.exists(): return
-    B = pd.read_csv(f); fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 5.6 * CM), layout="constrained")
+    B = pd.read_csv(f); fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 5.8 * CM), layout="constrained")
+    sizes = sorted(B["情景数"].unique())
     for k, (alg, c) in enumerate((("A0 对偶单一MILP", "#3C5488"), ("A1 概率割平面", "#E64B35"))):
-        g = B[B.算法 == alg].sort_values("情景数")
-        a.bar(np.arange(len(g)) + (k - 0.5) * 0.36, g["时间s"], 0.36, color=c, label=alg)
-        for i, (t_, it) in enumerate(zip(g["时间s"], g["迭代"])):
-            a.text(i + (k - 0.5) * 0.36, t_ * 1.15, f"{t_:.0f}s" + (f"\n{it}次" if k else ""), ha="center", fontsize=7)
-        a.set_xticks(range(len(g))); a.set_xticklabels([f"{n}情景" for n in g["情景数"]])
-    a.set_yscale("log"); a.set_ylabel("求解时间/s"); a.legend(fontsize=8, loc="upper left"); panel(a, "(a)", -0.14)
-    for n, c in zip((1, 2, 4), ("#91D1C2", "#4DBBD5", "#3C5488")):
-        p = RES / f"bench_hist_{n}.csv"
-        if p.exists():
-            h = pd.read_csv(p); b.semilogy(h["迭代"], np.maximum(h["违背量"], 1), "o-", color=c, mfc="white", label=f"{n}类 {n * 6}情景")
-    b.axhline(1, color="0.5", ls="--", lw=0.6); b.set_xlabel("迭代次数"); b.set_ylabel("最坏分布违背量/元"); b.legend(fontsize=8); panel(b, "(b)", -0.14)
+        for i, n in enumerate(sizes):
+            g = B[(B.算法 == alg) & (B.情景数 == n)]
+            if g.empty: continue
+            r = g.iloc[0]; done = str(r["状态"]) in ("Optimal", "收敛"); x = i + (k - 0.5) * 0.36
+            a.bar(x, r["时间s"] / 60, 0.36, color=c, alpha=1 if done else 0.45, hatch="" if done else "///", edgecolor="white",
+                  label=alg if i == 0 else None)
+            lab = f"{r['时间s'] / 60:.0f} min" if done else (f"间隙{r['绝对间隙'] / 1e4:.0f}万" if r["状态"] == "Time limit reached" else f">{r['时间s'] / 60:.0f} min\n未完成")
+            if alg.startswith("A1") and done: lab += f"\n{int(r['迭代'])}次迭代"
+            a.text(x, r["时间s"] / 60 * 1.12, lab, ha="center", fontsize=6.8)
+    a.set_yscale("log"); a.set_ylim(1, 400); a.set_xticks(range(len(sizes))); a.set_xticklabels([f"{n} 情景" for n in sizes])
+    a.set_ylabel("求解时间/min"); a.legend(fontsize=8, loc="upper left"); panel(a, "(a)", -0.14)
+    p_ = RES / "bench_hist_1.csv"
+    if p_.exists():
+        h = pd.read_csv(p_)
+        b.plot(h["迭代"], h["主问题下界"] / 1e4, "o-", color="#3C5488", mfc="white", label="主问题下界")
+        b.plot(h["迭代"], h["当前解上界"] / 1e4, "s--", color="#E64B35", mfc="white", label="当前解上界")
+        r0 = B[(B.算法.str.startswith("A0")) & (B.情景数 == sizes[0])].iloc[0]
+        b.axhline(r0["目标值"] / 1e4, color="0.4", ls=":", lw=0.9, label="直接对偶 MILP 目标")
+        b.set_xlabel("迭代次数"); b.set_ylabel("目标值/万元"); b.set_xticks(h["迭代"]); b.legend(fontsize=8); panel(b, "(b)", -0.14)
+        b.set_title("6 情景算例的割平面收敛过程", fontsize=8.5, loc="left")
     save(fig, "图15_直接对偶求解与概率割平面效率")
 
 
