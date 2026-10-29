@@ -286,7 +286,7 @@ def collect():
     rows = [pickle.load(open(f, "rb")) for f in sorted(RES.glob("row_*.pkl"))]
     S = pd.DataFrame(rows).set_index("方案")
     S.to_csv(RES / "summary.csv")
-    st = sorted(RES.glob("stress_*.csv")); hf = sorted(RES.glob("hf_*.csv")); bn = sorted(RES.glob("bench_*_A*.csv"))
+    st = sorted(f for f in RES.glob("stress_*.csv") if f.name != "stress_all.csv"); hf = sorted(RES.glob("hf_*.csv")); bn = sorted(RES.glob("bench_*_A*.csv"))
     if st: pd.concat([pd.read_csv(f) for f in st]).to_csv(RES / "stress_all.csv", index=False)
     if bn: pd.concat([pd.read_csv(f) for f in bn]).to_csv(RES / "bench_all.csv", index=False)
     D = dataset(); pd.DataFrame(D["calib"]).to_csv(RES / "calibration.csv", index=False)

@@ -37,7 +37,7 @@ def S():
 
 
 def panel(ax, s, x=-0.16, y=1.02):
-    ax.text(x, y, s, transform=ax.transAxes, fontsize=10, fontweight="bold", va="bottom")
+    (ax.text2D if hasattr(ax, "text2D") else ax.text)(x, y, s, transform=ax.transAxes, fontsize=10, fontweight="bold", va="bottom")
 
 
 def legend_top(fig, handles, labels, ncol, y=1.0):
@@ -144,29 +144,33 @@ E1 = ["M0", "M1", "M2", "M3", "M0-W45"]
 # ====================== 图4 E1 容量配置 + 统一复核费用构成 ======================
 def fig4():
     s = S(); ms = [m for m in E1 if m in s.index]
-    fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 6.4 * CM), layout="constrained", gridspec_kw=dict(width_ratios=[1.2, 1]))
-    devs = ["PV", "FC", "MC", "EB"]; x = np.arange(len(devs)); w = 0.8 / len(ms)
+    fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 6.6 * CM), layout="constrained", gridspec_kw=dict(width_ratios=[1.0, 1.25]))
+    devs = [k for k in ["PV", "FC", "MC", "EB"] if s.loc[ms, k].abs().max() > 1]; x = np.arange(len(devs)); w = 0.8 / len(ms)
     for j, m in enumerate(ms):
         v = [max(s.loc[m, k], 0) for k in devs]
         a.bar(x - 0.4 + w * (j + 0.5), v, w, color=COLM[m], edgecolor="white", lw=0.4, label=LABM[m])
     a.set_xticks(x); a.set_xticklabels([f"{DEV[k][0]}\n({'kWp' if k == 'PV' else 'kWh' if k == 'EB' else 'kW$_{th}$'})" for k in devs])
-    a.set_ylabel("配置容量"); a.set_ylim(0, None); panel(a, "(a)", -0.12)
-    a.legend(ncol=2, fontsize=8, loc="upper right")
-    parts = [("年化_PV", "光伏", "#F6C85F"), ("年化_FC", "自然冷却", "#7FC97F"), ("年化_MC", "机械制冷", "#F4A6A6"),
-             ("年化_EB", "储能", "#5AB4AC")]
-    xb = np.arange(len(ms)); bot = np.zeros(len(ms))
+    a.set_ylabel("配置容量"); a.set_ylim(0, s.loc[ms, devs].values.max() * 1.12); panel(a, "(a)", -0.16)
+    h, l = a.get_legend_handles_labels(); legend_top(fig, h, l, 5, 1.0)
+    parts = [("年化_PV", "光伏投资", "#F6C85F"), ("年化_FC", "自然冷却投资", "#7FC97F"), ("年化_MC", "机械制冷投资", "#F4A6A6"),
+             ("复核年运行费用", "复核运行费用", "#C9B3DE")]
+    others = [m for m in ms if m != "M0"]; xb = np.arange(len(others))
+    pos, neg = np.zeros(len(others)), np.zeros(len(others))
     for col, lab, c in parts:
-        v = np.array([s.loc[m, col] + (s.loc[m, "年化_PB"] if col == "年化_EB" else 0) for m in ms]) / WAN
-        b.bar(xb, v, 0.62, bottom=bot, color=c, edgecolor="white", lw=0.4, label=lab); bot += v
-    op = np.array([s.loc[m, "复核年运行费用"] for m in ms]) / WAN
-    b.bar(xb, op, 0.62, bottom=bot, color="#C9B3DE", edgecolor="white", lw=0.4, label="复核运行费用"); bot += op
-    for i, m in enumerate(ms): b.text(i, bot[i] + 8, f"{bot[i]:.0f}", ha="center", fontsize=8)
-    b.set_xticks(xb); b.set_xticklabels([m for m in ms]); b.set_ylabel("能源相关年化费用/万元"); b.set_ylim(0, bot.max() * 1.22)
-    b2 = b.twinx(); cool = np.array([s.loc[m, "实时失约_冷却热安全受限"] for m in ms])
-    b2.plot(xb, cool, "D-", color="#B03A2E", mfc="white", mew=1.1, ms=4.8, label="冷却/热安全导致的实时失约")
-    b2.set_ylabel("实时失约/GPU·h"); b2.set_ylim(0, max(cool.max() * 1.4, 10))
-    h1, l1 = b.get_legend_handles_labels(); h2, l2 = b2.get_legend_handles_labels()
-    b.legend(h1 + h2, l1 + l2, ncol=2, fontsize=7.5, loc="upper left"); panel(b, "(b)", -0.14)
+        v = np.array([s.loc[m, col] - s.loc["M0", col] for m in others]) / WAN
+        bot = np.where(v >= 0, pos, neg); b.bar(xb, v, 0.55, bottom=bot, color=c, edgecolor="white", lw=0.4, label=lab)
+        pos += np.clip(v, 0, None); neg += np.clip(v, None, 0)
+    tot = np.array([s.loc[m, "复核能源相关费用"] - s.loc["M0", "复核能源相关费用"] for m in others]) / WAN
+    b.scatter(xb, tot, marker="D", s=26, color="k", zorder=4, label="能源相关费用合计变化")
+    for i, t_ in enumerate(tot): b.text(i + 0.32, t_, f"{t_:+.1f}", va="center", fontsize=8)
+    b.axhline(0, color="0.3", lw=0.7); b.set_xticks(xb); b.set_xticklabels(others); b.set_xlim(-0.6, len(others) - 0.2)
+    b.set_ylabel("相对 M0 的年化费用变化/万元"); panel(b, "(b)", -0.13)
+    cool = np.array([s.loc[m, "实时失约_冷却热安全受限"] for m in others])
+    lo, hi = min(neg.min(), tot.min()), max(pos.max(), 0); b.set_ylim(lo * 1.55, hi + (hi - lo) * 0.12)
+    for i, c_ in enumerate(cool):
+        b.text(i, lo * 1.45, f"冷却失约\n{c_:.0f} GPU·h", ha="center", va="bottom", fontsize=7.2,
+               color="#B03A2E" if c_ > 1000 else ("#E67E22" if c_ > 1 else "#2E8B57"))
+    h1, l1 = b.get_legend_handles_labels(); b.legend(h1, l1, ncol=3, fontsize=7.2, loc="upper center", bbox_to_anchor=(0.5, 1.2))
     save(fig, "图4_E1物理机制消融_容量配置与统一复核费用")
 
 
@@ -189,7 +193,7 @@ def fig5():
                 ax.text(i, max(cur, cur + v) + (c0 - lo) * 0.02, f"{v:+.1f}", ha="center", va="bottom", fontsize=8, color=c)
                 ax.plot([i - 1.3, i + 0.3], [cur, cur], color="0.5", lw=0.5, ls=":"); cur += v
         ax.set_xticks(xs); ax.set_xticklabels([x[0] for x in steps], fontsize=8); ax.set_ylim(lo, max(c0, c3) * 1.04)
-        ax.set_ylabel("能源相关年化费用/万元"); ax.set_title(ttl, fontsize=9, loc="left")
+        ax.set_ylabel("能源相关年化费用/万元 (纵轴未从0起)"); ax.set_title(ttl, fontsize=9, loc="left")
         I = c1 + c2 - c0 - c3
         ax.text(0.98, 0.95, f"$I_{{GT}}$ = {I:+.1f} 万元", transform=ax.transAxes, ha="right", va="top", fontsize=8.5,
                 bbox=dict(fc="#FFF5E6", ec="#E0A458", lw=0.6, boxstyle="round,pad=0.3"))
@@ -198,33 +202,37 @@ def fig5():
 
 # ====================== 图6 活跃约束: 温区运行小时与 GPU 模式结构 ======================
 def fig6():
-    P = C.params(); ms = [m for m in ("M2", "M3", "U3") if (RES / f"plan_{m}.pkl").exists()]
-    s = S()
+    ms = [m for m in ("M0", "M2", "M3", "U3") if (RES / f"plan_{m}.pkl").exists()]
+    D = pickle.load(open(C.PROC / "dataset_base.pkl", "rb"))
     fig = plt.figure(figsize=(W2, 6.2 * CM), layout="constrained")
     gs = fig.add_gridspec(1, 3, width_ratios=[1.6, 1, 1]); a = fig.add_subplot(gs[0])
-    zc = ["#DCEAF7", "#9ECAE1", "#FDD49E", "#FC8D59", "#D7301F"]
-    for i, m in enumerate(ms):
-        h = np.array([s.loc[m, f"温区{j}小时"] for j in range(5)]); h = h / h.sum() * 100; left = 0
-        for j in range(5):
-            a.barh(i, h[j], left=left, color=zc[j], edgecolor="white", lw=0.5, label=f"温区{j + 1} {P['ZONES'][j][0]:.0f}–{P['ZONES'][j][1]:.0f}℃" if i == 0 else None)
-            if h[j] > 6: a.text(left + h[j] / 2, i, f"{h[j]:.0f}%", ha="center", va="center", fontsize=7.5)
-            left += h[j]
-    a.set_yticks(range(len(ms))); a.set_yticklabels([LABM[m] for m in ms]); a.set_xlim(0, 100); a.set_xlabel("全年运行小时占比/%")
-    a.legend(ncol=3, fontsize=7.5, loc="lower center", bbox_to_anchor=(0.5, 1.0)); a.invert_yaxis(); panel(a, "(a)", -0.25, 1.18)
+    w = 0.8 / len(ms); x = np.arange(4)
+    for j, m in enumerate(ms):
+        R = plan(m); E = np.zeros(4); F = np.zeros(4)
+        for bb, o in zip(R["blocks"], R["out"]):
+            d0 = bb.get("d0", bb["d"]); wt = bb["p"] * R["n_d"][bb["d"]]
+            E[d0] += wt * o["qMC"].sum() / 1e3; F[d0] += wt * o["qFC"].sum() / 1e3
+        share = E / (E + F) * 100
+        a.bar(x - 0.4 + w * (j + 0.5), E, w, color=COLM[m], edgecolor="white", lw=0.4, label=LABM[m])
+        for i in range(4):
+            if E[i] > 1: a.text(x[i] - 0.4 + w * (j + 0.5), E[i] + 8, f"{share[i]:.0f}%", ha="center", fontsize=6.5, rotation=90)
+    a.set_xticks(x); a.set_xticklabels(D["classes"]); a.set_ylabel("机械制冷承担的液冷散热/MWh$_{th}$·年$^{-1}$")
+    a.set_ylim(0, a.get_ylim()[1] * 1.12); a.legend(ncol=4, fontsize=7.2, loc="lower center", bbox_to_anchor=(0.5, 1.0)); panel(a, "(a)", -0.14, 1.12)
+    a.text(0.98, 0.95, "柱顶数字: 机械制冷\n散热占比", transform=a.transAxes, fontsize=7, color="0.4", va="top", ha="right")
     R = plan("M3"); md = {}
-    for b, o in zip(R["blocks"], R["out"]):
-        for k, v in o["modes"].items(): md[k] = md.get(k, 0) + b["p"] * R["n_d"][b["d"]] * v.sum()
+    for bb, o in zip(R["blocks"], R["out"]):
+        for k, v in o["modes"].items(): md[k] = md.get(k, 0) + bb["p"] * R["n_d"][bb["d"]] * v.sum()
     for k, (r, ttl, pl) in enumerate((("R", "实时任务 GPU·h", "(b)"), ("B", "可延期任务 GPU·h", "(c)"))):
-        ax = fig.add_subplot(gs[k + 1]); kk = [x for x in md if x.startswith(r)]
-        v = np.array([md[x] for x in kk]); cols = ["#3C5488", "#4DBBD5", "#00A087"][:len(kk)]
+        ax = fig.add_subplot(gs[k + 1]); kk = [q for q in md if q.startswith(r)]
+        v = np.array([md[q] for q in kk]); cols = ["#3C5488", "#4DBBD5", "#00A087"][:len(kk)]
         wd, _ = ax.pie(v, colors=cols, startangle=90, counterclock=False, wedgeprops=dict(width=0.38, edgecolor="white"))
-        for wdg, vv, x in zip(wd, v / v.sum(), kk):
+        for wdg, vv in zip(wd, v / v.sum()):
             ang = np.deg2rad((wdg.theta1 + wdg.theta2) / 2)
             if vv > 0.03: ax.text(0.81 * np.cos(ang), 0.81 * np.sin(ang), f"{vv * 100:.0f}%", ha="center", va="center", fontsize=7.5, color="white")
         ax.text(0, 0, ttl.replace(" ", "\n"), ha="center", va="center", fontsize=8)
-        ax.legend(wd, [x.split("|")[1].replace("_", " ") for x in kk], fontsize=7.5, loc="lower center", bbox_to_anchor=(0.5, -0.22), ncol=1)
-        panel(ax, pl, -0.05, 1.0)
-    save(fig, "图6_活跃约束_液冷温区运行小时与GPU模式结构")
+        ax.legend(wd, [q.split("|")[1].replace("_", " ") for q in kk], fontsize=7.5, loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=1)
+        panel(ax, pl, -0.05, 1.0); ax.set_title("M3 规划情景", fontsize=8, y=0.98)
+    save(fig, "图6_活跃约束_机械制冷散热与GPU模式结构")
 
 
 # ====================== 图7 最高温测试日运行调度 (M0 容量 vs M3 容量, 统一评价器) ======================
@@ -234,6 +242,7 @@ def fig7():
     fig, axs = plt.subplots(2, 2, figsize=(W2, 9.0 * CM), layout="constrained", sharex=True, gridspec_kw=dict(height_ratios=[1.35, 1]))
     t = np.arange(24); tt = np.arange(25)
     ymax = max((H[m]["Pg"] + H[m]["PPV"] + H[m]["Pdis"]).max() for m in ms) * 1.15
+    hmax = max((H[m]["qFC"] + H[m]["qMC"]).max() for m in ms) * 1.3
     for k, m in enumerate(ms):
         o = H[m]; a, b = axs[0, k], axs[1, k]
         st = [o["PPV"], o["Pg"], o["Pdis"]]; labs = ["光伏", "电网购电", "储能放电"]; cs = ["#F6C85F", "#8FA9D6", "#5AB4AC"]
@@ -244,36 +253,42 @@ def fig7():
         a.step(tt, np.r_[cool, cool[-1]], where="post", color="#C0392B", lw=1.1, label="冷源电功率")
         a.set_ylim(0, ymax); a.set_title(f"({'ab'[k]}) {LABM[m]} 容量", fontsize=9, loc="left")
         if k == 0: a.set_ylabel("功率/kW")
-        b.step(tt, np.r_[o["Tw"][:-1], o["Tw"][-2]], where="post", color="#E64B35", lw=1.1, label="液冷温度 $T^w$")
-        b.plot(t + 0.5, o["Tamb"], "o-", color="#7F7F7F", ms=3, lw=0.8, label="室外温度")
-        b.axhline(45.0, color="#3C5488", ls="--", lw=0.8); b.axhline(50.2, color="#4DBBD5", ls="--", lw=0.8)
-        b.text(23.8, 45.4, "k1上限", ha="right", fontsize=7); b.text(23.8, 50.6, "k2上限", ha="right", fontsize=7)
-        b.set_ylim(15, 56); b.set_xlim(0, 24); b.set_xticks(range(0, 25, 4)); b.set_xlabel("时段/$t$")
-        if k == 0: b.set_ylabel("温度/℃")
-        b3 = b.twinx(); b3.bar(t + 0.5, o["sR"], 0.7, color="#C0392B", alpha=0.35, label="实时失约")
+        b.stackplot(tt, np.r_[o["qFC"], o["qFC"][-1]], np.r_[o["qMC"], o["qMC"][-1]], step="post", colors=["#7FC97F", "#F4A6A6"],
+                    labels=["自然冷却散热", "机械制冷散热"], lw=0)
+        heat = 0.75 * o["PIT"]; b.step(tt, np.r_[heat, heat[-1]], where="post", color="#3C5488", lw=1.0, ls="--", label="液冷热负荷 $\\beta P^{\\mathrm{IT}}$")
+        b.set_xlim(0, 24); b.set_xticks(range(0, 25, 4)); b.set_xlabel("时段/$t$"); b.set_ylim(0, hmax)
+        if k == 0: b.set_ylabel("散热功率/kW$_{th}$")
+        bt = b.twinx(); bt.plot(t + 0.5, o["Tamb"], "o-", color="#7F7F7F", ms=2.5, lw=0.8, label="室外温度"); bt.set_ylim(0, 45)
+        if k == 1: bt.set_ylabel("室外温度/℃", color="0.4")
+        b3 = b.twinx(); b3.bar(t + 0.5, o["sR"], 0.7, color="#C0392B", alpha=0.45, label="实时失约")
         b3.set_ylim(0, max(1.0, max(H[mm]["sR"].max() for mm in ms)) * 1.6); b3.set_yticks([])
-        tot = o["sR"].sum(); b.text(0.3, 53, f"实时失约 {tot:.0f} GPU·h; 机械制冷电量 {o['PMC'].sum():.0f} kWh", fontsize=7.5)
+        tot = o["sR"].sum(); b.text(0.3, hmax * 0.93, f"实时失约 {tot:.0f} GPU·h; 机械制冷电量 {o['PMC'].sum():.0f} kWh", fontsize=7.5)
     h, l = axs[0, 0].get_legend_handles_labels(); legend_top(fig, h, l, 5)
-    h, l = axs[1, 0].get_legend_handles_labels(); h3, l3 = b3.get_legend_handles_labels()
-    fig.legend(h + h3, l + l3, loc="upper center", bbox_to_anchor=(0.5, 0.0), ncol=3, frameon=False)
+    h, l = axs[1, 0].get_legend_handles_labels(); h3, l3 = b3.get_legend_handles_labels(); h4, l4 = bt.get_legend_handles_labels()
+    fig.legend(h + h4 + h3, l + l4 + l3, loc="upper center", bbox_to_anchor=(0.5, 0.0), ncol=5, frameon=False)
     save(fig, "图7_测试集最高温日运行调度_静态基准与完整耦合")
 
 
 # ====================== 图8 测试日 × 时段 液冷温度热力图 (完整耦合 M3) ======================
 def fig8():
-    H = hourly("M3"); D = pickle.load(open(C.PROC / "dataset_base.pkl", "rb"))
-    keys = sorted(H, key=lambda k: D["test"][k[0]][k[1]]["w"])
-    Tw = np.array([H[k]["Tw"][:-1] for k in keys]); Ta = np.array([H[k]["Tamb"] for k in keys])
+    D = pickle.load(open(C.PROC / "dataset_base.pkl", "rb")); H0, H3 = hourly("M0"), hourly("M3")
+    keys = sorted(H3, key=lambda k: D["test"][k[0]][k[1]]["w"])
+    Ta = np.array([H3[k]["Tamb"] for k in keys]); Q0 = np.array([H0[k]["qMC"] for k in keys]); Q3 = np.array([H3[k]["qMC"] for k in keys])
     lab = [f"{D['month'][D['test'][k[0]][k[1]]['w']]}月" for k in keys]
-    fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 7.5 * CM), layout="constrained", sharey=True)
+    fig, axs = plt.subplots(1, 3, figsize=(W2, 7.2 * CM), layout="constrained", sharey=True)
     cm1 = LinearSegmentedColormap.from_list("t", ["#313695", "#74ADD1", "#FFFFBF", "#F46D43", "#A50026"])
-    i1 = a.imshow(Ta, aspect="auto", cmap=cm1, vmin=-15, vmax=40, extent=[0, 24, len(keys), 0])
-    i2 = b.imshow(Tw, aspect="auto", cmap="magma_r", vmin=25, vmax=53, extent=[0, 24, len(keys), 0])
-    for ax, im, t, pl in ((a, i1, "室外温度/℃", "(a)"), (b, i2, "液冷温度 $T^w$/℃", "(b)")):
-        ax.set_xticks(range(0, 25, 4)); ax.set_xlabel("时段/$t$"); fig.colorbar(im, ax=ax, label=t, pad=0.01); panel(ax, pl, -0.1)
+    cm2 = LinearSegmentedColormap.from_list("q", ["#FFFFFF", "#FDD0A2", "#F16913", "#7F2704"])
+    vmax = max(Q0.max(), Q3.max())
+    ims = [axs[0].imshow(Ta, aspect="auto", cmap=cm1, vmin=-15, vmax=40, extent=[0, 24, len(keys), 0]),
+           axs[1].imshow(Q0, aspect="auto", cmap=cm2, vmin=0, vmax=vmax, extent=[0, 24, len(keys), 0]),
+           axs[2].imshow(Q3, aspect="auto", cmap=cm2, vmin=0, vmax=vmax, extent=[0, 24, len(keys), 0])]
+    ttl = ["(a) 室外温度", f"(b) M0 容量: 机械制冷散热\n全年 {Q0.sum() / len(keys) * 365 / 1e3:.0f} MWh$_{{th}}$",
+           f"(c) M3 容量: 机械制冷散热\n全年 {Q3.sum() / len(keys) * 365 / 1e3:.0f} MWh$_{{th}}$"]
+    for ax, t_ in zip(axs, ttl): ax.set_xticks(range(0, 25, 6)); ax.set_xlabel("时段/$t$"); ax.set_title(t_, fontsize=8.5, loc="left")
+    fig.colorbar(ims[0], ax=axs[0], label="℃", pad=0.01); fig.colorbar(ims[2], ax=axs[1:], label="kW$_{th}$", pad=0.01)
     ticks = [j for j in range(len(keys)) if j == 0 or lab[j] != lab[j - 1]]
-    a.set_yticks(np.array(ticks) + 0.5); a.set_yticklabels([lab[j] for j in ticks]); a.set_ylabel("封存测试日")
-    save(fig, "图8_封存测试日液冷温度随气象自适应调节热力图")
+    axs[0].set_yticks(np.array(ticks) + 0.5); axs[0].set_yticklabels([lab[j] for j in ticks]); axs[0].set_ylabel("封存测试日")
+    save(fig, "图8_封存测试日机械制冷散热热力图")
 
 
 # ====================== 图9 同容量运行比较 (x_ref = M3) ======================
@@ -281,41 +296,44 @@ def fig9():
     f = RES / "ops_summary.csv"
     if not f.exists(): return
     O = pd.read_csv(f).set_index("策略"); ps = list(O.index)
-    fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 5.8 * CM), layout="constrained")
+    fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 6.0 * CM), layout="constrained")
     cols = [COLM[p[:2]] for p in ps]; x = np.arange(len(ps))
-    v = O["复核年运行费用"].values / WAN
-    a.bar(x, v, 0.6, color=cols, edgecolor="white")
-    for i in range(len(ps)): a.text(i, v[i] + v.max() * 0.01, f"{v[i]:.1f}", ha="center", fontsize=8)
-    a.set_ylim(v.min() * 0.95, v.max() * 1.04); a.set_ylabel("年运行费用/万元"); a.set_xticks(x); a.set_xticklabels(ps)
-    a.text(0.02, 0.96, "纵轴未从0起, 仅放大差异", transform=a.transAxes, fontsize=7, color="0.4", va="top"); panel(a, "(a)", -0.14)
-    r = O["实时失约GPUh"].values; bb = O["延期失约GPUh"].values
-    b.bar(x - 0.18, r, 0.36, color="#C0392B", label="实时任务失约"); b.bar(x + 0.18, bb, 0.36, color="#E59866", label="可延期任务失约")
-    b.set_ylabel("测试日失约/GPU·h"); b.set_xticks(x); b.set_xticklabels(ps); b.legend(fontsize=8); panel(b, "(b)", -0.14)
-    b2 = b.twinx(); b2.plot(x, O["复核PUE"].values, "o-", color="#3C5488", mfc="white", label="PUE"); b2.set_ylabel("PUE")
-    b2.legend(fontsize=8, loc="upper center")
+    v = O["复核年运行费用"].values / WAN; bad = O["不可安全运行日数"].values
+    a.bar(x, v, 0.6, color=cols, edgecolor="white", hatch=["///" if k > 0 else "" for k in bad])
+    for i in range(len(ps)):
+        a.text(i, v[i] + 1.2, f"{v[i]:.1f}", ha="center", fontsize=8)
+        if bad[i] > 0: a.text(i, v.min() * 0.955 + 1, f"{bad[i]}天不可\n安全运行\n(未计费用)", ha="center", va="bottom", fontsize=7, color="#B03A2E",
+                              bbox=dict(fc="white", ec="none", pad=0.8, alpha=0.9))
+    a.set_ylim(v.min() * 0.95, v.max() * 1.035); a.set_ylabel("年运行费用/万元"); a.set_xticks(x); a.set_xticklabels(ps)
+    a.text(0.98, 0.97, "纵轴未从0起", transform=a.transAxes, fontsize=7, color="0.4", va="top", ha="right"); panel(a, "(a)", -0.14)
+    r = O["实时失约GPUh"].values
+    b.bar(x, r, 0.6, color=cols, edgecolor="white", hatch=["///" if k > 0 else "" for k in bad])
+    for i in range(len(ps)):
+        b.text(i, r[i] + r.max() * 0.02, f"SLA {O['实时SLA'].iloc[i] * 100:.2f}%", ha="center", fontsize=7.5)
+    b.set_ylabel("测试日实时任务失约/GPU·h"); b.set_xticks(x); b.set_xticklabels(ps); b.set_ylim(0, r.max() * 1.15); panel(b, "(b)", -0.14)
+    fig.text(0.5, -0.07, "设备容量统一取 M3 规划值; 斜线: 存在即使允许失约也无法满足热安全/功率平衡的测试日", ha="center", fontsize=7.5, color="0.35")
     save(fig, "图9_同容量运行比较_只改变运行策略")
 
 
 # ====================== 图10 不确定性模型: 样本外成本—服务风险前沿 ======================
 def fig10():
-    s = S(); fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 6.6 * CM), layout="constrained")
+    s = S(); fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 6.8 * CM), layout="constrained")
     fam = {"U1": "U1 无条件对称", "U2": "U2 条件对称", "U3": "U3 条件半方差(本文)"}
     norm = Normalize(0.5, 2.0); cmap = plt.get_cmap("viridis")
     for ax, ycol, ylab in ((a, "实时失约_冷却热安全受限", "冷却/热安全导致的实时失约/GPU·h"), (b, "日费用CVaR95", "日运行费用 CVaR$_{0.95}$/元")):
         for u, mk in zip(fam, ["s", "^", "o"]):
             pts = [(k, f"{u}-k{k:g}" if k != 1.0 else u) for k in (0.5, 1.0, 2.0)]
             pts = [(k, n) for k, n in pts if n in s.index]
-            xs = [s.loc[n, "复核年化总费用"] / WAN for _, n in pts]; ys = [s.loc[n, ycol] for _, n in pts]
-            ax.plot(xs, ys, "-", color=COLM[u], lw=0.9, alpha=0.8)
-            sc = ax.scatter(xs, ys, c=[k for k, _ in pts], cmap=cmap, norm=norm, marker=mk, s=34, edgecolor=COLM[u], lw=1.0, zorder=3, label=fam[u])
-        for n, mk in (("M3", "D"), ("U0", "X")):
-            if n in s.index:
-                ax.scatter(s.loc[n, "复核年化总费用"] / WAN, s.loc[n, ycol], marker=mk, s=40, color=COLM[n], zorder=4,
-                           label={"M3": "U-SP 经验分布", "U0": "U0 确定性均值"}[n])
-        if "U3" in s.index:
-            ax.scatter(s.loc["U3", "复核年化总费用"] / WAN, s.loc["U3", ycol], s=150, facecolor="none", edgecolor="#E64B35", lw=1.3, zorder=5)
-        ax.set_xlabel("统一复核年化总费用/万元"); ax.set_ylabel(ylab)
-    a.legend(fontsize=7.5, loc="upper right"); panel(a, "(a)", -0.16); panel(b, "(b)", -0.16)
+            xs = [s.loc[n, "复核年运行费用"] / WAN for _, n in pts]; ys = [s.loc[n, ycol] for _, n in pts]
+            ax.plot(xs, ys, "-", color=COLM[u], lw=1.0, alpha=0.9)
+            sc = ax.scatter(xs, ys, c=[k for k, _ in pts], cmap=cmap, norm=norm, marker=mk, s=40, edgecolor=COLM[u], lw=1.2, zorder=3, label=fam[u])
+        ax.scatter(s.loc["M3", "复核年运行费用"] / WAN, s.loc["M3", ycol], marker="D", s=40, color=COLM["M3"], zorder=4, label="U-SP 经验分布")
+        ax.scatter(s.loc["U3", "复核年运行费用"] / WAN, s.loc["U3", ycol], s=170, facecolor="none", edgecolor="#E64B35", lw=1.3, zorder=5)
+        ax.set_xlabel("封存测试日年运行费用/万元"); ax.set_ylabel(ylab)
+    u0 = s.loc["U0"]
+    a.text(0.36, 0.42, f"U0 确定性均值未画出: 仅 {u0['N']:.0f} 台GPU,\n实时SLA {u0['实时SLA'] * 100:.1f}%, 设计日失约严重", transform=a.transAxes,
+           va="top", fontsize=7.3, color="#B03A2E", bbox=dict(fc="#FDEDEC", ec="none", pad=1.5))
+    b.legend(fontsize=7.5, loc="upper right"); panel(a, "(a)", -0.16); panel(b, "(b)", -0.16)
     cb = fig.colorbar(sc, ax=[a, b], pad=0.01, shrink=0.9); cb.set_label("模糊集缩放 κ")
     save(fig, "图10_不确定性模型样本外成本与服务风险前沿")
 
@@ -354,7 +372,7 @@ def fig12():
         ax = fig.add_subplot(gs[0, k]); g = T[T.压力片段 == sg].set_index("方案")
         v = [g.loc[m, "实时失约"] + g.loc[m, "延期失约"] if m in g.index else 0 for m in ms]
         ax.bar(range(len(ms)), v, 0.65, color=[COLM[m] for m in ms], edgecolor="white")
-        for i, vv in enumerate(v): ax.text(i, vv + max(v) * 0.02 + 0.5, f"{vv:.0f}", ha="center", fontsize=7.5)
+        for i, vv in enumerate(v): ax.text(i, abs(vv) + max(v) * 0.02 + 0.5, f"{abs(vv):.0f}", ha="center", fontsize=7.5)
         ax.set_xticks(range(len(ms))); ax.set_xticklabels(ms, fontsize=8); ax.set_title(f"({'abc'[k]}) {sg}", fontsize=9, loc="left")
         ax.set_ylim(0, max(max(v) * 1.25, 10))
         if k == 0: ax.set_ylabel("72 h 任务失约/GPU·h")
@@ -367,42 +385,48 @@ def fig12():
         p = RES / f"stress_{m}_{key}.pkl"
         if not p.exists(): continue
         o = pickle.load(open(p, "rb"))
-        ax.step(np.arange(73), np.r_[o["Tw"][:-1], o["Tw"][-2]], where="post", color=COLM[m], lw=1.1, label=f"{LABM[m]} $T^w$")
-        if o["sR"].sum() > 1: ax.bar(t + 0.5, -o["sR"] / 40, 0.8, bottom=22, color=COLM[m], alpha=0.6, label=f"{LABM[m]} 实时失约")
-    ax.plot(t + 0.5, o["Tamb"], color="0.4", lw=0.8, ls=":", label="室外温度")
-    ax.set_xlim(0, 72); ax.set_xticks(range(0, 73, 6)); ax.set_xlabel("时段/h (ST2 连续 3 日)"); ax.set_ylabel("温度/℃"); ax.set_ylim(5, 56)
-    ax.text(0.5, 21.3, "柱: 实时失约 (向下, 1格≈40 GPU·h)", fontsize=7.5, va="top")
-    ax.legend(ncol=3, fontsize=7.5, loc="lower right"); panel(ax, "(d)", -0.05)
+        ax.step(np.arange(73), np.r_[o["qMC"], o["qMC"][-1]], where="post", color=COLM[m], lw=1.1, label=f"{LABM[m]} 机械制冷散热")
+        if o["sR"].sum() > 1: ax.bar(t + 0.5, o["sR"], 0.8, color=COLM[m], alpha=0.45, label=f"{LABM[m]} 实时失约 (GPU·h)")
+    at = ax.twinx(); at.plot(t + 0.5, o["Tamb"], color="0.4", lw=0.8, ls=":", label="室外温度"); at.set_ylabel("室外温度/℃"); at.set_ylim(0, 45)
+    ax.set_xlim(0, 72); ax.set_xticks(range(0, 73, 6)); ax.set_xlabel("时段/h (ST2 连续 3 日)"); ax.set_ylabel("机械制冷散热/kW$_{th}$ ; 失约/GPU·h")
+    h1, l1 = ax.get_legend_handles_labels(); h2, l2 = at.get_legend_handles_labels(); ax.legend(h1 + h2, l1 + l2, ncol=3, fontsize=7.5, loc="upper right")
+    panel(ax, "(d)", -0.05)
     save(fig, "图12_连续多日压力测试_失约与热安全裕量")
 
 
 # ====================== 图13 气候窗口 (S2): 山脊图 + 3D 柱 ======================
 def fig13():
-    s = S(); cl = [("丹佛(基准)", "base", ""), ("旧金山", "旧金山", "S2-旧金山-"), ("芝加哥", "芝加哥", "S2-芝加哥-"), ("坦帕", "坦帕", "S2-坦帕-")]
-    cl = [c for c in cl if (c[2] + "M3" if c[2] else "M3") in s.index]
-    fig = plt.figure(figsize=(W2, 7.6 * CM), layout="constrained"); gs = fig.add_gridspec(1, 2, width_ratios=[1, 1.25])
+    s = S(); cl = [("丹佛", "base", ""), ("旧金山", "旧金山", "S2-旧金山-"), ("芝加哥", "芝加哥", "S2-芝加哥-"), ("坦帕", "坦帕", "S2-坦帕-")]
+    nm = lambda pre, m: (pre + m) if pre else m
+    cl = [c for c in cl if nm(c[2], "M3") in s.index]
+    dc = pd.read_csv(RES / "design_check.csv").set_index("方案") if (RES / "design_check.csv").exists() else None
+    fig = plt.figure(figsize=(W2, 7.2 * CM), layout="constrained"); gs = fig.add_gridspec(1, 3, width_ratios=[1, 1.3, 0.9])
     a = fig.add_subplot(gs[0]); from scipy.stats import gaussian_kde
     cols = ["#3C5488", "#4DBBD5", "#00A087", "#E64B35"]; xs = np.linspace(-25, 42, 300)
-    for k, (nm, tag, pre) in enumerate(cl):
-        T = pickle.load(open(C.PROC / f"dataset_{tag}.pkl", "rb"))["Tamb_all"].ravel()
-        y = gaussian_kde(T)(xs); y = y / y.max() * 0.9; off = len(cl) - 1 - k
+    for k, (n_, tag, pre) in enumerate(cl):
+        T = pickle.load(open(C.PROC / f"dataset_{tag}.pkl", "rb")); Ta = T["Tamb_all"].ravel()
+        y = gaussian_kde(Ta)(xs); y = y / y.max() * 0.9; off = len(cl) - 1 - k
         a.fill_between(xs, off, off + y, color=cols[k], alpha=0.75, lw=0); a.plot(xs, off + y, color="white", lw=0.6)
-        hrs = (T >= 34.4).sum(); a.text(41, off + 0.15, f"≥34.4℃ {hrs} h", ha="right", fontsize=7.5)
-    a.set_yticks(range(len(cl))); a.set_yticklabels([c[0] for c in cl][::-1]); a.set_xlabel("逐时室外温度/℃"); a.set_xlim(-25, 42)
-    a.axvline(34.4, color="k", lw=0.6, ls="--"); panel(a, "(a)", -0.2)
+        a.plot([T["design"]["T"]] * 2, [off, off + 0.5], color="k", lw=1.0); a.text(T["design"]["T"] - 0.8, off + 0.55, f"设计日 {T['design']['T']:.1f}℃", ha="right", fontsize=6.8)
+    a.set_yticks(range(len(cl))); a.set_yticklabels([c[0] for c in cl][::-1]); a.set_xlabel("逐时室外温度/℃"); a.set_xlim(-25, 42); panel(a, "(a)", -0.2)
     ax = fig.add_subplot(gs[1], projection="3d")
-    nm = lambda pre, m: (pre + m) if pre else m
-    xx, yy, zz, cc = [], [], [], []
     for i, (n_, tag, pre) in enumerate(cl):
         for j, m in enumerate(["M0", "M3"]):
-            xx.append(i); yy.append(j); zz.append(s.loc[nm(pre, m), "复核能源相关费用"] / WAN); cc.append(COLM[m])
-    zz = np.array(zz); cmap = LinearSegmentedColormap.from_list("h", ["#C6DBEF", "#FDD49E", "#E34A33"])
-    ax.bar3d(np.array(xx) - 0.3, np.array(yy) - 0.25, 0, 0.6, 0.5, zz, color=cmap(Normalize(zz.min() * 0.9, zz.max())(zz)), shade=True,
-             edgecolor="0.3", linewidth=0.3)
-    for x_, y_, z_ in zip(xx, yy, zz): ax.text(x_, y_, z_ + zz.max() * 0.04, f"{z_:.0f}", fontsize=6.5, ha="center")
-    ax.set_xticks(range(len(cl))); ax.set_xticklabels([c[0].replace("(基准)", "") for c in cl], fontsize=7.5)
-    ax.set_yticks([0, 1]); ax.set_yticklabels(["M0", "M3"], fontsize=7.5); ax.set_zlabel("能源相关费用/万元", fontsize=8, labelpad=2)
-    ax.view_init(24, -58); ax.tick_params(axis="z", labelsize=7); ax.set_box_aspect((1.6, 0.8, 0.9)); panel(ax, "(b)", 0.0, 0.95)
+            z = max(s.loc[nm(pre, m), "MC"], 0)
+            ax.bar3d(i - 0.3, j - 0.25, 0, 0.6, 0.5, max(z, 1), color=COLM[m], alpha=0.85, shade=True, edgecolor="0.25", linewidth=0.3)
+            ax.text(i, j, z + 120, f"{z:.0f}", fontsize=6.8, ha="center")
+    ax.set_xticks(range(len(cl))); ax.set_xticklabels([c[0] for c in cl], fontsize=7.5); ax.set_yticks([0, 1]); ax.set_yticklabels(["M0", "M3"], fontsize=7.5)
+    ax.set_title("机械制冷容量 $K^{\\mathrm{MC}}$/kW$_{th}$", fontsize=8.5, pad=0); ax.tick_params(axis="z", labelsize=7); ax.view_init(24, -58)
+    ax.set_box_aspect((1.6, 0.8, 0.9)); panel(ax, "(b)", 0.0, 0.98)
+    c = fig.add_subplot(gs[2]); dv = [(s.loc[nm(pre, "M3"), "复核能源相关费用"] - s.loc[nm(pre, "M0"), "复核能源相关费用"]) / WAN for _, _, pre in cl]
+    c.barh(range(len(cl)), dv, 0.55, color=["#2E8B57" if v < 0 else "#C0392B" for v in dv])
+    for i, (v, (n_, tag, pre)) in enumerate(zip(dv, cl)):
+        c.text(v + (1 if v >= 0 else -1), i, f"{v:+.1f}", va="center", ha="left" if v >= 0 else "right", fontsize=7.5)
+        if dc is not None:
+            f0 = dc.loc[nm(pre, "M0"), "实时失约"] + dc.loc[nm(pre, "M0"), "延期失约"]
+            if f0 > 1: c.text(0.02, i - 0.36, f"M0 设计日失约 {f0:.0f} GPU·h", fontsize=6.8, color="#B03A2E", transform=c.get_yaxis_transform())
+    c.axvline(0, color="0.3", lw=0.7); c.set_yticks(range(len(cl))); c.set_yticklabels([n_ for n_, _, _ in cl]); c.invert_yaxis()
+    c.set_xlabel("M3−M0 能源相关费用/万元"); lim = max(abs(min(dv)), abs(max(dv))) * 1.6; c.set_xlim(-lim, lim); panel(c, "(c)", -0.2)
     save(fig, "图13_气候窗口对冷源配置与费用的影响")
 
 
@@ -415,14 +439,15 @@ def fig14():
             n = m if f == 1.0 else f"S1-aN{f:g}-{m}"
             if n in s.index: xs.append(f); ys.append(s.loc[n, "复核能源相关费用"] / WAN); ns.append(s.loc[n, "N"])
         a.plot(xs, ys, mk + "-", color=COLM[m], mfc="white", mew=1.1, label=LABM[m])
-        for x_, y_, n_ in zip(xs, ys, ns): a.text(x_, y_ + 6, f"N={n_:.0f}", fontsize=7, ha="center", color=COLM[m])
     a.set_xlabel("GPU 年化投资倍率"); a.set_ylabel("能源相关年化费用/万元"); a.legend(fontsize=8); panel(a, "(a)", -0.14)
     for m, mk in (("M0", "s"), ("M3", "o")):
         xs, ys = [], []
         for sh, n in ((15, f"S3-b15-{m}"), (28.6, m), (50, f"S3-b50-{m}")):
             if n in s.index: xs.append(sh); ys.append(s.loc[n, "复核能源相关费用"] / WAN)
         b.plot(xs, ys, mk + "-", color=COLM[m], mfc="white", mew=1.1, label=LABM[m])
-    b.set_xlabel("可延期任务占比/%"); b.set_ylabel("能源相关年化费用/万元"); b.legend(fontsize=8); panel(b, "(b)", -0.14)
+    b.axvspan(46, 52, color="#FADBD8", lw=0); b.text(49, b.get_ylim()[0] + 0.5 * (b.get_ylim()[1] - b.get_ylim()[0]), "50%: 机位上限\n下不可行", ha="center", fontsize=7.2, color="#B03A2E")
+    b.set_xlim(12, 53); b.set_xlabel("可延期任务占比/%"); b.set_ylabel("能源相关年化费用/万元"); b.legend(fontsize=8, loc="upper center"); panel(b, "(b)", -0.14)
+    a.text(0.02, 0.04, "两方案 GPU 均为 2099 台, 容量不随 GPU 价格改变", transform=a.transAxes, fontsize=7.2, color="0.35")
     save(fig, "图14_GPU投资与任务结构敏感性")
 
 
@@ -465,27 +490,26 @@ def _sankey(ax, left, right, flows, colors, title):
     for nodes, side, x in ((L, 0, 0.0), (R, 1, 0.92)):
         for n, (a_, b_) in nodes.items():
             c = colors.get(n, "#7F7F7F"); ax.add_patch(mpatches.Rectangle((x, a_), 0.08, b_ - a_, fc=c, ec="none"))
-            ax.text(x - 0.01 if side == 0 else x + 0.09, (a_ + b_) / 2, f"{n}\n{(b_ - a_) / 1e3:.2f} GWh", ha="right" if side == 0 else "left",
+            ax.text(x - 0.01 if side == 0 else x + 0.09, (a_ + b_) / 2, f"{n}\n{(b_ - a_) / 1e3:.2f} GWh$_{{th}}$", ha="right" if side == 0 else "left",
                     va="center", fontsize=7.5)
     ax.set_xlim(-0.35, 1.35); ax.set_ylim(-gap, max(max(v[1] for v in L.values()), max(v[1] for v in R.values())) + gap)
     ax.invert_yaxis(); ax.axis("off"); ax.set_title(title, fontsize=9)
 
 
 def fig16():
-    fig, axs = plt.subplots(1, 2, figsize=(W2, 7.0 * CM), layout="constrained")
-    D = pickle.load(open(C.PROC / "dataset_base.pkl", "rb")); nd = D["n_d"]
+    fig, axs = plt.subplots(1, 2, figsize=(W2, 6.6 * CM), layout="constrained")
+    D = pickle.load(open(C.PROC / "dataset_base.pkl", "rb")); nd = D["n_d"]; P = C.params()
     for ax, m, pl in zip(axs, ["M0", "M3"], "ab"):
-        H = hourly(m); agg = {k: 0.0 for k in ("PV", "G", "IT", "AUX", "FC", "MC", "P0")}
+        H = hourly(m); g = {k: 0.0 for k in ("FC", "MC", "AIR", "eFC", "eMC")}
         for (d, i), o in H.items():
-            w = nd[d] / len(D["test"][d]); agg["PV"] += w * o["PPV"].sum(); agg["G"] += w * (o["Pg"].sum() + o["Pdis"].sum() - o["Pch"].sum())
-            agg["IT"] += w * o["PIT"].sum(); agg["AUX"] += w * ((o["kaux"] - 1) * o["PIT"]).sum(); agg["FC"] += w * o["PFC"].sum()
-            agg["MC"] += w * o["PMC"].sum(); agg["P0"] += w * 30.0 * 24
-        tot = agg["PV"] + agg["G"]; dem = {"GPU/IT": agg["IT"], "配电与辅助": agg["AUX"] + agg["P0"], "自然冷却": agg["FC"], "机械制冷": agg["MC"]}
-        sc = tot / sum(dem.values()); dem = {k: v * sc for k, v in dem.items()}
-        flows = {(s_, k): (agg["PV"] if s_ == "光伏" else agg["G"]) / tot * v for s_ in ("光伏", "电网") for k, v in dem.items()}
-        cols = {"光伏": "#F6C85F", "电网": "#8FA9D6", "GPU/IT": "#3C5488", "配电与辅助": "#B09C85", "自然冷却": "#7FC97F", "机械制冷": "#F4A6A6"}
-        _sankey(ax, ["光伏", "电网"], list(dem), {k: v / 1e3 for k, v in flows.items()}, cols, f"({pl}) {LABM[m]} (统一复核, 年)")
-    save(fig, "图16_年能量流桑基图_静态基准与完整耦合")
+            w = nd[d] / len(D["test"][d])
+            g["FC"] += w * o["qFC"].sum(); g["MC"] += w * o["qMC"].sum(); g["AIR"] += w * (1 - P["BETA_LIQ"]) * o["PIT"].sum()
+            g["eFC"] += w * o["PFC"].sum(); g["eMC"] += w * o["PMC"].sum()
+        flows = {("液冷环路热量", "自然冷却"): g["FC"] / 1e3, ("液冷环路热量", "机械制冷"): g["MC"] / 1e3, ("空气侧热量", "空气侧冷却"): g["AIR"] / 1e3}
+        cols = {"液冷环路热量": "#E64B35", "空气侧热量": "#F39B7F", "自然冷却": "#7FC97F", "机械制冷": "#4DBBD5", "空气侧冷却": "#B09C85"}
+        _sankey(ax, ["液冷环路热量", "空气侧热量"], ["自然冷却", "机械制冷", "空气侧冷却"], flows, cols,
+                f"({pl}) {LABM[m]}: 年散热流向 (统一复核)\n冷源电量 自然冷却 {g['eFC'] / 1e3:.0f} MWh + 机械制冷 {g['eMC'] / 1e3:.0f} MWh")
+    save(fig, "图16_年散热流向桑基图_静态基准与完整耦合")
 
 
 # ====================== 图17 多指标雷达图 ======================

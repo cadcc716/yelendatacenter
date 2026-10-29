@@ -1,0 +1,37 @@
+plan M3
+plan U3
+plan U1
+plan U2
+plan M2
+plan M1
+plan M0
+plan M0-W45
+plan U0
+ops
+plan U1-k0.5
+plan U2-k0.5
+plan U3-k0.5
+plan U1-k2
+plan U2-k2
+plan U3-k2
+plan S1-aN0.6-M0
+plan S1-aN0.6-M3
+plan S1-aN1.4-M0
+plan S1-aN1.4-M3
+plan S2-旧金山-M0
+plan S2-旧金山-M3
+plan S2-芝加哥-M0
+plan S2-芝加哥-M3
+plan S2-坦帕-M0
+plan S2-坦帕-M3
+plan S3-b15-M0
+plan S3-b15-M3
+plan S3-b50-M0
+plan S3-b50-M3
+plan 温区加密-M3
+bench 1 A0
+bench 1 A1
+bench 2 A0
+bench 2 A1
+bench 4 A0
+bench 4 A1
