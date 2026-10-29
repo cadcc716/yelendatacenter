@@ -1,3 +1,4 @@
 data/raw/BurstGPT_1.csv
 __pycache__/
 *.pyc
+results/jobs_rest.txt
