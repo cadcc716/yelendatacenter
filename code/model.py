@@ -200,11 +200,13 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
                   M.con([(y["m"][i], 1.0)] + [(y["u"][jj, off:Tt + off], -mub[i]) for jj in safe], hi=0.0)
           # ---------- 式(8)(9) 自然冷却与机械制冷 ----------
           phi, aMC, aFC = thermal_tables(b["Tamb"], zones, P)
+          # 有效上界: 由热平衡式(7), Σq ≤ β P^IT,max + C_w (T̄_w − T̲_w)/Δt, 用于收紧温区门控的大M (不切除任何可行解)
+          Hq = P["BETA_LIQ"] * Nmax * float(pk.max()) + P["C_W"] * (zones[-1][1] - zones[0][0]) / dt
           for j in range(len(J)):
               M.con([(y["qFC"][j], 1.0), (V["FC"], -phi[j])], hi=0.0)
-              M.con([(y["qFC"][j], 1.0), (y["u"][j, :Tt], -phi[j] * X["FC"])], hi=0.0)
+              M.con([(y["qFC"][j], 1.0), (y["u"][j, :Tt], -np.minimum(phi[j] * X["FC"], Hq))], hi=0.0)
               M.con([(y["qMC"][j], 1.0), (V["MC"], -1.0)], hi=0.0)
-              M.con([(y["qMC"][j], 1.0), (y["u"][j, :Tt], -X["MC"])], hi=0.0)
+              M.con([(y["qMC"][j], 1.0), (y["u"][j, :Tt], -min(X["MC"], Hq))], hi=0.0)
         # ---------- 式(10)–(12) 光伏、电网、储能 ----------
         y["PPV"] = M.var(Tt); y["Pg"] = M.var(Tt, 0, P["P_GRID_MAX"])
         M.con([(y["PPV"], 1.0), (V["PV"], -b["gpv"])], hi=0.0)

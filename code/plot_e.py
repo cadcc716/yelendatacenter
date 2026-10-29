@@ -238,7 +238,8 @@ def fig7():
         o = H[m]; a, b = axs[0, k], axs[1, k]
         st = [o["PPV"], o["Pg"], o["Pdis"]]; labs = ["光伏", "电网购电", "储能放电"]; cs = ["#F6C85F", "#8FA9D6", "#5AB4AC"]
         a.stackplot(tt, *[np.r_[x, x[-1]] for x in st], step="post", colors=cs, labels=labs, alpha=0.95, lw=0)
-        a.step(tt, o["kaux"] * np.r_[o["PIT"], o["PIT"][-1]], where="post", color="#3C5488", lw=1.1, label="IT及配电负荷")
+        L = o["Ptot"] + o["Pch"]
+        a.step(tt, np.r_[L, L[-1]], where="post", color="#3C5488", lw=1.1, label="总用电负荷")
         cool = o["PFC"] + o["PMC"]
         a.step(tt, np.r_[cool, cool[-1]], where="post", color="#C0392B", lw=1.1, label="冷源电功率")
         a.set_ylim(0, ymax); a.set_title(f"({'ab'[k]}) {LABM[m]} 容量", fontsize=9, loc="left")
@@ -250,10 +251,11 @@ def fig7():
         b.set_ylim(15, 56); b.set_xlim(0, 24); b.set_xticks(range(0, 25, 4)); b.set_xlabel("时段/$t$")
         if k == 0: b.set_ylabel("温度/℃")
         b3 = b.twinx(); b3.bar(t + 0.5, o["sR"], 0.7, color="#C0392B", alpha=0.35, label="实时失约")
-        b3.set_ylim(0, max(1.0, max(H[mm]["sR"].max() for mm in ms)) * 3); b3.set_yticks([])
+        b3.set_ylim(0, max(1.0, max(H[mm]["sR"].max() for mm in ms)) * 1.6); b3.set_yticks([])
         tot = o["sR"].sum(); b.text(0.3, 53, f"实时失约 {tot:.0f} GPU·h; 机械制冷电量 {o['PMC'].sum():.0f} kWh", fontsize=7.5)
     h, l = axs[0, 0].get_legend_handles_labels(); legend_top(fig, h, l, 5)
-    h, l = axs[1, 0].get_legend_handles_labels(); axs[1, 1].legend(h, l, fontsize=7.5, loc="lower right", ncol=2)
+    h, l = axs[1, 0].get_legend_handles_labels(); h3, l3 = b3.get_legend_handles_labels()
+    fig.legend(h + h3, l + l3, loc="upper center", bbox_to_anchor=(0.5, 0.0), ncol=3, frameon=False)
     save(fig, "图7_测试集最高温日运行调度_静态基准与完整耦合")
 
 
@@ -321,17 +323,21 @@ def fig10():
 # ====================== 图11 经验概率与最坏分布 (U3) ======================
 def fig11():
     R = plan("U3"); D = pickle.load(open(C.PROC / "dataset_base.pkl", "rb"))
-    P0 = np.array([[b["p"] for b in S_] for S_ in D["sup"]]); PW = np.array(R["pw"])
-    tags = [b["tag"].replace("极端:T_max", "极端高温日").replace("极端:R_peak", "实时峰值日") for b in D["sup"][0]]
+    ns = max(len(S_) for S_ in D["sup"]); pad = lambda v: np.r_[v, np.full(ns - len(v), np.nan)]
+    P0 = np.array([pad([b["p"] for b in S_]) for S_ in D["sup"]]); PW = np.array([pad(v) for v in R["pw"]])
+    longest = max(D["sup"], key=len)
+    tags = [b["tag"].replace("代表日", "代表").replace("极端:T_max", "最热日").replace("极端:R_peak", "峰值日") for b in longest]
+    tags = [t if not t.startswith("设计极端日") else "设计日" for t in tags]
     fig, axs = plt.subplots(1, 3, figsize=(W2, 5.4 * CM), layout="constrained", sharey=True)
     cm = LinearSegmentedColormap.from_list("p", ["#FFFFFF", "#FDD49E", "#FC8D59", "#B30000"])
-    dv = PW - P0; lim = np.abs(dv).max()
+    dv = PW - P0; lim = np.nanmax(np.abs(dv))
     for ax, M_, ttl, cmap, vmin, vmax in ((axs[0], P0, "(a) 经验概率 $\\hat p$", cm, 0, 0.6), (axs[1], PW, "(b) 最坏分布 $p^*$", cm, 0, 0.6),
                                          (axs[2], dv, "(c) $p^*-\\hat p$", "RdBu_r", -lim, lim)):
         im = ax.imshow(M_, cmap=cmap, vmin=vmin, vmax=vmax, aspect="auto")
         for (r, c), v in np.ndenumerate(M_):
-            ax.text(c, r, f"{v:.2f}", ha="center", va="center", fontsize=7, color="white" if abs(v) > 0.4 * (vmax if vmax else 1) and ax is not axs[2] else "black")
-        ax.set_xticks(range(len(tags))); ax.set_xticklabels(tags, rotation=35, ha="right", fontsize=7.5); ax.set_title(ttl, fontsize=9, loc="left")
+            if np.isnan(v): continue
+            ax.text(c, r, f"{v:.2f}", ha="center", va="center", fontsize=7, color="white" if abs(v) > 0.6 * vmax else "black")
+        ax.set_xticks(range(len(tags))); ax.set_xticklabels(tags, rotation=0, fontsize=7.5); ax.set_title(ttl, fontsize=9, loc="left")
         fig.colorbar(im, ax=ax, pad=0.01, shrink=0.85)
     axs[0].set_yticks(range(4)); axs[0].set_yticklabels(D["classes"])
     save(fig, "图11_条件半方差模糊集下的最坏分布")
@@ -352,21 +358,21 @@ def fig12():
         ax.set_xticks(range(len(ms))); ax.set_xticklabels(ms, fontsize=8); ax.set_title(f"({'abc'[k]}) {sg}", fontsize=9, loc="left")
         ax.set_ylim(0, max(max(v) * 1.25, 10))
         if k == 0: ax.set_ylabel("72 h 任务失约/GPU·h")
-        a2 = ax.twinx(); a2.plot(range(len(ms)), [g.loc[m, "最小热安全裕量K"] for m in ms], "o--", color="#3C5488", mfc="white", ms=4)
-        a2.set_ylim(-0.5, 15)
-        if k == 2: a2.set_ylabel("最小热安全裕量/K", color="#3C5488")
+        mg = np.nanmin([g.loc[m, "最小热安全裕量K"] for m in ms if m in g.index])
+        ax.text(0.03, 0.97, f"$T^{{\\mathrm{{amb}}}}_{{\\max}}$={g['Tmax'].iloc[0]:.1f}℃\n热安全裕量≥{mg:.1f} K", transform=ax.transAxes, ha="left", va="top", fontsize=7.5)
+        ax.set_ylim(0, max(max(v) * 1.45, 10))
     ax = fig.add_subplot(gs[1, :]); key = [sg for sg in segs if sg.startswith("ST2")][0].split()[0]
     t = np.arange(72)
-    for m in ms:
+    for m in [m for m in ("M0", "U3") if m in ms]:
         p = RES / f"stress_{m}_{key}.pkl"
         if not p.exists(): continue
         o = pickle.load(open(p, "rb"))
         ax.step(np.arange(73), np.r_[o["Tw"][:-1], o["Tw"][-2]], where="post", color=COLM[m], lw=1.1, label=f"{LABM[m]} $T^w$")
-        if o["sR"].sum() > 1: ax.bar(t + 0.5, -o["sR"] / 40, 0.8, bottom=22, color=COLM[m], alpha=0.5)
+        if o["sR"].sum() > 1: ax.bar(t + 0.5, -o["sR"] / 40, 0.8, bottom=22, color=COLM[m], alpha=0.6, label=f"{LABM[m]} 实时失约")
     ax.plot(t + 0.5, o["Tamb"], color="0.4", lw=0.8, ls=":", label="室外温度")
     ax.set_xlim(0, 72); ax.set_xticks(range(0, 73, 6)); ax.set_xlabel("时段/h (ST2 连续 3 日)"); ax.set_ylabel("温度/℃"); ax.set_ylim(5, 56)
     ax.text(0.5, 21.3, "柱: 实时失约 (向下, 1格≈40 GPU·h)", fontsize=7.5, va="top")
-    ax.legend(ncol=6, fontsize=7.5, loc="upper center"); panel(ax, "(d)", -0.05)
+    ax.legend(ncol=3, fontsize=7.5, loc="lower right"); panel(ax, "(d)", -0.05)
     save(fig, "图12_连续多日压力测试_失约与热安全裕量")
 
 
@@ -495,7 +501,7 @@ def fig17():
     fig = plt.figure(figsize=(W1, 7.6 * CM), layout="constrained"); ax = fig.add_subplot(projection="polar")
     for m, v in zip(ms, sc):
         ax.plot(ang, np.r_[v, v[0]], "-o", color=COLM[m], ms=3, lw=1.1, label=LABM[m]); ax.fill(ang, np.r_[v, v[0]], color=COLM[m], alpha=0.12)
-    ax.set_xticks(ang[:-1]); ax.set_xticklabels([n for _, n, _ in met], fontsize=8); ax.set_yticks([0.2, 0.6, 1.0]); ax.set_yticklabels([])
+    ax.set_xticks(ang[:-1]); ax.set_xticklabels([n for _, n, _ in met], fontsize=8); ax.tick_params(axis="x", pad=7); ax.set_yticks([0.2, 0.6, 1.0]); ax.set_yticklabels([])
     ax.set_ylim(0, 1.05); ax.legend(fontsize=7.5, loc="upper center", bbox_to_anchor=(0.5, -0.06), ncol=2)
     ax.set_title("越靠外越优 (各指标按方案间极差归一化)", fontsize=8, pad=12)
     save(fig, "图17_多指标雷达图")
@@ -504,7 +510,7 @@ def fig17():
 # ====================== 图18 逐日节省山脊图 (M0 − M3, 统一复核, 同一测试日配对) ======================
 def fig18():
     a, b = hf("M0").set_index(["d", "i"]), hf("M3").set_index(["d", "i"]); D = pickle.load(open(C.PROC / "dataset_base.pkl", "rb"))
-    dlt = (a["日运行费用"] - b["日运行费用"]).reset_index()
+    dlt = (b["日运行费用"] - a["日运行费用"]).reset_index()
     fig, ax = plt.subplots(figsize=(W1, 6.4 * CM), layout="constrained"); from scipy.stats import gaussian_kde
     cols = ["#7FC97F", "#E64B35", "#F6C85F", "#4DBBD5"]; xs = np.linspace(dlt["日运行费用"].min() - 300, dlt["日运行费用"].max() + 300, 300)
     for k in range(4):
@@ -512,10 +518,10 @@ def fig18():
         y = gaussian_kde(v)(xs) if len(v) > 2 and v.std() > 1e-6 else np.zeros_like(xs); y = y / (y.max() + 1e-12) * 0.85
         ax.fill_between(xs, off, off + y, color=cols[k], alpha=0.7, lw=0); ax.plot(xs, off + y, color="white", lw=0.6)
         ax.plot(v, np.full_like(v, off + 0.04), "|", color="k", ms=4, mew=0.5)
-        ax.text(xs[-1], off + 0.35, f"均值 {v.mean():.0f} 元/日", ha="right", fontsize=7.5)
+        ax.text(xs[-1], off + 0.35, f"均值 {v.mean():+.0f} 元/日", ha="right", fontsize=7.5)
     ax.axvline(0, color="k", lw=0.6, ls="--"); ax.set_yticks(range(4)); ax.set_yticklabels(D["classes"][::-1])
-    ax.set_xlabel("同一测试日运行费用节省 (M0−M3)/元"); ax.set_xlim(xs[0], xs[-1])
-    save(fig, "图18_封存测试日逐日节省分布山脊图")
+    ax.set_xlabel("同一测试日运行费用变化 (M3−M0)/元"); ax.set_xlim(xs[0], xs[-1])
+    save(fig, "图18_封存测试日逐日运行费用变化山脊图")
 
 
 FIGS = {"2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6, "7": fig7, "8": fig8, "9": fig9, "10": fig10, "11": fig11,

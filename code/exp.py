@@ -110,12 +110,15 @@ def capex(R):
 def eval_day(x, b, price, spec=HF, cfg=None, tl=90):
     M, V = Mo.build([dict(b, d=0, s=0, p=1.0)], spec, x_fix=x, slack=True, price=price, n_d=np.ones(1), cfg=cfg)
     sol, st, obj, g = M.solve(gap=0.002, tl=tl)
+    if sol is None:   # 即使允许任务失约也无法满足热安全/功率平衡: 记为"不可安全运行" (修订版 5.3.4)
+        return dict(状态="不可安全运行", 不可安全运行=1, 日运行费用=np.nan, 实时失约=np.nan, 延期失约=np.nan, 实时失约_GPU台数受限=np.nan,
+                    实时到达=b["AR"].sum(), 延期到达=b["AB"].sum(), Tmax=b["Tamb"].max()), None
     o = Mo.extract(sol, V)[1][0]
     gpu_lim = float(np.clip(b["AR"] - x["N"], 0, None).sum())          # 即使全部 GPU 标称满速也无法服务的实时工作量
     return dict(状态=st, 日运行费用=o["Cop"], 实时失约=o["sR"].sum(), 延期失约=o["sD"].sum(), 实时失约_GPU台数受限=min(gpu_lim, o["sR"].sum()),
                 实时到达=b["AR"].sum(), 延期到达=b["AB"].sum(), IT电量=o["PIT"].sum(), 冷却电量=(o["PFC"] + o["PMC"]).sum(),
                 机械制冷电量=o["PMC"].sum(), 购电量=o["Pg"].sum(), 购电峰值=o["Pg"].max(), 光伏利用=o["PPV"].sum(),
-                光伏可用=o["PVav"].sum(), 液冷温度max=o["Tw"].max(), Tmax=b["Tamb"].max(), 总电量=o["Ptot"].sum()), o
+                光伏可用=o["PVav"].sum(), 液冷温度max=o["Tw"].max(), Tmax=b["Tamb"].max(), 总电量=o["Ptot"].sum(), 不可安全运行=0), o
 
 
 def evaluate(x, D, spec=HF, cfg=None, days="test"):
@@ -131,8 +134,8 @@ def hf_summary(E, R, D):
     ann = lambda c: float((nd * per[c].reindex(range(4)).values).sum())
     cx = capex(R); ce = sum(cx.values())
     c = E["日运行费用"].values; eta = np.quantile(c, 0.95)
-    fail = (E["实时失约"] + E["延期失约"]) > 1e-3
-    out = dict(复核年运行费用=ann("日运行费用"), 复核年化总费用=ce + ann("日运行费用"),
+    fail = ((E["实时失约"] + E["延期失约"]) > 1e-3) | (E.get("不可安全运行", 0) == 1)
+    out = dict(不可安全运行日数=int(E.get("不可安全运行", pd.Series([0])).sum()), 复核年运行费用=ann("日运行费用"), 复核年化总费用=ce + ann("日运行费用"),
                复核能源相关费用=ce - cx["N"] + ann("日运行费用"),
                实时SLA=1 - E["实时失约"].sum() / E["实时到达"].sum(), 延期SLA=1 - E["延期失约"].sum() / E["延期到达"].sum(),
                实时失约GPUh=E["实时失约"].sum(), 延期失约GPUh=E["延期失约"].sum(),
@@ -215,7 +218,8 @@ def activity(R):
 
 
 def job(name):
-    R = plan(name)
+    import os
+    R = plan(name, tl=float(os.environ.get("TL", C.TIME_LIMIT)))
     pickle.dump(R, open(RES / f"plan_{name}.pkl", "wb"))
     print(f"[plan] {name} {R['status']} obj={R['obj']:.5e} gap={R['gap']:.0f} t={R['time']:.0f}s x=" +
           " ".join(f"{k}:{v:.0f}" for k, v in R["x"].items()), flush=True)
