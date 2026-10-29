@@ -1,0 +1,244 @@
+# 考虑GPU运行调节与液冷热状态耦合的AI数据中心分布鲁棒容量规划模型
+
+## 1 系统描述与基本假设
+
+研究对象为配置GPU算力集群、液冷环路、自然冷却装置、机械制冷机组、光伏及电池储能的单个AI数据中心。外部电网提供补充电力，光伏允许弃电，不考虑向电网售电。实时计算任务在到达时段完成，可延期任务在规定期限内处理。第一阶段确定设备容量，第二阶段在给定气象、光伏和任务情景下协调计算、冷却及储能运行。
+
+GPU采用经测试的离散运行模式，不额外引入连续频率及未经标定的功率函数；芯片热响应采用准稳态关系，液冷环路采用等效热容模型。自然冷却性能由设备曲线分温区给出，温区内采用不高估散热能力的容量系数。液冷环路的等效热容视为既有基础设施的参数，不随本研究配置的冷源容量变化。
+
+以$d$表示年度代表类别，$s\in\mathcal S_d$表示其联合运行情景，$t=1,\ldots,T$表示调度时段，步长为$\Delta t$（h）。$r\in\{\mathrm R,\mathrm B\}$分别表示实时与可延期任务，$k\in\mathcal K_r$表示任务类型$r$可用的GPU运行模式，$j\in\mathcal J$表示液冷温度区间。为简洁，下列公式中的情景运行量统一使用下标$dst$。
+
+**表1 主要变量与参数**
+
+| 符号                                                   | 含义                                       | 单位                                        |
+| ------------------------------------------------------ | ------------------------------------------ | ------------------------------------------- |
+| $N$；$K^{\mathrm{PV}}$                                 | GPU配置数量；光伏容量                      | 台；kW                                      |
+| $P^{\mathrm B},E^{\mathrm B}$                          | 储能功率、能量容量                         | kW；kWh                                     |
+| $K^{\mathrm{FC}},K^{\mathrm{MC}}$                      | 自然冷却、机械制冷额定散热容量             | kW$_{\mathrm{th}}$                          |
+| $m_{rkdst}$                                            | 运行于模式$k$、承担任务$r$的平均GPU数量    | 台                                          |
+| $A^r_{dst},U^r_{dst}$                                  | 时段到达量、实际完成工作量                 | 工作量$_r$/时段                             |
+| $v_{rk},p_{rk}$                                        | 模式对应处理速率、整机计量边界内单台电功率 | 工作量$_r$/(台·h)；kW/台                    |
+| $B_{dst}$                                              | 时段起始尚未完成的可延期工作量             | 工作量$_{\mathrm B}$                        |
+| $P^{\mathrm{IT}}_{dst}$；$T^w_{dst}$                   | IT功率；液冷环路等效温度                   | kW$_e$；℃                                   |
+| $u_{jdst}$                                             | 液冷温区选择变量                           | $\{0,1\}$                                   |
+| $q^{\mathrm{FC}}_{jdst},q^{\mathrm{MC}}_{jdst}$        | 对应温区的自然冷却及机械制冷散热功率       | kW$_{\mathrm{th}}$                          |
+| $P^{\mathrm{PV}}_{dst},P^{\mathrm{grid}}_{dst}$        | 光伏利用功率、电网购电功率                 | kW$_e$                                      |
+| $S_{dst},P^{\mathrm{ch}}_{dst},P^{\mathrm{dis}}_{dst}$ | 储能电量、充电功率、放电功率               | kWh；kW；kW                                 |
+| $C_w$；$\beta_{\mathrm{liq}}$                          | 液冷环路等效热容；IT热量进入液冷比例       | kWh/K；无量纲                               |
+| $R^{\mathrm{th}}_{rk},h_{rk}$                          | 模式热点等效热阻、芯片发热功率             | K/kW$_{\mathrm{th}}$；kW$_{\mathrm{th}}$/台 |
+| $\underline\phi_{jdst}$                                | 温区和气象条件下自然冷却可用容量系数的下界 | 无量纲                                      |
+| $a^{\mathrm{FC}}_{jdst},a^{\mathrm{MC}}_{jdst}$        | 对应模式单位散热量的附加电耗系数           | kW$_e$/kW$_{\mathrm{th}}$                   |
+| $p^{\mathrm{sl}},g^{\mathrm{PV}}_{dst}$                | GPU休眠功率、光伏单位容量可用出力系数      | kW/台；无量纲                               |
+
+## 2 GPU计算与液冷热耦合模型
+
+### 2.1 GPU运行功耗与任务处理
+
+采用经测量的GPU运行模式表示算力调节。令$m_{rkdst}$为时段内处于模式$k$且执行任务$r$的平均GPU数量，则GPU资源、处理能力和IT功率满足
+
+$$
+\begin{aligned}
+&\sum_r\sum_{k\in\mathcal K_r}m_{rkdst}\le N,\qquad m_{rkdst}\ge0,\\
+&0\le U^r_{dst}\le\Delta t\sum_{k\in\mathcal K_r}v_{rk}m_{rkdst},\\
+&P^{\mathrm{IT}}_{dst}=Np^{\mathrm{sl}}+\sum_r\sum_{k\in\mathcal K_r}(p_{rk}-p^{\mathrm{sl}})m_{rkdst}.
+\end{aligned}\tag{1}
+$$
+
+式中，$p_{rk}\ge p^{\mathrm{sl}}$。$m_{rkdst}$允许连续取值，表示大规模GPU集群在时段内的平均分配量；若不允许时段内模式切换，应改为整数。实时任务可用的模式集合$\mathcal K_{\mathrm R}$仅包括满足服务时延要求的测试模式。GPU运行功率与休眠功率必须采用相同的设备计量边界。
+
+实时任务须在到达时段完成；可延期任务以未完成工作量$B_{dst}$表示跨时段状态：
+
+$$
+\begin{aligned}
+&U^{\mathrm R}_{dst}=A^{\mathrm R}_{dst},\\
+&B_{ds,t+1}=B_{dst}+A^{\mathrm B}_{dst}-U^{\mathrm B}_{dst},\qquad B_{dst}\ge0.
+\end{aligned}\tag{2}
+$$
+
+假设可延期任务允许分割和抢占，且最大延期为$D$个时段，则
+
+$$
+\sum_{\tau=1}^{t}U^{\mathrm B}_{ds\tau}
+\ge\sum_{\tau=1}^{t-D}A^{\mathrm B}_{ds\tau},\quad t>D;
+\qquad B_{ds1}=B_{ds,T+1}=0.
+\tag{3}
+$$
+
+式（2）和$B_{ds,t+1}\ge0$共同保证累计处理量不超过已到达的任务量。式（3）用于无跨日积压的代表日；跨日任务情景须保留连续状态，而非每日重置。
+
+### 2.2 液冷动态与GPU热安全
+
+GPU发热中比例$\beta_{\mathrm{liq}}$进入液冷环路。以$T^w_{dst}$表示时段起始液冷等效温度，热动态为
+
+$$
+C_w\bigl(T^w_{ds,t+1}-T^w_{dst}\bigr)
+=\Delta t\left[\beta_{\mathrm{liq}}P^{\mathrm{IT}}_{dst}
+-\sum_j\bigl(q^{\mathrm{FC}}_{jdst}+q^{\mathrm{MC}}_{jdst}\bigr)\right].\tag{4}
+$$
+
+划分液冷温度区间$[\underline T_j,\overline T_j]$，每个状态时刻选择一个温区：
+
+$$
+\begin{aligned}
+&\sum_j u_{jdst}=1,\quad u_{jdst}\in\{0,1\},\quad t=1,\ldots,T+1,\\
+&\sum_j\underline T_j u_{jdst}\le T^w_{dst}
+\le\sum_j\overline T_j u_{jdst}.
+\end{aligned}\tag{5}
+$$
+
+温区连续覆盖允许的液冷温度范围。代表日采用有依据的初值$T^w_{ds1}=T^w_{d,0}$及末端条件$T^w_{ds,T+1}=T^w_{d,0}$；连续多日情景使用跨日状态衔接。
+
+GPU模式$rk$的热点温升以$R^{\mathrm{th}}_{rk}h_{rk}$近似。由设备允许的热点温度$T^{\mathrm{chip,max}}$，预先筛选可用温区：
+
+$$
+\mathcal J^{\mathrm{safe}}_{rk}=\left\{j:\overline T_j+R^{\mathrm{th}}_{rk}h_{rk}
+\le T^{\mathrm{chip,max}}\right\}.\tag{6}
+$$
+
+只有当液冷温度处于该GPU模式允许的温区时，才能使用对应模式。为避免仅检查时段起点而遗漏时段末的温升，在分段内温度单调变化的离散热模型下，对两个端点同时施加约束：
+
+$$
+\begin{aligned}
+&m_{rkdst}\le N^{\max}\sum_{j\in\mathcal J^{\mathrm{safe}}_{rk}}u_{jdst},\\
+&m_{rkdst}\le N^{\max}\sum_{j\in\mathcal J^{\mathrm{safe}}_{rk}}u_{j,ds,t+1}.
+\end{aligned}\tag{7}
+$$
+
+$N^{\max}$为实际可安装GPU数量上限，并非任意选取的大常数。式（6）—（7）使液冷温度反向限制GPU运行模式，是算力与冷却的核心耦合关系。对不满足准稳态热点近似的设备，应依据实测热响应调整该关系。
+
+### 2.3 自然冷却与机械制冷
+
+自然冷却能力随室外气象和液冷温区变化。$\underline\phi_{jdst}\in[0,1]$由设备性能曲线计算，采用区间内不高估散热能力的系数。自然冷却散热量满足
+
+$$
+\begin{aligned}
+&0\le q^{\mathrm{FC}}_{jdst}\le\underline\phi_{jdst}K^{\mathrm{FC}},\\
+&q^{\mathrm{FC}}_{jdst}\le\underline\phi_{jdst}K^{\mathrm{FC,max}}u_{jdst}.
+\end{aligned}\tag{8}
+$$
+
+机械制冷的运行散热量满足
+
+$$
+0\le q^{\mathrm{MC}}_{jdst}\le K^{\mathrm{MC}},\qquad
+q^{\mathrm{MC}}_{jdst}\le K^{\mathrm{MC,max}}u_{jdst}.
+\tag{9}
+$$
+
+上述形式在$0\le K^{\mathrm{FC}}\le K^{\mathrm{FC,max}}$、$0\le K^{\mathrm{MC}}\le K^{\mathrm{MC,max}}$下直接实现容量限制和温区门控，无需再定义$K^{\mathrm{FC}}u_{jdst}$的辅助变量。机械制冷容量指在研究温区内可持续提供的散热能力；若实际设备存在明显温度降额，应使用经过校准的温区降额系数修正式（9）。
+
+冷源和液冷循环的电耗计入电功率平衡。$a^{\mathrm{FC}}_{jdst}$、$a^{\mathrm{MC}}_{jdst}$分别表示自然冷却与机械制冷的单位散热附加电耗，不含单独计量的主循环泵耗。主循环及未由液冷带走的空气侧热负荷采用已校准的线性系数$a^{\mathrm{circ}}$、$a^{\mathrm{air}}$计算，不额外设置无必要的冷却总功率变量。
+
+## 3 能源设备及功率平衡
+
+光伏实际利用功率和电网购电功率分别满足
+
+$$
+0\le P^{\mathrm{PV}}_{dst}\le K^{\mathrm{PV}}g^{\mathrm{PV}}_{dst},\qquad
+0\le P^{\mathrm{grid}}_{dst}\le P^{\mathrm{grid,max}}.\tag{10}
+$$
+
+蓄电池采用常规电量状态方程：
+
+$$
+S_{ds,t+1}=(1-\delta_B)S_{dst}
++\Delta t\left(\eta_cP^{\mathrm{ch}}_{dst}
+-\frac{P^{\mathrm{dis}}_{dst}}{\eta_d}\right).\tag{11}
+$$
+
+储能电量边界、充放电互斥及设备倍率约束为
+
+$$
+\begin{aligned}
+&\sigma_{\min}E^{\mathrm B}\le S_{dst}\le\sigma_{\max}E^{\mathrm B},\qquad t=1,\ldots,T+1,\\
+&0\le P^{\mathrm{ch}}_{dst},P^{\mathrm{dis}}_{dst}\le P^{\mathrm B},\\
+&P^{\mathrm{ch}}_{dst}\le P^{\mathrm{B,max}}b_{dst},\quad
+P^{\mathrm{dis}}_{dst}\le P^{\mathrm{B,max}}(1-b_{dst}),\quad b_{dst}\in\{0,1\},\\
+&P^{\mathrm B}\le c_B^{\max}E^{\mathrm B}.
+\end{aligned}\tag{12}
+$$
+
+$c_B^{\max}$为设备允许的最大充放电倍率（h$^{-1}$）。代表日初末电量取$S_{ds1}=S_{ds,T+1}=\sigma_0E^{\mathrm B}$，$\sigma_0$为规定的初始SOC；连续多日模型改为跨日状态衔接。
+
+以$P^0_{dst}$表示尚未计入GPU及冷却功率的其他辅助负荷，电功率平衡为
+
+$$
+\begin{aligned}
+P^{\mathrm{grid}}_{dst}+P^{\mathrm{PV}}_{dst}+P^{\mathrm{dis}}_{dst}
+={}&\kappa_{\mathrm{aux}}P^{\mathrm{IT}}_{dst}
++\sum_j\left(a^{\mathrm{FC}}_{jdst}q^{\mathrm{FC}}_{jdst}
++a^{\mathrm{MC}}_{jdst}q^{\mathrm{MC}}_{jdst}\right)\\
+&+P^0_{dst}+P^{\mathrm{ch}}_{dst},\\
+\kappa_{\mathrm{aux}}={}&1+\delta_e
++a^{\mathrm{circ}}\beta_{\mathrm{liq}}
++a^{\mathrm{air}}(1-\beta_{\mathrm{liq}}).
+\end{aligned}\tag{13}
+$$
+
+$\delta_e$为IT侧配电损耗系数。$a^{\mathrm{circ}}$表示主循环泵电耗与进入液冷环路热功率的比例，$a^{\mathrm{air}}$表示剩余空气侧热量的单位散热电耗。式（13）的系数应按统一设备计量边界标定，避免重复计入服务器辅助功率、泵耗或配电损耗。
+
+## 4 容量规划目标与不确定性模型
+
+### 4.1 设备容量与年化成本
+
+第一阶段容量向量为
+
+$$
+\boldsymbol x=(N,K^{\mathrm{PV}},P^{\mathrm B},E^{\mathrm B},K^{\mathrm{FC}},K^{\mathrm{MC}}),
+\qquad \boldsymbol0\le\boldsymbol x\le\overline{\boldsymbol x},\quad N\in\mathbb Z_+.\tag{14}
+$$
+
+$\overline{\boldsymbol x}$由GPU机柜数量、光伏安装面积、储能和冷源设备选型等实际条件确定。各设备单位年化费用$a_i$根据投资、寿命、折现率及固定运维费用计算；不同设备寿命分别处理。
+
+$$
+\begin{aligned}
+C^{\mathrm{plan}}(\boldsymbol x)={}&a_NN+a_{\mathrm{PV}}K^{\mathrm{PV}}
++a_{\mathrm{BP}}P^{\mathrm B}+a_{\mathrm{BE}}E^{\mathrm B}\\
+&+a_{\mathrm{FC}}K^{\mathrm{FC}}
++a_{\mathrm{MC}}K^{\mathrm{MC}}.
+\end{aligned}\tag{15}
+$$
+
+情景日运行费用为
+
+$$
+C^{\mathrm{op}}_{ds}=\Delta t\sum_{t=1}^{T}
+\left[c^e_{dt}P^{\mathrm{grid}}_{dst}
++c^{\mathrm{var,B}}\bigl(P^{\mathrm{ch}}_{dst}+P^{\mathrm{dis}}_{dst}\bigr)\right].\tag{16}
+$$
+
+其中$c^e_{dt}$为电价（元/kWh）；$c^{\mathrm{var,B}}$仅表示尚未计入年化费用的储能可变运维费（元/kWh），无可验证数据时不另计。GPU和冷却耗电已进入电网购电量，不能重复计费。任务完成期限和温度安全为硬约束，不设任意违约罚系数。
+
+### 4.2 有限支持条件分布鲁棒模型
+
+每个联合情景$\xi_{ds}$包含完整日内的实时及可延期任务到达、光伏单位出力和气象温度轨迹。为避免高维矩估计，从外生轨迹中预先提取归一化特征$F_{ds}$。设$\widehat\mu_d$为条件经验特征均值，$\delta_d$为均值误差界限，$\rho_{\ell,ds}=a_\ell^\top(F_{ds}-\widehat\mu_d)$为预定风险方向$\ell$上的偏差。对应的有限支持概率模糊集为
+
+$$
+\begin{aligned}
+\mathcal P_d=\Bigl\{\boldsymbol p_d\ge0:\ &\sum_sp_{ds}=1,\\
+&-\delta_d\le\sum_sp_{ds}F_{ds}-\widehat\mu_d\le\delta_d,\\
+&\sum_sp_{ds}[\rho_{\ell,ds}]_+^2\le v^+_{d\ell},\quad\forall\ell,\\
+&\sum_sp_{ds}[-\rho_{\ell,ds}]_+^2\le v^-_{d\ell},\quad\forall\ell\Bigr\}.
+\end{aligned}\tag{17}
+$$
+
+式中，向量不等式逐分量成立。$v^+_{d\ell}$、$v^-_{d\ell}$分别为正、负方向二阶偏差的允许界限，需由训练数据估计并经验证集校准。所有$F_{ds}$、$\rho_{\ell,ds}$在规划前固定，故$\mathcal P_d$对概率$\boldsymbol p_d$为多面体。求解前应验证$\mathcal P_d\ne\varnothing$。此集合为有限情景条件矩DRO，并非连续支持半正定矩DRO。
+
+设代表类别$d$对应的年度天数为$n_d$，$\sum_dn_d=365$。在式（1）—（14）确定的容量及运行可行域内，以年化总费用最小为目标建立两阶段规划：
+
+$$
+\boxed{\min_{\boldsymbol x\in\mathcal X}\left\{
+C^{\mathrm{plan}}(\boldsymbol x)
++\sum_dn_d\max_{\boldsymbol p_d\in\mathcal P_d}
+\sum_sp_{ds}Q_{ds}(\boldsymbol x)\right\}},\qquad
+Q_{ds}(\boldsymbol x)=\min_{\boldsymbol y_{ds}\in\mathcal Y(\boldsymbol x,\xi_{ds})}C^{\mathrm{op}}_{ds}.
+\tag{18}
+$$
+
+$\mathcal X$包括设备配置边界及储能倍率约束，$\mathcal Y$包括任务完成、GPU热安全、散热能力、电量状态和功率平衡。$C^{\mathrm{plan}}$为元/年，$C^{\mathrm{op}}_{ds}$为元/代表日，$n_d$为天/年，目标量纲为元/年。
+
+## 5 模型性质
+
+上述模型保留了GPU运行状态与液冷温度相互约束、自然冷却气象依赖、电力与储能平衡及有限支持分布鲁棒容量规划的必要结构。固定情景概率后，运行及容量约束均为混合整数线性形式；概率模糊集上的最坏期望费用问题为线性规划。优先采用商业求解器处理有限情景模型，情景规模较大时可通过逐次加入最坏概率分布的线性约束求解，不需要额外构造KKT互补约束或紧Big-M算法。
+
+文中GPU性能、热阻、冷却性能、设备容量上限及初始状态均应采用对应设备资料或实测数据。对于温区分段和GPU时间共享近似，应在计算中验证其误差；所列模型为待参数校准和数值验证的数学表达，尚不代表已经得到计算结果。
