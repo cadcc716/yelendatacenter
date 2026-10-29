@@ -268,6 +268,20 @@ def bench(nc, alg):
     pd.DataFrame([r]).to_csv(RES / f"bench_{nc}_{alg}.csv", index=False); print("[bench]", r, flush=True)
 
 
+def design_check():
+    """设计极端日校核 (ASHRAE n=20 年一遇): 各方案容量在设计日上的统一物理评价 (设计日来自历史资料, 不属于测试集)。"""
+    rows = []
+    for f in sorted(RES.glob("plan_*.pkl")):
+        R = pickle.load(open(f, "rb")); pl = PLANS.get(R["name"])
+        if pl is None: continue
+        D = dataset(pl.get("ds", "base")); b = [x for S in D["sup"] for x in S if x["tag"].startswith("设计极端日")][0]
+        r, o = eval_day(R["x"], b, D["price"], cfg=R["cfg"], tl=300)
+        rows.append(dict(方案=R["name"], 设计温度=D["design"]["T"], 状态=r["状态"], 实时失约=r.get("实时失约"), 延期失约=r.get("延期失约"),
+                         实时失约_GPU台数受限=r.get("实时失约_GPU台数受限"), 机械制冷电量=r.get("机械制冷电量"), 液冷温度max=r.get("液冷温度max")))
+        print("[design]", rows[-1], flush=True)
+    pd.DataFrame(rows).to_csv(RES / "design_check.csv", index=False)
+
+
 def collect():
     rows = [pickle.load(open(f, "rb")) for f in sorted(RES.glob("row_*.pkl"))]
     S = pd.DataFrame(rows).set_index("方案")
@@ -278,7 +292,7 @@ def collect():
     D = dataset(); pd.DataFrame(D["calib"]).to_csv(RES / "calibration.csv", index=False)
     with pd.ExcelWriter(RES / "experiments.xlsx") as w:
         S.to_excel(w, sheet_name="汇总")
-        for f, nm in ((RES / "stress_all.csv", "压力测试"), (RES / "ops_summary.csv", "同容量运行"), (RES / "bench_all.csv", "求解效率"),
+        for f, nm in ((RES / "design_check.csv", "设计日校核"), (RES / "stress_all.csv", "压力测试"), (RES / "ops_summary.csv", "同容量运行"), (RES / "bench_all.csv", "求解效率"),
                       (RES / "calibration.csv", "模糊集校准")):
             if f.exists(): pd.read_csv(f).to_excel(w, sheet_name=nm, index=False)
     cols = ["状态", "间隙", "N", "PV", "EB", "FC", "MC", "规划能源相关费用", "复核能源相关费用", "实时SLA", "延期SLA", "失约日比例", "修复成本"]
@@ -291,4 +305,5 @@ if __name__ == "__main__":
     elif w == "ops": ops()
     elif w == "bench": bench(*sys.argv[2:4])
     elif w == "collect": collect()
+    elif w == "design": design_check()
     elif w == "list": print("\n".join(PLANS))
