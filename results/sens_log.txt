@@ -4,3 +4,7 @@
 [sens] kappa=4.0 M4-DRO obj=1.9404e+08
 [sens] FLOAT=0.3 M4-DRO obj=1.9312e+08
 [sens] FLOAT=0.3 M3-SP obj=1.9285e+08
+[sens] FLOAT=0.8 M4-DRO obj=1.9319e+08
+[sens] FLOAT=0.8 M3-SP obj=1.9300e+08
+[sens] R_TH=0.9 M4-DRO obj=1.9327e+08
+[sens] R_TH=0.9 M3-SP obj=1.9301e+08

@@ -177,8 +177,16 @@ def b7_sensitivity():
     ax.barh(range(len(rows)), rel, color=["#E64B35" if v > 0 else "#3C5488" for v in rel], height=0.6)
     ax.set_yticks(range(len(rows))); ax.set_yticklabels(names); ax.invert_yaxis(); ax.axvline(0, color="0.5", lw=0.6)
     ax.set_xlabel("能源相关年费用变化率/%")
-    for i, (v, mc) in enumerate(zip(rel, rows["机械制冷kWth"])):
-        ax.text(v + (0.3 if v >= 0 else -0.3), i, f"MC={mc:.0f}", va="center", ha="left" if v >= 0 else "right", fontsize=7)
+    for i, r in enumerate(rows.itertuples()):   # 只标注结构性变化: 冷水机组、储能、光伏归零
+        note = []
+        if r.机械制冷kWth > 1: note.append(f"冷机 {r.机械制冷kWth:.0f} kW")
+        if r.储能kWh > 1: note.append(f"储能 {r.储能kWh / 1e3:.1f} MWh")
+        if r.光伏kWp < 1: note.append("光伏 0")
+        if r.GPU台数 != base["GPU台数"]: note.append(f"GPU {r.GPU台数:.0f}")
+        if note:
+            v = rel.iloc[i]
+            ax.text(-0.15 if v > 0 else 0.15, i, ", ".join(note), va="center", ha="right" if v > 0 else "left", fontsize=7.5)
+    lim = max(abs(rel).max() * 1.15, 1); ax.set_xlim(-lim, lim)
     save(fig, OUT / "B7b_关键参数敏感性.png")
 
 

@@ -11,6 +11,8 @@
 | `code/data_prep.py` | 负荷轨迹/气象/光伏/电价 → 代表日情景与式(17)模糊集 |
 | `code/model.py` | MILP 构建（式1–18 逐条对应）与 HiGHS 求解 |
 | `code/run_all.py` | 6+1 个模型场景、物理校验、样本外评估、敏感性分析、结果导出 |
+| `code/sens_extra.py` | 敏感性分析并行补跑（可选） |
+| `code/report_tables.py`, `code/build_report.py` | 结果 CSV → Markdown 表格 → 组装报告 |
 | `code/plot_a.py` | 图组A：23 pt Times New Roman 时序对比图 |
 | `code/plot_b.py` | 图组B：8.5 cm 单栏 600 dpi 重设计图（差值/变化率/局部放大） |
 | `data/raw` | NREL TMY3 气象文件；BurstGPT 原始轨迹（未入库，自动下载） |
