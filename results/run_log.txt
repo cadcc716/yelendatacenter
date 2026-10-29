@@ -19,3 +19,4 @@
 [sens] kappa=2 M4-DRO obj=1.9375e+08 gap=8659
 [sens] kappa=4 M4-DRO obj=1.9417e+08 gap=9095
 [sens] FLOAT=0.3 M4-DRO obj=1.9328e+08 gap=9627
+[sens] FLOAT=0.8 M4-DRO obj=1.9329e+08 gap=1711
