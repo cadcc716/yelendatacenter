@@ -99,11 +99,20 @@ def thermal_tables(Tamb, zones, P=None):
     return phi, 1.0 / cop, np.full_like(phi, P["A_FC"])
 
 
-def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=None, cfg=None, _ro_cuts=None):
-    """blocks: [{'d','s','AR','AB','Tamb','gpv'}...]; amb: 每类 d 的模糊集参数 (DRO/SP 概率)。
+def spec_of(variant):
+    """模型规格 (GPU调节 a, 冷却模型, 概率层)。冷却模型: 'dyn' 液冷热状态+温区+热安全 (b=1);
+    'fixed' 固定低温供液温区的运行策略; 'static' 修订版 b=0 静态冷却 (无热惯性, 季节—时段冻结性能系数)。"""
+    if isinstance(variant, tuple): return variant
+    reg, coup, prob = VARIANTS[variant]
+    return reg, ("dyn" if coup else "fixed"), prob
+
+
+def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=None, cfg=None, _ro_cuts=None, x_lb=None):
+    """blocks: [{'d','s','AR','AB','Tamb','gpv'[, 'Tstat']}...]; amb: 每类 d 的模糊集参数 (DRO/SP 概率)。
+    variant: VARIANTS 中的名称或 (a, 冷却模型, 概率层) 元组; x_lb: 容量下界 (修复诊断用)。
     返回 (模型, 变量索引字典)。cfg 用于敏感性分析覆盖 config 中的参数。"""
     P = C.params(cfg)
-    reg, coup, prob = VARIANTS[variant]
+    reg, cool, prob = spec_of(variant); coup = cool == "dyn"
     M = MILP(); V = {}
     if price is None: raise ValueError("必须给出分时电价 price (式16)")
     # ---------------- 第一阶段容量 式(14)(15) ----------------
@@ -111,8 +120,9 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
     a = {k: v[0] * crf(v[1]) + v[2] for k, v in P["COST"].items()}       # 单位年化费用 a_i (元/单位/年)
     X = P["XMAX"]
     if x_fix is None:
-        V["N"] = M.var(1, 0, X["N"], integer=True, cost=a["N"])
-        for k in ["PV", "PB", "EB", "FC", "MC"]: V[k] = M.var(1, 0, X[k], cost=a[k])
+        lb = x_lb or {}
+        V["N"] = M.var(1, round(lb.get("N", 0)), X["N"], integer=True, cost=a["N"])
+        for k in ["PV", "PB", "EB", "FC", "MC"]: V[k] = M.var(1, min(lb.get(k, 0.0), X[k]), X[k], cost=a[k])
         M.con([(V["PB"], 1.0), (V["EB"], -P["C_B_MAX"])], hi=0.0)            # 式(12) P_B ≤ c_B^max E_B
     else:
         for k in ["N", "PV", "PB", "EB", "FC", "MC"]: V[k] = M.var(1, x_fix[k], x_fix[k])
@@ -159,30 +169,42 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
             M.con([(y["U"]["R"], 1.0)], b["AR"], b["AR"])
             for t in tt: M.row([(y["U"]["B"][:t], 1.0)], lo=cumA[t - D])
             M.con([(y["Bq"][[0, Tt]], 1.0)], 0.0, 0.0)                          # B_ds1 = B_ds,T+1 = 0
-        # ---------- 式(4)(5) 液冷环路热动态与温区选择 ----------
-        y["Tw"] = M.var(T1, zones[0][0], zones[-1][1]); y["u"] = M.var((len(J), T1), 0, 1, integer=coup)
-        y["qFC"] = M.var((len(J), Tt)); y["qMC"] = M.var((len(J), Tt))
-        M.con([(y["Tw"][[0, Tt]], 1.0)], Tw0, Tw0)
-        M.con([(y["Tw"][1:], P["C_W"]), (y["Tw"][:-1], -P["C_W"]), (y["PIT"], -dt * P["BETA_LIQ"])]
-              + [(y["qFC"][j], dt) for j in range(len(J))] + [(y["qMC"][j], dt) for j in range(len(J))], 0.0, 0.0)
-        M.con([(y["u"][j], 1.0) for j in range(len(J))], 1.0, 1.0)
-        M.con([(y["Tw"], 1.0)] + [(y["u"][j], -zones[j][0]) for j in range(len(J))], lo=0.0)
-        M.con([(y["Tw"], 1.0)] + [(y["u"][j], -zones[j][1]) for j in range(len(J))], hi=0.0)
-        # ---------- 式(6)(7) GPU 模式热安全门控 (两端点) ----------
-        for i, (r, k) in enumerate(ml):
-            h_k = P["MODES"][k][1]
-            safe = [jj for jj, z in enumerate(zones) if z[1] + P["R_TH"] * h_k <= P["T_CHIP_MAX"] + 1e-9]
-            if len(safe) == len(J): continue                                     # 全部温区安全, 约束冗余
-            if not safe: M.con([(y["m"][i], 1.0)], hi=0.0); continue
-            for off in (0, 1):
-                M.con([(y["m"][i], 1.0)] + [(y["u"][jj, off:Tt + off], -mub[i]) for jj in safe], hi=0.0)
-        # ---------- 式(8)(9) 自然冷却与机械制冷 ----------
-        phi, aMC, aFC = thermal_tables(b["Tamb"], zones, P)
-        for j in range(len(J)):
-            M.con([(y["qFC"][j], 1.0), (V["FC"], -phi[j])], hi=0.0)
-            M.con([(y["qFC"][j], 1.0), (y["u"][j, :Tt], -phi[j] * X["FC"])], hi=0.0)
-            M.con([(y["qMC"][j], 1.0), (V["MC"], -1.0)], hi=0.0)
-            M.con([(y["qMC"][j], 1.0), (y["u"][j, :Tt], -X["MC"])], hi=0.0)
+        if cool == "static":
+            # ---------- 修订版 b=0: 即时热量移除 Q^FC+Q^MC=β P^IT, Q^FC ≤ φ̄_dt K^FC, Q^MC ≤ K^MC ----------
+            Td = P["TW_STATIC"]; Ts = np.asarray(b.get("Tstat", b["Tamb"]), float)
+            phi, aMC, aFC = thermal_tables(Ts, [(Td, Td)], P)
+            y["qFC"] = M.var((1, Tt)); y["qMC"] = M.var((1, Tt))
+            M.con([(y["qFC"][0], 1.0), (y["qMC"][0], 1.0), (y["PIT"], -P["BETA_LIQ"])], 0.0, 0.0)
+            M.con([(y["qFC"][0], 1.0), (V["FC"], -phi[0])], hi=0.0)
+            M.con([(y["qMC"][0], 1.0), (V["MC"], -1.0)], hi=0.0)
+            J, zones = [-1], [(Td, Td)]
+        else:
+            phi = None
+        if cool != "static":
+          # ---------- 式(4)(5) 液冷环路热动态与温区选择 ----------
+          y["Tw"] = M.var(T1, zones[0][0], zones[-1][1]); y["u"] = M.var((len(J), T1), 0, 1, integer=coup)
+          y["qFC"] = M.var((len(J), Tt)); y["qMC"] = M.var((len(J), Tt))
+          M.con([(y["Tw"][[0, Tt]], 1.0)], Tw0, Tw0)
+          M.con([(y["Tw"][1:], P["C_W"]), (y["Tw"][:-1], -P["C_W"]), (y["PIT"], -dt * P["BETA_LIQ"])]
+                + [(y["qFC"][j], dt) for j in range(len(J))] + [(y["qMC"][j], dt) for j in range(len(J))], 0.0, 0.0)
+          M.con([(y["u"][j], 1.0) for j in range(len(J))], 1.0, 1.0)
+          M.con([(y["Tw"], 1.0)] + [(y["u"][j], -zones[j][0]) for j in range(len(J))], lo=0.0)
+          M.con([(y["Tw"], 1.0)] + [(y["u"][j], -zones[j][1]) for j in range(len(J))], hi=0.0)
+          # ---------- 式(6)(7) GPU 模式热安全门控 (两端点) ----------
+          for i, (r, k) in enumerate(ml):
+              h_k = P["MODES"][k][1]
+              safe = [jj for jj, z in enumerate(zones) if z[1] + P["R_TH"] * h_k <= P["T_CHIP_MAX"] + 1e-9]
+              if len(safe) == len(J): continue                                     # 全部温区安全, 约束冗余
+              if not safe: M.con([(y["m"][i], 1.0)], hi=0.0); continue
+              for off in (0, 1):
+                  M.con([(y["m"][i], 1.0)] + [(y["u"][jj, off:Tt + off], -mub[i]) for jj in safe], hi=0.0)
+          # ---------- 式(8)(9) 自然冷却与机械制冷 ----------
+          phi, aMC, aFC = thermal_tables(b["Tamb"], zones, P)
+          for j in range(len(J)):
+              M.con([(y["qFC"][j], 1.0), (V["FC"], -phi[j])], hi=0.0)
+              M.con([(y["qFC"][j], 1.0), (y["u"][j, :Tt], -phi[j] * X["FC"])], hi=0.0)
+              M.con([(y["qMC"][j], 1.0), (V["MC"], -1.0)], hi=0.0)
+              M.con([(y["qMC"][j], 1.0), (y["u"][j, :Tt], -X["MC"])], hi=0.0)
         # ---------- 式(10)–(12) 光伏、电网、储能 ----------
         y["PPV"] = M.var(Tt); y["Pg"] = M.var(Tt, 0, P["P_GRID_MAX"])
         M.con([(y["PPV"], 1.0), (V["PV"], -b["gpv"])], hi=0.0)
@@ -206,7 +228,7 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
     # ---------------- 式(17)(18) 概率层 ----------------
     if slack:  # 样本外评估: 未满足工作量以大罚系数"优先满足", 单独报告, 不计入费用
         for y in V["blocks"]:
-            for k in ("sR", "sD"): M.add_cost(y[k], 1e4)
+            M.add_cost(y["sR"], P["PEN_R"]); M.add_cost(y["sD"], P["PEN_B"])     # 字典序: 实时 ≫ 延期 ≫ 运行费用
     nd = n_d
     if prob == "SP" or amb is None:
         for y in V["blocks"]: M.add_cost(y["Cop"], nd[y["b"]["d"]] * y["b"]["p"])
@@ -249,10 +271,11 @@ def extract(sol, V):
     x = {k: float(g(V[k])[0]) for k in ["N", "PV", "PB", "EB", "FC", "MC"]}
     out = []
     for y in V["blocks"]:
-        m = g(y["m"]); u = g(y["u"]); qFC, qMC = g(y["qFC"]), g(y["qMC"])
-        zid = np.array(y["J"])[u.argmax(0)]
+        m = g(y["m"]); qFC, qMC = g(y["qFC"]), g(y["qMC"])
+        if "u" in y: zid = np.array(y["J"])[g(y["u"]).argmax(0)]; Tw = g(y["Tw"])
+        else: zid = np.full(len(y["b"]["AR"]) + 1, -1); Tw = np.full(len(y["b"]["AR"]) + 1, y["zones"][0][0])
         r = dict(d=y["b"]["d"], s=y["b"]["s"], Cop=float(g(y["Cop"])[0]),
-                 PIT=g(y["PIT"]), Tw=g(y["Tw"]), zone=zid, qFC=qFC.sum(0), qMC=qMC.sum(0),
+                 PIT=g(y["PIT"]), Tw=Tw, zone=zid, qFC=qFC.sum(0), qMC=qMC.sum(0),
                  PFC=(y["aFC"] * qFC).sum(0), PMC=(y["aMC"] * qMC).sum(0),
                  PPV=g(y["PPV"]), PVav=x["PV"] * y["b"]["gpv"], Pg=g(y["Pg"]), S=g(y["S"]),
                  Pch=g(y["Pch"]), Pdis=g(y["Pdis"]), UR=g(y["U"]["R"]), UB=g(y["U"]["B"]), Bq=g(y["Bq"]),

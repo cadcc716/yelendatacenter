@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 results/jobs_rest.txt
 results/jobs_rest2.txt
+results/exp/log.txt
