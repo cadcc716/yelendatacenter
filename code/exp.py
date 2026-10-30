@@ -252,6 +252,46 @@ def rehf(name):
     print(f"[rehf] {name} 复核能源相关费用={row['复核能源相关费用']:.5e} 冷却电量={row['复核冷却电量MWh']:.1f}", flush=True)
 
 
+def plan_cost(name, x):
+    """固定容量 x 时的规划目标 (SP: C^plan + Σ n_d p̂ Q_ds(x); 各情景独立求解)。用于容量候选局部搜索。"""
+    pl = PLANS[name]; D = dataset(pl.get("ds", "base")); cfg = pl.get("cfg")
+    B, nd, amb = support(D, pl); P = C.params(cfg)
+    crf = lambda L: P["DISC"] * (1 + P["DISC"]) ** L / ((1 + P["DISC"]) ** L - 1)
+    a = {k: v[0] * crf(v[1]) + v[2] for k, v in P["COST"].items()}
+    cap = sum(a[k] * x[k] for k in x); op = 0.0; outs = []
+    for b in B:
+        M, V = Mo.build([dict(b, d=0)], pl["spec"][:2] + ("SP",), x_fix=x, price=D["price"], n_d=np.ones(1), cfg=cfg)
+        sol, st, obj, g = M.solve(gap=1e-5, tl=300)
+        if sol is None: return np.inf, None
+        o = Mo.extract(sol, V)[1][0]; o.update(d=b["d"], s=b["s"]); outs.append(o); op += nd[b["d"]] * b["p"] * o["Cop"]
+    return cap + op, outs
+
+
+def polish(name):
+    """容量候选局部搜索 (仅 SP 方案): 以规划解为起点, 在机械制冷/自然冷却/光伏的离散候选上逐坐标比较固定容量下的完整目标,
+    得到同一模型下目标更优的可行解 (下界仍取 MILP 对偶界), 更新规划结果与统一复核。"""
+    R = pickle.load(open(RES / f"plan_{name}.pkl", "rb")); lb = R["obj"] - R["gap"]
+    best = dict(R["x"]); fb, ob = plan_cost(name, best); print(f"[polish] {name} 起点 {fb:.6e}", flush=True)
+    grids = {"MC": [0.0, 250.0, 500.0, 1000.0], "FC": [1500.0, 2000.0, 2500.0, 3000.0, 3500.0, 4000.0, 4500.0, 5000.0],
+             "PV": [best["PV"] * f for f in (0.8, 1.0, 1.2)]}
+    for _ in range(2):
+        for k, vals in grids.items():
+            for v in vals:
+                x = dict(best); x[k] = v; fx, ox = plan_cost(name, x)
+                if fx < fb - 1.0:
+                    best, fb, ob = x, fx, ox; print(f"[polish] {name} 改进 {k}={v:.0f} → {fb:.6e}", flush=True)
+    if fb < R["obj"] - 1.0:
+        R.update(x=best, out=ob, obj=fb, gap=fb - lb, status=R["status"] + "+局部搜索"); pickle.dump(R, open(RES / f"plan_{name}.pkl", "wb"))
+        D = dataset(PLANS[name].get("ds", "base")); E = evaluate(R["x"], D, cfg=R["cfg"]); E.insert(0, "方案", name); E.to_csv(RES / f"hf_{name}.csv", index=False)
+        row = pickle.load(open(RES / f"row_{name}.pkl", "rb"))
+        row.update(状态=R["status"], 间隙=R["gap"], 目标值=fb, **{k: v for k, v in best.items()}, **{f"年化_{k}": v for k, v in capex(R).items()})
+        row["年化投资"] = sum(capex(R).values())
+        row["规划期望运行费用"] = float(sum(b["p"] * R["n_d"][b["d"]] * o["Cop"] for b, o in zip(R["blocks"], R["out"])))
+        row["规划能源相关费用"] = row["年化投资"] - row["年化_N"] + row["规划期望运行费用"]
+        row.update(hf_summary(E, R, D)); pickle.dump(row, open(RES / f"row_{name}.pkl", "wb"))
+    print(f"[polish] {name} 完成: 目标 {R['obj']:.6e} 间隙 {R['gap']:.0f} x=" + " ".join(f"{k}:{v:.0f}" for k, v in R["x"].items()), flush=True)
+
+
 def ops():
     """5.3.3 同容量运行比较: 固定 x_ref = M3 规划容量, 只改变运行策略 (a, b)。"""
     R = pickle.load(open(RES / "plan_M3.pkl", "rb")); D = dataset()
@@ -320,4 +360,5 @@ if __name__ == "__main__":
     elif w == "collect": collect()
     elif w == "design": design_check()
     elif w == "rehf": rehf(sys.argv[2])
+    elif w == "polish": polish(sys.argv[2])
     elif w == "list": print("\n".join(PLANS))
