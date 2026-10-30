@@ -208,16 +208,15 @@ def fig6():
     gs = fig.add_gridspec(1, 3, width_ratios=[1.6, 1, 1]); a = fig.add_subplot(gs[0])
     w = 0.8 / len(ms); x = np.arange(4)
     for j, m in enumerate(ms):
-        R = plan(m); E = np.zeros(4); F = np.zeros(4)
-        for bb, o in zip(R["blocks"], R["out"]):
-            d0 = bb.get("d0", bb["d"]); wt = bb["p"] * R["n_d"][bb["d"]]
-            E[d0] += wt * o["qMC"].sum() / 1e3; F[d0] += wt * o["qFC"].sum() / 1e3
+        H = hourly(m); E = np.zeros(4); F = np.zeros(4)
+        for (d, i), o in H.items():
+            wt = D["n_d"][d] / len(D["test"][d]); E[d] += wt * o["qMC"].sum() / 1e3; F[d] += wt * o["qFC"].sum() / 1e3
         share = E / (E + F) * 100
         a.bar(x - 0.4 + w * (j + 0.5), E, w, color=COLM[m], edgecolor="white", lw=0.4, label=LABM[m])
         for i in range(4):
             if E[i] > 1: a.text(x[i] - 0.4 + w * (j + 0.5), E[i] + 8, f"{share[i]:.0f}%", ha="center", fontsize=6.5, rotation=90)
-    a.set_xticks(x); a.set_xticklabels(D["classes"]); a.set_ylabel("机械制冷承担的液冷散热/MWh$_{th}$·年$^{-1}$")
-    a.set_ylim(0, a.get_ylim()[1] * 1.12); a.legend(ncol=4, fontsize=7.2, loc="lower center", bbox_to_anchor=(0.5, 1.0)); panel(a, "(a)", -0.14, 1.12)
+    a.set_xticks(x); a.set_xticklabels(D["classes"]); a.set_ylabel("机械制冷散热/MWh$_{th}$·年$^{-1}$ (统一复核)")
+    a.set_ylim(0, a.get_ylim()[1] * 1.12); a.legend(ncol=2, fontsize=7.2, loc="upper left"); panel(a, "(a)", -0.16, 1.01)
     a.text(0.98, 0.95, "柱顶数字: 机械制冷\n散热占比", transform=a.transAxes, fontsize=7, color="0.4", va="top", ha="right")
     R = plan("M3"); md = {}
     for bb, o in zip(R["blocks"], R["out"]):
