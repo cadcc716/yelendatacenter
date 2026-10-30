@@ -239,6 +239,14 @@ def job(name):
     print(f"[done] {name} 复核年化总费用={row['复核年化总费用']:.5e} 实时SLA={row['实时SLA']:.5f} 修复={row.get('修复成本', '-')}", flush=True)
 
 
+def rehf(name):
+    """在含平局打破项的评价器下重做统一物理复核 (更新 hf_*.csv 与 row 中的复核指标, 规划与修复结果不变)。"""
+    R = pickle.load(open(RES / f"plan_{name}.pkl", "rb")); D = dataset(PLANS[name].get("ds", "base"))
+    E = evaluate(R["x"], D, cfg=R["cfg"]); E.insert(0, "方案", name); E.to_csv(RES / f"hf_{name}.csv", index=False)
+    row = pickle.load(open(RES / f"row_{name}.pkl", "rb")); row.update(hf_summary(E, R, D)); pickle.dump(row, open(RES / f"row_{name}.pkl", "wb"))
+    print(f"[rehf] {name} 复核能源相关费用={row['复核能源相关费用']:.5e} 冷却电量={row['复核冷却电量MWh']:.1f}", flush=True)
+
+
 def ops():
     """5.3.3 同容量运行比较: 固定 x_ref = M3 规划容量, 只改变运行策略 (a, b)。"""
     R = pickle.load(open(RES / "plan_M3.pkl", "rb")); D = dataset()
@@ -306,4 +314,5 @@ if __name__ == "__main__":
     elif w == "bench": bench(*sys.argv[2:4])
     elif w == "collect": collect()
     elif w == "design": design_check()
+    elif w == "rehf": rehf(sys.argv[2])
     elif w == "list": print("\n".join(PLANS))

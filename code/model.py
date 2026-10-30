@@ -222,6 +222,7 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
         M.con([(y["Pg"], 1.0), (y["PPV"], 1.0), (y["Pdis"], 1.0), (y["Pch"], -1.0), (y["PIT"], -kappa_aux)]
               + [(y["qFC"][j], -aFC[j]) for j in range(len(J))] + [(y["qMC"][j], -aMC[j]) for j in range(len(J))],
               P["P0"], P["P0"])
+        if P.get("EPS_MC", 0) > 0: M.add_cost(y["qMC"], P["EPS_MC"] * dt)   # 退化平局打破 (不计入 C^op)
         # ---------- 式(16) 情景日运行费用 ----------
         y["Cop"] = M.var(1, -INF, INF)
         M.row([(y["Cop"], 1.0), (y["Pg"], -dt * price), (y["Pch"], -dt * P["C_VAR_B"]), (y["Pdis"], -dt * P["C_VAR_B"])], 0.0, 0.0)
