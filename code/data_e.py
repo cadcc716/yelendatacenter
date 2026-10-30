@@ -121,7 +121,8 @@ def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", r_mean=C.R_MEAN_GPU, b_me
         if d == hot_d:
             # 设计极端日 (5.4.2 独立历史资料): 训练集最热日的逐时温度整体平移至 ASHRAE n 年一遇极端最高温度,
             # 负荷与光伏取该日实况; 经验概率 0, 只作为支撑点 (运行可行性硬约束 + 模糊集可分配概率)
-            j = [k for k, (w, _) in enumerate(tr) if w == hot_w][0]; w0, l0 = tr[j]
+            j = [k for k, (w, _) in enumerate(tr) if w == hot_w][0]; w0 = tr[j][0]
+            l0 = int(max(Ltr, key=lambda l: AR[l].sum() + AB[l].sum()))   # 设计负荷日: 训练块日负荷最大的一天 (各气候相同)
             Td = Tamb[w0] + (T_des - Tamb[w0].max())
             Fd = feats(Td[None], gpv[[w0]], AR[[l0]], AB[[l0]]); Fs = np.vstack([Fs, (Fd - m0) / s0])
             p = np.r_[p, 0.0]; tag = tag + [f"设计极端日{T_des:.1f}℃"]

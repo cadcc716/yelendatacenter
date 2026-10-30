@@ -47,7 +47,8 @@ for c in CLIMATE:
 for sh in ("b15", "b50"):
     for m in ("M0", "M3"):
         PLANS[f"S3-{sh}-{m}"] = dict(PLANS[m], ds=sh, full=False)
-PLANS["温区加密-M3"] = dict(PLANS["M3"], cfg={"ZONES": ZONES_FINE}, full=False)
+PLANS["温区粗化-M3"] = dict(PLANS["M3"], cfg={"ZONES": C.ZONES_COARSE, "FIXED_ZONES": [0]}, full=False)
+PLANS["无休眠-M3"] = dict(PLANS["M3"], cfg={"P_OFF": None}, full=False)        # 消融: GPU 调节只含降频, 不含休眠态
 
 _DS = {}
 

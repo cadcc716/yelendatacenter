@@ -65,9 +65,12 @@ def fig2():
     a2.set_ylabel("单位工作量电耗/(kWh·GPU$^{-1}$·h$^{-1}$)"); a2.set_ylim(1.0, 1.25)
     h1, l1 = a.get_legend_handles_labels(); h2, l2 = a2.get_legend_handles_labels()
     a.legend(h1 + h2, l1 + l2, loc="upper right", fontsize=8); panel(a, "(a)")
-    zc = ["#DCEAF7", "#BBD7EE", "#FBE3C8", "#F7C3A6", "#EE9A86"]
+    a.text(0.02, 0.03, f"休眠态: 速率 0, 整机待机 {P['P_OFF'] * 1000:.0f} W/台 (运行功率的 {P['P_OFF'] / ptot[0] * 100:.1f}%)\n空闲运行功率 {P['P_SLEEP'] * 1000:.0f} W/台",
+           transform=a.transAxes, fontsize=7, va="bottom", bbox=dict(fc="white", ec="0.7", lw=0.5, pad=2))
+    zcm = LinearSegmentedColormap.from_list("z", ["#DCEAF7", "#FBE3C8", "#EE9A86"])
     for j, (lo, hi) in enumerate(P["ZONES"]):
-        b.axhspan(lo, hi, color=zc[j], lw=0); b.text(2.62, (lo + hi) / 2, f"温区{j + 1}", va="center", fontsize=8)
+        b.axhspan(lo, hi, color=zcm(j / (len(P["ZONES"]) - 1)), lw=0); b.axhline(lo, color="white", lw=0.4)
+        b.text(2.62, (lo + hi) / 2, f"$j$={j + 1}", va="center", fontsize=6.5)
     b.bar(x, tsafe - 20, 0.5, bottom=20, color=["#3C5488", "#4DBBD5", "#00A087"], alpha=0.9)
     for i in range(3): b.text(x[i], tsafe[i] + 0.5, f"{tsafe[i]:.1f} ℃", ha="center", fontsize=8)
     b.set_xticks(x); b.set_xticklabels(lab); b.set_xlim(-0.5, 3.1); b.set_ylim(20, 56)
@@ -557,8 +560,29 @@ def fig18():
     save(fig, "图18_封存测试日逐日运行费用变化山脊图")
 
 
+# ====================== 图19 GPU 休眠与降频: IT 功率构成 (典型夏季代表日) ======================
+def fig19():
+    P = C.params(); fig, axs = plt.subplots(1, 2, figsize=(W2, 6.2 * CM), layout="constrained", sharey=True)
+    for ax, m, pl in zip(axs, ["M2", "M3"], "ab"):
+        R = plan(m); j = max(range(len(R["blocks"])), key=lambda k: (R["blocks"][k]["d"] == 1) * R["blocks"][k]["p"])
+        o, b = R["out"][j], R["blocks"][j]; N = R["x"]["N"]; t = np.arange(25)
+        act = sum((P["MODES"][k.split("|")[1]][1] + P["P_HOST"] - P["P_SLEEP"]) * v for k, v in o["modes"].items())
+        run = sum(o["modes"].values()); off = o["off"]; warm = N - run - off
+        parts = [(run * P["P_SLEEP"], "运行GPU基础功率", "#8FA9D6"), (act, "运行GPU增量功率", "#3C5488"),
+                 (warm * P["P_SLEEP"], "空闲常开GPU", "#F4A6A6"), (off * P["P_OFF"], "休眠GPU待机", "#7FC97F")]
+        ax.stackplot(t, *[np.r_[v, v[-1]] for v, _, _ in parts], step="post", colors=[c for _, _, c in parts], labels=[l for _, l, _ in parts], lw=0)
+        ax.set_xlim(0, 24); ax.set_xticks(range(0, 25, 4)); ax.set_xlabel("时段/$t$")
+        ax.set_title(f"({pl}) {LABM[m]}: IT 电量 {o['PIT'].sum() / 1e3:.1f} MWh/日", fontsize=9, loc="left")
+        a2 = ax.twinx(); a2.plot(t[:-1] + 0.5, b["AR"] + b["AB"], "k--", lw=0.9, label="到达工作量"); a2.set_ylim(0, 4000)
+        if pl == "b": a2.set_ylabel("到达工作量/GPU·h"); 
+        else: a2.set_yticks([])
+    axs[0].set_ylabel("IT 功率/kW"); h, l = axs[0].get_legend_handles_labels(); h2, l2 = a2.get_legend_handles_labels()
+    legend_top(fig, h + h2, l + l2, 5)
+    save(fig, "图19_GPU休眠与降频对IT功率构成的影响")
+
+
 FIGS = {"2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6, "7": fig7, "8": fig8, "9": fig9, "10": fig10, "11": fig11,
-        "12": fig12, "13": fig13, "14": fig14, "15": fig15, "16": fig16, "17": fig17, "18": fig18}
+        "12": fig12, "13": fig13, "14": fig14, "15": fig15, "16": fig16, "17": fig17, "18": fig18, "19": fig19}
 
 if __name__ == "__main__":
     which = sys.argv[1:] or list(FIGS)

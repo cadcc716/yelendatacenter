@@ -128,7 +128,7 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
         for k in ["N", "PV", "PB", "EB", "FC", "MC"]: V[k] = M.var(1, x_fix[k], x_fix[k])
     V["a"] = a
     modes = {"R": P["K_R"] if reg else ["k1_标称"], "B": P["K_B"] if reg else ["k1_标称"]}
-    J = list(range(len(P["ZONES"]))) if coup else [P["FIXED_ZONE"]]
+    J = list(range(len(P["ZONES"]))) if coup else list(P["FIXED_ZONES"])
     zones = [P["ZONES"][j] for j in J]
     Tw0 = P["TW0"] if coup else P["TW0_FIXED"]
     psl, Tt, T1, dt = P["P_SLEEP"], P["T"], P["T"] + 1, P["DT"]
@@ -149,11 +149,18 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
         y["m"] = M.var((len(ml), Tt), 0.0, mub); y["ml"] = ml
         y["U"] = {r: M.var(Tt) for r in "RB"}
         y["PIT"] = M.var(Tt)
-        M.con([(y["m"][i], 1.0) for i in range(len(ml))] + [(V["N"], -1.0)], hi=0.0)
+        if reg and P.get("P_OFF") is not None:
+            # 休眠态: off 台 GPU 待机; 运行 + 休眠 ≤ N; 休眠台数 ≤ (1−ρ)·空闲台数 (保留热备用)
+            y["off"] = M.var(Tt, 0.0, Nmax)
+            M.con([(y["m"][i], 1.0) for i in range(len(ml))] + [(y["off"], 1.0), (V["N"], -1.0)], hi=0.0)
+            M.con([(y["off"], 1.0)] + [(y["m"][i], 1 - P["RHO_WARM"]) for i in range(len(ml))] + [(V["N"], -(1 - P["RHO_WARM"]))], hi=0.0)
+        else:
+            M.con([(y["m"][i], 1.0) for i in range(len(ml))] + [(V["N"], -1.0)], hi=0.0)
         for r in "RB":
             ii = [i for i, (rr, _) in enumerate(ml) if rr == r]
             M.con([(y["U"][r], 1.0)] + [(y["m"][i], -dt * vv[i]) for i in ii], hi=0.0)
-        M.con([(y["PIT"], 1.0), (V["N"], -psl)] + [(y["m"][i], -(pk[i] - psl)) for i in range(len(ml))], 0.0, 0.0)
+        M.con([(y["PIT"], 1.0), (V["N"], -psl)] + [(y["m"][i], -(pk[i] - psl)) for i in range(len(ml))]
+              + ([(y["off"], psl - P["P_OFF"])] if "off" in y else []), 0.0, 0.0)
         # ---------- 式(2)(3) 实时任务与可延期任务积压 ----------
         y["Bq"] = M.var(T1); M.con([(y["Bq"][1:], 1.0), (y["Bq"][:-1], -1.0), (y["U"]["B"], 1.0)], b["AB"], b["AB"])
         cumA = np.concatenate([[0.0], np.cumsum(b["AB"])])
@@ -182,7 +189,7 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
             phi = None
         if cool != "static":
           # ---------- 式(4)(5) 液冷环路热动态与温区选择 ----------
-          y["Tw"] = M.var(T1, zones[0][0], zones[-1][1]); y["u"] = M.var((len(J), T1), 0, 1, integer=coup)
+          y["Tw"] = M.var(T1, zones[0][0], zones[-1][1]); y["u"] = M.var((len(J), T1), 0, 1, integer=len(J) > 1)
           y["qFC"] = M.var((len(J), Tt)); y["qMC"] = M.var((len(J), Tt))
           M.con([(y["Tw"][[0, Tt]], 1.0)], Tw0, Tw0)
           M.con([(y["Tw"][1:], P["C_W"]), (y["Tw"][:-1], -P["C_W"]), (y["PIT"], -dt * P["BETA_LIQ"])]
@@ -283,7 +290,8 @@ def extract(sol, V):
                  PPV=g(y["PPV"]), PVav=x["PV"] * y["b"]["gpv"], Pg=g(y["Pg"]), S=g(y["S"]),
                  Pch=g(y["Pch"]), Pdis=g(y["Pdis"]), UR=g(y["U"]["R"]), UB=g(y["U"]["B"]), Bq=g(y["Bq"]),
                  AR=y["b"]["AR"], AB=y["b"]["AB"], Tamb=y["b"]["Tamb"], kaux=y["kaux"],
-                 modes={f"{r_}|{k}": m[i] for i, (r_, k) in enumerate(y["ml"])})
+                 modes={f"{r_}|{k}": m[i] for i, (r_, k) in enumerate(y["ml"])},
+                 off=g(y["off"]) if "off" in y else np.zeros(len(y["b"]["AR"])))
         r["Paux"] = (y["kaux"] - 1) * r["PIT"]
         r["Ptot"] = y["kaux"] * r["PIT"] + r["PFC"] + r["PMC"] + y["P0"]
         for k in ("sR", "sD"):
