@@ -321,20 +321,21 @@ def fig10():
     s = S(); fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 6.8 * CM), layout="constrained")
     fam = {"U1": "U1 无条件对称", "U2": "U2 条件对称", "U3": "U3 条件半方差(本文)"}
     norm = Normalize(0.5, 2.0); cmap = plt.get_cmap("viridis")
-    for ax, ycol, ylab in ((a, "实时失约_冷却热安全受限", "冷却/热安全导致的实时失约/GPU·h"), (b, "日费用CVaR95", "日运行费用 CVaR$_{0.95}$/元")):
+    for ax, ycol, ylab, sc_ in ((a, "复核能源相关费用", "能源相关年化费用/万元", WAN), (b, "日费用CVaR95", "日运行费用 CVaR$_{0.95}$/元", 1.0)):
         for u, mk in zip(fam, ["s", "^", "o"]):
             pts = [(k, f"{u}-k{k:g}" if k != 1.0 else u) for k in (0.5, 1.0, 2.0)]
             pts = [(k, n) for k, n in pts if n in s.index]
-            xs = [s.loc[n, "复核年运行费用"] / WAN for _, n in pts]; ys = [s.loc[n, ycol] for _, n in pts]
+            xs = [s.loc[n, "复核年运行费用"] / WAN for _, n in pts]; ys = [s.loc[n, ycol] / sc_ for _, n in pts]
             ax.plot(xs, ys, "-", color=COLM[u], lw=1.0, alpha=0.9)
             sc = ax.scatter(xs, ys, c=[k for k, _ in pts], cmap=cmap, norm=norm, marker=mk, s=40, edgecolor=COLM[u], lw=1.2, zorder=3, label=fam[u])
-        ax.scatter(s.loc["M3", "复核年运行费用"] / WAN, s.loc["M3", ycol], marker="D", s=40, color=COLM["M3"], zorder=4, label="U-SP 经验分布")
-        ax.scatter(s.loc["U3", "复核年运行费用"] / WAN, s.loc["U3", ycol], s=170, facecolor="none", edgecolor="#E64B35", lw=1.3, zorder=5)
+        ax.scatter(s.loc["M3", "复核年运行费用"] / WAN, s.loc["M3", ycol] / sc_, marker="D", s=40, color=COLM["M3"], zorder=4, label="U-SP 经验分布")
+        ax.scatter(s.loc["U3", "复核年运行费用"] / WAN, s.loc["U3", ycol] / sc_, s=170, facecolor="none", edgecolor="#E64B35", lw=1.3, zorder=5)
         ax.set_xlabel("封存测试日年运行费用/万元"); ax.set_ylabel(ylab)
     u0 = s.loc["U0"]
-    a.text(0.36, 0.42, f"U0 确定性均值未画出: 仅 {u0['N']:.0f} 台GPU,\n实时SLA {u0['实时SLA'] * 100:.1f}%, 设计日失约严重", transform=a.transAxes,
+    sh = sorted({round(float(s.loc[n, "实时失约_冷却热安全受限"])) for n in s.index if n[:2] in ("U1", "U2", "U3") or n == "M3"})
+    a.text(0.55, 0.60, f"U0 确定性均值未画出:\n仅 {u0['N']:.0f} 台GPU, 实时SLA {u0['实时SLA'] * 100:.1f}%,\n设计日失约严重\n各点冷却失约均为 {'/'.join(map(str, sh))} GPU·h", transform=a.transAxes,
            va="top", fontsize=7.3, color="#B03A2E", bbox=dict(fc="#FDEDEC", ec="none", pad=1.5))
-    b.legend(fontsize=7.5, loc="upper right"); panel(a, "(a)", -0.16); panel(b, "(b)", -0.16)
+    b.legend(fontsize=7.5, loc="upper right", scatterpoints=1); panel(a, "(a)", -0.16); panel(b, "(b)", -0.16)
     cb = fig.colorbar(sc, ax=[a, b], pad=0.01, shrink=0.9); cb.set_label("模糊集缩放 κ")
     save(fig, "图10_不确定性模型样本外成本与服务风险前沿")
 
@@ -448,7 +449,7 @@ def fig14():
         b.plot(xs, ys, mk + "-", color=COLM[m], mfc="white", mew=1.1, label=LABM[m])
     b.axvspan(46, 52, color="#FADBD8", lw=0); b.text(49, b.get_ylim()[0] + 0.5 * (b.get_ylim()[1] - b.get_ylim()[0]), "50%: 机位上限\n下不可行", ha="center", fontsize=7.2, color="#B03A2E")
     b.set_xlim(12, 53); b.set_xlabel("可延期任务占比/%"); b.set_ylabel("能源相关年化费用/万元"); b.legend(fontsize=8, loc="upper center"); panel(b, "(b)", -0.14)
-    a.text(0.02, 0.04, "两方案 GPU 均为 2099 台, 容量不随 GPU 价格改变", transform=a.transAxes, fontsize=7.2, color="0.35")
+    a.text(0.03, 0.72, "两方案 GPU 均为 2099 台, 容量不随 GPU 价格改变", transform=a.transAxes, fontsize=7.2, color="0.35")
     save(fig, "图14_GPU投资与任务结构敏感性")
 
 

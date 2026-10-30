@@ -1,0 +1,38 @@
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+BDF  NOT subset; don't know how to subset; dropped
+FFTM NOT subset; don't know how to subset; dropped
+Dropped cmap subtable from font '0':	format  6, platformID  1, platEncID  0
+Dropped cmap subtable from font '0':	format  6, platformID  1, platEncID  0
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+findfont: Failed to find font weight bold for SciMix Serif, now using 400.
+findfont: Failed to find font weight bold for WenQuanYi Zen Hei, now using 500.
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+findfont: Font family ['cursive'] not found. Falling back to DejaVu Sans.
+findfont: Generic family 'cursive' not found because none of the following families were found: Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, Comic Neue, Comic Sans MS, cursive
+findfont: Failed to find font weight bold for SciMix Serif, now using 400.
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+saved 图2_GPU运行模式特性与热安全上限
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+saved 图3_液冷温区与气象共同决定可用GPU模式和自然冷却能力
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+saved 图4_E1物理机制消融_容量配置与统一复核费用
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+saved 图5_GPU调节与热反馈的边际贡献及交互效应
+saved 图6_活跃约束_机械制冷散热与GPU模式结构
+saved 图7_测试集最高温日运行调度_静态基准与完整耦合
+saved 图8_封存测试日机械制冷散热热力图
+saved 图9_同容量运行比较_只改变运行策略
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+saved 图10_不确定性模型样本外成本与服务风险前沿
+saved 图11_条件半方差模糊集下的最坏分布
+saved 图12_连续多日压力测试_失约与热安全裕量
+findfont: Failed to find font weight normal for WenQuanYi Zen Hei, now using 500.
+saved 图13_气候窗口对冷源配置与费用的影响
+saved 图14_GPU投资与任务结构敏感性
+saved 图15_直接对偶求解与概率割平面效率
+saved 图16_年散热流向桑基图_静态基准与完整耦合
+saved 图17_多指标雷达图
+saved 图18_封存测试日逐日运行费用变化山脊图
+saved 图19_GPU休眠与降频对IT功率构成的影响
