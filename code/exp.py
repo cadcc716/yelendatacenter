@@ -47,6 +47,9 @@ for c in CLIMATE:
 for sh in ("b15", "b50"):
     for m in ("M0", "M3"):
         PLANS[f"S3-{sh}-{m}"] = dict(PLANS[m], ds=sh, full=False)
+for nf in ("n30", "n60"):   # 训练样本量实验 (E3 补充): 数据稀缺时 DRO 与 SP 的样本外表现
+    for m in ("M3", "U2", "U3"):
+        PLANS[f"{nf.upper()}-{m}"] = dict(PLANS[m], ds=nf, full=False)
 PLANS["温区粗化-M3"] = dict(PLANS["M3"], cfg={"ZONES": C.ZONES_COARSE, "FIXED_ZONES": [0]}, full=False)
 PLANS["无休眠-M3"] = dict(PLANS["M3"], cfg={"P_OFF": None}, full=False)        # 消融: GPU 调节只含降频, 不含休眠态
 
@@ -61,6 +64,7 @@ def dataset(tag="base"):
             kw = {}
             if tag in CLIMATE: kw["epw"] = CLIMATE[tag]
             if tag.startswith("k"): kw["kappa"] = float(tag[1:])
+            if tag.startswith("n"): kw["train_frac"] = int(tag[1:]) / 100
             if tag in ("b15", "b50"):
                 tot, sh = C.R_MEAN_GPU + C.B_MEAN_GPU, int(tag[1:]) / 100
                 kw.update(r_mean=tot * (1 - sh), b_mean=tot * sh)

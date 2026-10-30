@@ -77,7 +77,7 @@ def ashrae_extreme(epw, n=C.DESIGN_RETURN_N):
     return float(f[i + pos])
 
 
-def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", r_mean=C.R_MEAN_GPU, b_mean=C.B_MEAN_GPU, kappa=1.0):
+def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", r_mean=C.R_MEAN_GPU, b_mean=C.B_MEAN_GPU, kappa=1.0, train_frac=1.0):
     rng = np.random.default_rng(C.SEED)
     AR, AB = load_workload()
     AR, AB = AR / C.R_MEAN_GPU * r_mean, AB / C.B_MEAN_GPU * b_mean
@@ -85,6 +85,11 @@ def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", r_mean=C.R_MEAN_GPU, b_me
     nW = len(AR); la, lb = int(round(C.SPLIT[0] * nW)), int(round(sum(C.SPLIT) * nW))
     Ltr, Lva, Lte = np.arange(la), np.arange(la, lb), np.arange(lb, nW)
     Wtr, Wva, Wte = split_days(month)
+    if train_frac < 1.0:   # 训练样本量实验: 每月只保留训练块中最早的 train_frac 比例日 (验证/测试块不变)
+        keep = []
+        for m in range(1, 13):
+            idx = [w for w in Wtr if month[w] == m]; keep += idx[:max(3, int(round(train_frac * len(idx))))]
+        Wtr = np.array(keep)
     pair = lambda W, L: (W, L[np.arange(len(W)) % len(L)])           # 同块内按日期顺序配对
     blocks = {"tr": pair(Wtr, Ltr), "va": pair(Wva, Lva), "te": pair(Wte, Lte)}
     season = {m: i for i, (_, (ms, _)) in enumerate(C.SEASONS.items()) for m in ms}
