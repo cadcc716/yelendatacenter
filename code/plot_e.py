@@ -226,7 +226,7 @@ def fig6():
         for k, v in o["modes"].items(): md[k] = md.get(k, 0) + bb["p"] * R["n_d"][bb["d"]] * v.sum()
     for k, (r, ttl, pl) in enumerate((("R", "实时任务 GPU·h", "(b)"), ("B", "可延期任务 GPU·h", "(c)"))):
         ax = fig.add_subplot(gs[k + 1]); kk = [q for q in md if q.startswith(r)]
-        v = np.array([md[q] for q in kk]); cols = ["#3C5488", "#4DBBD5", "#00A087"][:len(kk)]
+        v = np.clip(np.array([md[q] for q in kk]), 0, None); cols = ["#3C5488", "#4DBBD5", "#00A087"][:len(kk)]
         wd, _ = ax.pie(v, colors=cols, startangle=90, counterclock=False, wedgeprops=dict(width=0.38, edgecolor="white"))
         for wdg, vv in zip(wd, v / v.sum()):
             ang = np.deg2rad((wdg.theta1 + wdg.theta2) / 2)
@@ -304,10 +304,9 @@ def fig9():
     a.bar(x, v, 0.6, color=cols, edgecolor="white", hatch=["///" if k > 0 else "" for k in bad])
     for i in range(len(ps)):
         a.text(i, v[i] + 1.2, f"{v[i]:.1f}", ha="center", fontsize=8)
-        if bad[i] > 0: a.text(i, v.min() * 0.955 + 1, f"{bad[i]}天不可\n安全运行\n(未计费用)", ha="center", va="bottom", fontsize=7, color="#B03A2E",
+        if bad[i] > 0: a.text(i, v[i] * 0.5, f"{bad[i]}天不可\n安全运行\n(未计费用)", ha="center", va="center", fontsize=7, color="#B03A2E",
                               bbox=dict(fc="white", ec="none", pad=0.8, alpha=0.9))
-    a.set_ylim(v.min() * 0.95, v.max() * 1.035); a.set_ylabel("年运行费用/万元"); a.set_xticks(x); a.set_xticklabels(ps)
-    a.text(0.98, 0.97, "纵轴未从0起", transform=a.transAxes, fontsize=7, color="0.4", va="top", ha="right"); panel(a, "(a)", -0.14)
+    a.set_ylim(0, v.max() * 1.12); a.set_ylabel("年运行费用/万元"); a.set_xticks(x); a.set_xticklabels(ps); panel(a, "(a)", -0.14)
     r = O["实时失约GPUh"].values
     b.bar(x, r, 0.6, color=cols, edgecolor="white", hatch=["///" if k > 0 else "" for k in bad])
     for i in range(len(ps)):
