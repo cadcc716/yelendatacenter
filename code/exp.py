@@ -339,6 +339,11 @@ def polish(name):
     得到同一模型下目标更优的可行解 (下界仍取 MILP 对偶界), 更新规划结果与统一复核。"""
     R = pickle.load(open(RES / f"plan_{name}.pkl", "rb")); lb = R["obj"] - R["gap"]
     best = dict(R["x"]); fb, ob = plan_cost(name, best); print(f"[polish] {name} 起点 {fb:.6e}", flush=True)
+    ref = pickle.load(open(RES / "plan_M3.pkl", "rb"))["x"]   # 联合种子: 冷水机组 0 + 自然冷却按基准 M3 放大 (坐标搜索无法同时改变两个变量)
+    for fct in (1.0, 1.05, 1.1, 1.2, 1.35, 1.5):
+        x = dict(best); x.update(MC=0.0, FC=min(ref["FC"] * fct, C.XMAX["FC"])); fx, ox = plan_cost(name, x)
+        if fx < fb - 1.0:
+            best, fb, ob = x, fx, ox; print(f"[polish] {name} 改进 种子 MC=0 FC={x['FC']:.0f} → {fb:.6e}", flush=True)
     grids = {"MC": [0.0, 250.0, 500.0, 750.0, 1000.0], "FC": [1000.0, 1500.0, 2000.0, 2500.0, 3000.0, 3500.0, 4000.0, 4500.0, 5000.0],
              "PV": [best["PV"] * f for f in (0.8, 1.0, 1.2)]}
     for _ in range(2):
