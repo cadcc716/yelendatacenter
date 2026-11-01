@@ -637,18 +637,18 @@ def fig21():
     col = ["#2E8B57" if m < 100 else "#E67E22" for m in Sn["M3机械制冷"]]
     a.barh(y, Sn["M3较M0百分比"], color=col, edgecolor="0.3", lw=0.5, height=0.62)
     for yi, (_, r) in zip(y, Sn.iterrows()):
-        a.text(r["M3较M0百分比"] - 0.4, yi, f"{r['M3较M0百分比']:.1f}%  MC={r['M3机械制冷']:.0f}", va="center", ha="right", fontsize=6.8, color="white")
+        a.text(-0.3, yi, f"{r['M3较M0百分比']:.1f}%, 冷水机组 {r['M3机械制冷']:.0f}", va="center", ha="right", fontsize=6.6, color="white")
     a.set_yticks(y, [t.split(" (")[0] for t in Sn["参数"]], fontsize=7.5); a.axvline(0, color="0.3", lw=0.7)
     a.set_xlabel("M3 相对 M0 能源相关费用/%"); a.set_xlim(min(Sn["M3较M0百分比"]) * 1.15, 0)
     a.legend(handles=[mpatches.Patch(color="#2E8B57", label="冷水机组 < 100 kW$_{th}$"), mpatches.Patch(color="#E67E22", label="仍需冷水机组")],
-             fontsize=7, loc="lower left"); panel(a, "(a)", -0.32)
+             fontsize=7, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=2, frameon=False); panel(a, "(a)", -0.32, 1.1)
     ms = ["M0", "M0-设计工况", "M1", "M2", "M3"]; x = np.arange(len(ms)); w = 0.38
     for k, (g, cc) in enumerate((("常数风机电耗", "#BDBDBD"), ("风机变工况", "#3C5488"))):
         t = Fn[Fn["风机模型"] == g].set_index("方案").reindex(ms)
         b.bar(x + (k - 0.5) * w, t["冷却电量MWh"], w, color=cc, edgecolor="0.3", lw=0.5, label=g)
         for xi, v in zip(x, t["冷却电量MWh"]): b.text(xi + (k - 0.5) * w, v + 4, f"{v:.0f}", ha="center", fontsize=6.6)
     b.set_xticks(x, ["M0", "M0-设计", "M1", "M2", "M3"]); b.set_ylabel("年冷却电量/MWh"); b.legend(fontsize=7.5, loc="upper right")
-    b.set_ylim(0, Fn["冷却电量MWh"].max() * 1.25); panel(b, "(b)")
+    b.set_ylim(0, Fn["冷却电量MWh"].max() * 1.4); panel(b, "(b)")
     L = Lg.copy(); n = len(L); xx = np.arange(n)
     pen = L["风险调整费用"] - L["能源相关费用"]
     c.bar(xx, L["能源相关费用"], 0.6, color="#B5C7E3", edgecolor="0.3", lw=0.5, label="能源相关费用")
@@ -656,8 +656,9 @@ def fig21():
     for xi, (_, r) in zip(xx, L.iterrows()):
         c.text(xi, r["风险调整费用"] + 15, f"{r['风险调整费用']:.0f}\n冷却失约 {r['年化冷却受限失约']:,.0f}", ha="center", fontsize=6.4)
     lab = [t.replace(" (c_R=100)", "").replace("M3 + 自然冷却余量 ", "M3+FC余量\n").replace("M3 完整耦合(硬约束)", "M3 完整耦合") for t in L["方案"]]
-    c.set_xticks(xx, lab, fontsize=7); c.set_ylabel("长负荷数据下风险调整年化费用/万元"); c.set_ylim(0, L["风险调整费用"].max() * 1.28)
-    c.legend(fontsize=7.5, loc="upper left", ncol=2); panel(c, "(c)", -0.07)
+    c.set_xticks(xx, lab, fontsize=7); c.set_ylabel("风险调整年化费用/万元"); c.set_ylim(0, L["风险调整费用"].max() * 1.42)
+    c.legend(fontsize=7.5, loc="upper left", ncol=2); panel(c, "(c)", -0.06)
+    c.set_title("长负荷数据 (BurstGPT 188 日)", fontsize=8.5)
     save(fig, "图21_稳健性_参数敏感性_风机变工况与长负荷数据")
 
 

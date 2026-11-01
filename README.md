@@ -19,6 +19,8 @@
 | `code/exp.py` | 修订版 E1–E5 实验：方案定义、统一物理评价器、修复诊断、同容量运行比较、设计日校核、求解效率；`run_exp.sh`/`run_exp2.sh` 并行驱动 |
 | `code/plot_e.py`, `code/report_e.py` | E1–E5 图件（`figures/exp/`，图2–图20）与报告生成 |
 | `code/risk_e.py`, `code/run_soft.sh` | E3 补充：风险成本型（软约束）规划的样本外风险费用与配对区块 bootstrap |
+| `code/rob_e.py`, `code/fc_margin.py`, `code/run_rev.sh` | 审稿修改：参数稳健性（SENS-）、风机变工况（FAN-）、BurstGPT 188 日长负荷（L-）及自然冷却余量检验 |
+| `code/run_zw.sh` | 中卫 ERA5 多年逐时气象（2014–2024，按年份划分）复算；需网络放行 `archive-api.open-meteo.com` |
 | `docs/审稿意见_中国电机工程学报.md` | 以中国电机工程学报审稿人/编辑视角的审查意见与最终可支撑创新点 |
 | `code/report_tables.py`, `code/build_report.py` | 结果 CSV → Markdown 表格 → 组装报告 |
 | `code/plot_a.py` | 图组A：23 pt Times New Roman 时序对比图 |
