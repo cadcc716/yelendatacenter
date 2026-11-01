@@ -581,7 +581,55 @@ def fig19():
     save(fig, "图19_GPU休眠与降频对IT功率构成的影响")
 
 
-FIGS = {"2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6, "7": fig7, "8": fig8, "9": fig9, "10": fig10, "11": fig11,
+# ====================== 图20 风险成本型 (软约束) 分布鲁棒规划 ======================
+def fig20():
+    T = pd.read_csv(RES / "risk_table.csv"); Bt = pd.read_csv(RES / "risk_boot.csv"); PW = pd.read_csv(RES / "risk_pw.csv")
+    c0 = 100; t = T[T["评价单价c_R"] == c0].set_index("方案")
+    names = [n for n in ["M3", "R100-SP", "R100-U1", "R100-U2", "R100-U3"] if n in t.index]
+    lab = {"M3": "硬约束\nSP", "R100-SP": "软约束\nSP", "R100-U1": "软约束\nU1", "R100-U2": "软约束\nU2", "R100-U3": "软约束\nU3"}
+    col = {"M3": COLM["M3"], "R100-SP": "#8C8C8C", "R100-U1": COLM["U1"], "R100-U2": COLM["U2"], "R100-U3": COLM["U3"]}
+    fig, ax = plt.subplots(2, 2, figsize=(W2, 11.5 * CM), layout="constrained"); (a, b), (c, d) = ax
+    x = np.arange(len(names)); w = 0.36
+    a.bar(x - w / 2, [t.loc[n, "自然冷却"] for n in names], w, color=DEV["FC"][1], edgecolor="0.3", lw=0.5, label="自然冷却")
+    a.bar(x + w / 2, [t.loc[n, "机械制冷"] for n in names], w, color=DEV["MC"][1], edgecolor="0.3", lw=0.5, label="机械制冷")
+    for i, n in enumerate(names):
+        a.text(x[i] - w / 2, t.loc[n, "自然冷却"] + 40, f"{t.loc[n, '自然冷却']:.0f}", ha="center", fontsize=6.8, rotation=90, va="bottom")
+        a.text(x[i] + w / 2, t.loc[n, "机械制冷"] + 40, f"{t.loc[n, '机械制冷']:.0f}", ha="center", fontsize=6.8, rotation=90, va="bottom")
+    a.set_xticks(x, [lab[n] for n in names]); a.set_ylabel("冷源容量/kW$_{th}$"); a.legend(fontsize=8, loc="upper right")
+    a.set_ylim(0, max(t.loc[names, "自然冷却"].max(), t.loc[names, "机械制冷"].max()) * 1.3); panel(a, "(a)")
+    base = t.loc[names, "能源投资"].values; op = t.loc[names, "年运行费用"].values; pen = t.loc[names, "失约费用"].values
+    b.bar(x, base, 0.6, color="#B5C7E3", edgecolor="0.3", lw=0.5, label="能源设备年化投资")
+    b.bar(x, op, 0.6, bottom=base, color="#D9D9D9", edgecolor="0.3", lw=0.5, label="年运行费用")
+    b.bar(x, pen, 0.6, bottom=base + op, color="#E64B35", edgecolor="0.3", lw=0.5, label="失约费用 ($c_R$=100)")
+    for i, n in enumerate(names):
+        b.text(x[i], base[i] + op[i] + pen[i] + 4, f"{base[i] + op[i] + pen[i]:.1f}", ha="center", fontsize=7.5)
+    lo = (base + op).min() * 0.85
+    b.set_ylim(lo, (base + op + pen).max() * 1.06); b.set_xticks(x, [lab[n] for n in names]); b.set_ylabel("风险调整年化费用/万元")
+    b.legend(fontsize=7.2, loc="upper left", ncol=1); panel(b, "(b)")
+    # (c) 夏季类别: 经验概率 vs 最坏分布
+    pw = PW[PW["季节"] == 1]
+    sc = pw[pw["方案"] == "R100-SP"]["情景"].tolist()
+    short = [s.replace("代表日", "代表").replace("极端:T_max", "最热日").replace("极端:R_peak", "负荷峰").split("℃")[0].replace("设计极端日", "设计日") for s in sc]
+    xx = np.arange(len(sc)); ww = 0.26
+    for j, (nm, lb, cc) in enumerate((("R100-SP", "经验概率 $\\hat p$", "#8C8C8C"), ("R100-U2", "U2 最坏分布 $p^*$", COLM["U2"]), ("R100-U3", "U3 最坏分布 $p^*$", COLM["U3"]))):
+        q = pw[pw["方案"] == nm]
+        if q.empty: continue
+        vals = (q["经验概率"] if nm == "R100-SP" else q["加权概率"]).values
+        c.bar(xx + (j - 1) * ww, vals, ww, color=cc, edgecolor="0.3", lw=0.4, label=lb)
+    c.set_xticks(xx, short, rotation=30, ha="right", fontsize=7.5); c.set_ylabel("夏季情景概率"); c.legend(fontsize=7.5); panel(c, "(c)")
+    # (d) 单价敏感性: 配对 bootstrap 差值及 95% CI
+    for k, (cmp, lb, cc, mk) in enumerate(((f"U3", "U3 − 软约束SP", COLM["U3"], "o"), ("U2", "U2 − 软约束SP", COLM["U2"], "^"))):
+        rows = [(r["c_R"], r["差值万元"], r["CI下"], r["CI上"]) for _, r in Bt.iterrows() if r["比较"] == f"R{int(r['c_R'])}-{cmp} − R{int(r['c_R'])}-SP"]
+        if not rows: continue
+        cc_, m_, l_, h_ = map(np.array, zip(*sorted(rows)))
+        xs = np.log10(cc_) + (k - 0.5) * 0.04
+        d.errorbar(xs, m_, yerr=[m_ - l_, h_ - m_], fmt=mk + "-", color=cc, mfc="white", capsize=2.5, lw=1.0, label=lb)
+    d.axhline(0, color="0.3", lw=0.7); d.set_xticks(np.log10([30, 100, 300]), ["30", "100", "300"])
+    d.set_xlabel("失约单价 $c_R$/(元/GPU·h)"); d.set_ylabel("风险调整年化费用差/万元"); d.legend(fontsize=7.5); panel(d, "(d)")
+    save(fig, "图20_风险成本型分布鲁棒规划_冷源配置最坏分布与样本外风险费用")
+
+
+FIGS = {"20": fig20, "2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6, "7": fig7, "8": fig8, "9": fig9, "10": fig10, "11": fig11,
         "12": fig12, "13": fig13, "14": fig14, "15": fig15, "16": fig16, "17": fig17, "18": fig18, "19": fig19}
 
 if __name__ == "__main__":
