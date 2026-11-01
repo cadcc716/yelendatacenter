@@ -4,3 +4,6 @@ __pycache__/
 results/jobs_rest.txt
 results/jobs_rest2.txt
 results/exp/log.txt
+data/raw/BurstGPT_2.csv
+data/raw/BurstGPT_3.csv
+data/raw/era5_*.csv
