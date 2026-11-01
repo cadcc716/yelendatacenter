@@ -50,6 +50,14 @@ for sh in ("b15", "b50"):
 for nf in ("n30", "n60"):   # 训练样本量实验 (E3 补充): 数据稀缺时 DRO 与 SP 的样本外表现
     for m in ("M3", "U2", "U3"):
         PLANS[f"{nf.upper()}-{m}"] = dict(PLANS[m], ds=nf, full=False)
+# E3 补充: 风险成本型 (软约束) 规划。失约单价事先按经济含义设定, 不依据测试集调整:
+#   GPU 年化投资 ≈ 10 元/GPU·h, 云租赁价 15–20 元/GPU·h, 实时 SLA 违约损失取租赁价 5–10 倍 → c_R = 100 (基准), 敏感性 30/300;
+#   延期任务按每超时 1 h 计 c_B = c_R/5。GPU 台数固定为 2099 台 (算力 SLA 决定, 各方法相同), 软约束只作用于能源与冷却侧。
+XN = dict(C.XMAX, N=2099)
+for c in (30, 100, 300):
+    for u in ("M3", "U1", "U2", "U3"):
+        PLANS[f"R{c}-{'SP' if u == 'M3' else u}"] = dict(PLANS[u], soft=(float(c), c / 5.0), cfg={"XMAX": XN}, x_lb={"N": 2099}, full=False)
+PLANS["M0-设计工况"] = dict(PLANS["M0"], tstat="hourly", full=False)   # 工程常规做法: 静态 32 ℃ 供液, 按逐时气象与 ASHRAE 设计日校核容量
 PLANS["温区粗化-M3"] = dict(PLANS["M3"], cfg={"ZONES": C.ZONES_COARSE, "FIXED_ZONES": [0]}, full=False)
 PLANS["无休眠-M3"] = dict(PLANS["M3"], cfg={"P_OFF": None}, full=False)        # 消融: GPU 调节只含降频, 不含休眠态
 
@@ -75,7 +83,7 @@ def dataset(tag="base"):
 
 def support(D, pl):
     """返回 (blocks, n_d, amb): U0 均值轨迹; U1 全年合并 (单一类别, n=365); 其余为季节条件支持集。"""
-    tb = lambda b: dict(b, Tstat=D["Tbar"][b["d"]])
+    tb = (lambda b: dict(b)) if pl.get("tstat") == "hourly" else (lambda b: dict(b, Tstat=D["Tbar"][b["d"]]))   # hourly: 静态模型按逐时气象 (含设计日)
     if pl.get("sup") == "U0":
         return [tb(b) for b in D["U0"]], D["n_d"], None
     blocks = [tb(b) for S in D["sup"] for b in S]
@@ -91,13 +99,25 @@ def plan(name, tl=C.TIME_LIMIT):
     pl = PLANS[name]; D = dataset(pl.get("ds", "base")); cfg = pl.get("cfg")
     B, nd, amb = support(D, pl)
     t0 = time.time()
-    M, V = Mo.build(B, pl["spec"], price=D["price"], n_d=nd, amb=amb, cfg=cfg)
-    sol, st, obj, g = M.solve(tl=tl)
+    M, V = Mo.build(B, pl["spec"], price=D["price"], n_d=nd, amb=amb, cfg=cfg, soft=pl.get("soft"), x_lb=pl.get("x_lb"))
+    start = None
+    if pl.get("soft") is not None:   # 热启动: 以对应硬约束方案及 M3 的容量为候选, 固定容量求解同一模型, 取目标最小者
+        best = np.inf
+        for src in dict.fromkeys(["M3", name.split("-", 1)[1].replace("SP", "M3")]):
+            f = RES / f"plan_{src}.pkl"
+            if not f.exists(): continue
+            xs = pickle.load(open(f, "rb"))["x"]
+            Mf, _ = Mo.build(B, pl["spec"], x_fix=xs, price=D["price"], n_d=nd, amb=amb, cfg=cfg, soft=pl.get("soft"))
+            sf, stf, of, gf = Mf.solve(gap=1e-5, tl=900)
+            of += sum(V["a"][k] * xs[k] for k in ["N", "PV", "PB", "EB", "FC", "MC"])   # 固定容量模型不含投资项
+            print(f"[warm] {name} 候选 {src}: {stf} {of:.6e}", flush=True)
+            if sf is not None and of < best: best, start = of, sf
+    sol, st, obj, g = M.solve(tl=tl, start=start)
     if sol is None: raise RuntimeError(f"{name}: {st}")
     x, out = Mo.extract(sol, V)
     if pl["spec"][2] != "SP":   # 退化解: 固定 x 按式(32) Q_ds(x) 逐情景重解
         for i, b in enumerate(B):
-            Mb, Vb = Mo.build([dict(b, d=0)], pl["spec"][:2] + ("SP",), x_fix=x, price=D["price"], n_d=np.ones(1), cfg=cfg)
+            Mb, Vb = Mo.build([dict(b, d=0)], pl["spec"][:2] + ("SP",), x_fix=x, price=D["price"], n_d=np.ones(1), cfg=cfg, soft=pl.get("soft"))
             sb = Mb.solve(gap=1e-6, tl=120)[0]; o = Mo.extract(sb, Vb)[1][0]; o.update(d=b["d"], s=b["s"]); out[i] = o
     pw = None
     if amb is not None:
@@ -258,21 +278,25 @@ def plan_cost(name, x):
     B, nd, amb = support(D, pl); P = C.params(cfg)
     crf = lambda L: P["DISC"] * (1 + P["DISC"]) ** L / ((1 + P["DISC"]) ** L - 1)
     a = {k: v[0] * crf(v[1]) + v[2] for k, v in P["COST"].items()}
-    cap = sum(a[k] * x[k] for k in x); op = 0.0; outs = []
+    cap = sum(a[k] * x[k] for k in x); outs = []
     for b in B:
-        M, V = Mo.build([dict(b, d=0)], pl["spec"][:2] + ("SP",), x_fix=x, price=D["price"], n_d=np.ones(1), cfg=cfg)
+        M, V = Mo.build([dict(b, d=0)], pl["spec"][:2] + ("SP",), x_fix=x, price=D["price"], n_d=np.ones(1), cfg=cfg, soft=pl.get("soft"))
         sol, st, obj, g = M.solve(gap=1e-5, tl=300)
         if sol is None: return np.inf, None
-        o = Mo.extract(sol, V)[1][0]; o.update(d=b["d"], s=b["s"]); outs.append(o); op += nd[b["d"]] * b["p"] * o["Cop"]
+        o = Mo.extract(sol, V)[1][0]; o.update(d=b["d"], s=b["s"]); outs.append(o)
+    op = 0.0
+    for d in range(len(nd)):   # SP: 经验概率期望; DRO: 式(17) 模糊集上的最坏分布期望
+        Q = np.array([o["Cop"] for o in outs if o["d"] == d]); ph = np.array([b["p"] for b in B if b["d"] == d])
+        op += nd[d] * float((Mo.worst_case_p(Q, amb[d]) if (amb is not None and pl["spec"][2] == "DRO") else ph) @ Q)
     return cap + op, outs
 
 
 def polish(name):
-    """容量候选局部搜索 (仅 SP 方案): 以规划解为起点, 在机械制冷/自然冷却/光伏的离散候选上逐坐标比较固定容量下的完整目标,
+    """容量候选局部搜索 (SP 与 DRO 方案, DRO 按最坏分布期望): 以规划解为起点, 在机械制冷/自然冷却/光伏的离散候选上逐坐标比较固定容量下的完整目标,
     得到同一模型下目标更优的可行解 (下界仍取 MILP 对偶界), 更新规划结果与统一复核。"""
     R = pickle.load(open(RES / f"plan_{name}.pkl", "rb")); lb = R["obj"] - R["gap"]
     best = dict(R["x"]); fb, ob = plan_cost(name, best); print(f"[polish] {name} 起点 {fb:.6e}", flush=True)
-    grids = {"MC": [0.0, 250.0, 500.0, 1000.0], "FC": [1500.0, 2000.0, 2500.0, 3000.0, 3500.0, 4000.0, 4500.0, 5000.0],
+    grids = {"MC": [0.0, 250.0, 500.0, 750.0, 1000.0], "FC": [1000.0, 1500.0, 2000.0, 2500.0, 3000.0, 3500.0, 4000.0, 4500.0, 5000.0],
              "PV": [best["PV"] * f for f in (0.8, 1.0, 1.2)]}
     for _ in range(2):
         for k, vals in grids.items():
@@ -290,6 +314,15 @@ def polish(name):
         row["规划能源相关费用"] = row["年化投资"] - row["年化_N"] + row["规划期望运行费用"]
         row.update(hf_summary(E, R, D)); pickle.dump(row, open(RES / f"row_{name}.pkl", "wb"))
     print(f"[polish] {name} 完成: 目标 {R['obj']:.6e} 间隙 {R['gap']:.0f} x=" + " ".join(f"{k}:{v:.0f}" for k, v in R["x"].items()), flush=True)
+
+
+def post(name):
+    """软约束方案的压力测试与冷却修复诊断 (在局部搜索确定最终容量之后运行)。"""
+    R = pickle.load(open(RES / f"plan_{name}.pkl", "rb")); D = dataset(PLANS[name].get("ds", "base"))
+    E = pd.read_csv(RES / f"hf_{name}.csv")
+    S = stress(R, D); S.to_csv(RES / f"stress_{name}.csv", index=False)
+    row = pickle.load(open(RES / f"row_{name}.pkl", "rb")); row.update(repair_cool(R, D, E)); pickle.dump(row, open(RES / f"row_{name}.pkl", "wb"))
+    print(f"[post] {name} 冷却修复成本={row.get('冷却修复成本')}", flush=True)
 
 
 def ops():
@@ -361,4 +394,5 @@ if __name__ == "__main__":
     elif w == "design": design_check()
     elif w == "rehf": rehf(sys.argv[2])
     elif w == "polish": polish(sys.argv[2])
+    elif w == "post": post(sys.argv[2])
     elif w == "list": print("\n".join(PLANS))

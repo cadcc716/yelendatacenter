@@ -62,7 +62,7 @@ class MILP:
         s.r.append(np.full(keep.sum(), s.nr)); s.cidx.append(I[keep]); s.v.append(A[keep])
         s.rl.append(np.array([lo], float)); s.ru.append(np.array([hi], float)); s.nr += 1
 
-    def solve(s, gap=C.MIP_GAP, tl=C.TIME_LIMIT, verbose=False):
+    def solve(s, gap=C.MIP_GAP, tl=C.TIME_LIMIT, verbose=False, start=None):
         A = sp.csc_matrix((np.concatenate(s.v), (np.concatenate(s.r), np.concatenate(s.cidx))), shape=(s.nr, s.n))
         lp = highspy.HighsLp(); lp.num_col_, lp.num_row_ = s.n, s.nr
         cost = np.concatenate(s.c)
@@ -76,7 +76,10 @@ class MILP:
         h = highspy.Highs(); h.setOptionValue("output_flag", verbose)
         h.setOptionValue("mip_rel_gap", gap); h.setOptionValue("time_limit", tl)
         h.setOptionValue("mip_abs_gap", C.MIP_ABS_GAP)
-        h.setOptionValue("threads", int(__import__("os").environ.get("HIGHS_THREADS", 4))); h.passModel(lp); h.run()
+        h.setOptionValue("threads", int(__import__("os").environ.get("HIGHS_THREADS", 4))); h.passModel(lp)
+        if start is not None:   # 热启动: 同结构模型的可行解 (列顺序一致)
+            hs = highspy.HighsSolution(); hs.col_value = list(np.asarray(start, float)); hs.value_valid = True; h.setSolution(hs)
+        h.run()
         st = h.modelStatusToString(h.getModelStatus()); info = h.getInfo()
         sol = np.array(h.getSolution().col_value) if info.primal_solution_status == 2 else None
         gapv = abs(info.objective_function_value - info.mip_dual_bound) if it.any() else 0.0   # 绝对间隙 元
@@ -107,10 +110,12 @@ def spec_of(variant):
     return reg, ("dyn" if coup else "fixed"), prob
 
 
-def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=None, cfg=None, _ro_cuts=None, x_lb=None):
+def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=None, cfg=None, _ro_cuts=None, x_lb=None, soft=None):
     """blocks: [{'d','s','AR','AB','Tamb','gpv'[, 'Tstat']}...]; amb: 每类 d 的模糊集参数 (DRO/SP 概率)。
     variant: VARIANTS 中的名称或 (a, 冷却模型, 概率层) 元组; x_lb: 容量下界 (修复诊断用)。
+    soft=(c_R, c_B): 风险成本型规划——失约以单价 (元/GPU·h) 计入情景费用 Q_s, 由概率层 (SP 期望 / DRO 最坏分布期望) 加权。
     返回 (模型, 变量索引字典)。cfg 用于敏感性分析覆盖 config 中的参数。"""
+    if soft is not None: slack = True
     P = C.params(cfg)
     reg, cool, prob = spec_of(variant); coup = cool == "dyn"
     M = MILP(); V = {}
@@ -232,11 +237,12 @@ def build(blocks, variant, x_fix=None, slack=False, price=None, n_d=None, amb=No
         if P.get("EPS_MC", 0) > 0: M.add_cost(y["qMC"], P["EPS_MC"] * dt)   # 退化平局打破 (不计入 C^op)
         # ---------- 式(16) 情景日运行费用 ----------
         y["Cop"] = M.var(1, -INF, INF)
-        M.row([(y["Cop"], 1.0), (y["Pg"], -dt * price), (y["Pch"], -dt * P["C_VAR_B"]), (y["Pdis"], -dt * P["C_VAR_B"])], 0.0, 0.0)
+        M.row([(y["Cop"], 1.0), (y["Pg"], -dt * price), (y["Pch"], -dt * P["C_VAR_B"]), (y["Pdis"], -dt * P["C_VAR_B"])]
+              + ([(y["sR"], -soft[0]), (y["sD"], -soft[1])] if soft is not None else []), 0.0, 0.0)
         y.update(b=b, phi=phi, aMC=aMC, aFC=aFC, J=J, zones=zones, kaux=kappa_aux, pk=pk, vv=vv, P0=P["P0"])
         V["blocks"].append(y)
     # ---------------- 式(17)(18) 概率层 ----------------
-    if slack:  # 样本外评估: 未满足工作量以大罚系数"优先满足", 单独报告, 不计入费用
+    if slack and soft is None:  # 样本外评估: 未满足工作量以大罚系数"优先满足", 单独报告, 不计入费用
         for y in V["blocks"]:
             M.add_cost(y["sR"], P["PEN_R"]); M.add_cost(y["sD"], P["PEN_B"])     # 字典序: 实时 ≫ 延期 ≫ 运行费用
     nd = n_d
