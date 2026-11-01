@@ -95,6 +95,23 @@ def support(D, pl):
     return blocks, D["n_d"], (D["amb"][pl["amb"]] if "amb" in pl else None)
 
 
+def scen_q(b, x, pl, D, cfg, tl=300):
+    """固定容量下单情景的补救问题 Q_ds(x) (目标系数取 1, 不随情景经验概率缩放, 否则 p=0 的设计日目标退化为 0)。
+    软约束方案: 直接求解软约束模型, 并以字典序解 (先最小化失约再最小化费用, 与统一评价器相同) 的风险费用作为保底, 取较小者。"""
+    soft = pl.get("soft"); bb = dict(b, d=0, p=1.0)
+    M, V = Mo.build([bb], pl["spec"][:2] + ("SP",), x_fix=x, soft=soft, price=D["price"], n_d=np.ones(1), cfg=cfg)
+    sol = M.solve(gap=1e-7, tl=tl)[0]
+    o = Mo.extract(sol, V)[1][0] if sol is not None else None
+    if soft is None: return o
+    M2, V2 = Mo.build([bb], pl["spec"][:2] + ("SP",), x_fix=x, slack=True, price=D["price"], n_d=np.ones(1), cfg=cfg)
+    s2 = M2.solve(gap=1e-4, tl=tl)[0]
+    if s2 is not None:
+        o2 = Mo.extract(s2, V2)[1][0]; o2["Cop"] = o2["Cop"] + soft[0] * o2["sR"].sum() + soft[1] * o2["sD"].sum()
+        if o is None or o2["Cop"] < o["Cop"]: o = o2
+    o["Cop_e"] = float(o["Cop"] - soft[0] * o["sR"].sum() - soft[1] * o["sD"].sum())
+    return o
+
+
 def plan(name, tl=C.TIME_LIMIT):
     pl = PLANS[name]; D = dataset(pl.get("ds", "base")); cfg = pl.get("cfg")
     B, nd, amb = support(D, pl)
@@ -117,8 +134,7 @@ def plan(name, tl=C.TIME_LIMIT):
     x, out = Mo.extract(sol, V)
     if pl["spec"][2] != "SP":   # 退化解: 固定 x 按式(32) Q_ds(x) 逐情景重解
         for i, b in enumerate(B):
-            Mb, Vb = Mo.build([dict(b, d=0)], pl["spec"][:2] + ("SP",), x_fix=x, price=D["price"], n_d=np.ones(1), cfg=cfg, soft=pl.get("soft"))
-            sb = Mb.solve(gap=1e-6, tl=120)[0]; o = Mo.extract(sb, Vb)[1][0]; o.update(d=b["d"], s=b["s"]); out[i] = o
+            o = scen_q(b, x, pl, D, cfg); o.update(d=b["d"], s=b["s"]); out[i] = o
     pw = None
     if amb is not None:
         pw = []
@@ -280,10 +296,9 @@ def plan_cost(name, x):
     a = {k: v[0] * crf(v[1]) + v[2] for k, v in P["COST"].items()}
     cap = sum(a[k] * x[k] for k in x); outs = []
     for b in B:
-        M, V = Mo.build([dict(b, d=0)], pl["spec"][:2] + ("SP",), x_fix=x, price=D["price"], n_d=np.ones(1), cfg=cfg, soft=pl.get("soft"))
-        sol, st, obj, g = M.solve(gap=1e-5, tl=300)
-        if sol is None: return np.inf, None
-        o = Mo.extract(sol, V)[1][0]; o.update(d=b["d"], s=b["s"]); outs.append(o)
+        o = scen_q(b, x, pl, D, cfg)
+        if o is None: return np.inf, None
+        o.update(d=b["d"], s=b["s"]); outs.append(o)
     op = 0.0
     for d in range(len(nd)):   # SP: 经验概率期望; DRO: 式(17) 模糊集上的最坏分布期望
         Q = np.array([o["Cop"] for o in outs if o["d"] == d]); ph = np.array([b["p"] for b in B if b["d"] == d])
@@ -314,6 +329,22 @@ def polish(name):
         row["规划能源相关费用"] = row["年化投资"] - row["年化_N"] + row["规划期望运行费用"]
         row.update(hf_summary(E, R, D)); pickle.dump(row, open(RES / f"row_{name}.pkl", "wb"))
     print(f"[polish] {name} 完成: 目标 {R['obj']:.6e} 间隙 {R['gap']:.0f} x=" + " ".join(f"{k}:{v:.0f}" for k, v in R["x"].items()), flush=True)
+
+
+def fixout(name):
+    """重算已有规划的逐情景补救结果与最坏分布 (容量不变), 并报告按固定容量重算的目标值。"""
+    R = pickle.load(open(RES / f"plan_{name}.pkl", "rb")); pl = PLANS[name]; D = dataset(pl.get("ds", "base"))
+    B, nd, amb = support(D, pl); out = []
+    for b in B:
+        o = scen_q(b, R["x"], pl, D, R["cfg"]); o.update(d=b["d"], s=b["s"]); out.append(o)
+    R["out"] = out
+    if amb is not None:
+        R["pw"] = [Mo.worst_case_p(np.array([o["Cop"] for o in out if o["d"] == d]), amb[d]) for d in range(len(nd))]
+    cap = sum(R["a"][k] * R["x"][k] for k in R["x"])
+    pr = R["pw"] if amb is not None else [np.array([b["p"] for b in B if b["d"] == d]) for d in range(len(nd))]
+    op = sum(nd[d] * float(pr[d] @ np.array([o["Cop"] for o in out if o["d"] == d])) for d in range(len(nd)))
+    pickle.dump(R, open(RES / f"plan_{name}.pkl", "wb"))
+    print(f"[fixout] {name} MILP 目标 {R['obj']:.6e} 固定容量重算 {cap + op:.6e}", flush=True)
 
 
 def post(name):
@@ -395,4 +426,5 @@ if __name__ == "__main__":
     elif w == "rehf": rehf(sys.argv[2])
     elif w == "polish": polish(sys.argv[2])
     elif w == "post": post(sys.argv[2])
+    elif w == "fixout": fixout(sys.argv[2])
     elif w == "list": print("\n".join(PLANS))
