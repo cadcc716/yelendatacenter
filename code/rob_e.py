@@ -65,6 +65,15 @@ def long():
         if r is None or rw is None: continue
         out.append(dict(方案=lab, GPU=rw["N"], 光伏=rw["PV"], 自然冷却=rw["FC"], 机械制冷=abs(max(rw["MC"], 0)), 能源相关费用=rw["复核能源相关费用"] / W,
                         实时SLA=rw["实时SLA"] * 100, 年化冷却受限失约=r["其中冷却受限"], 风险调整费用=r["风险调整费用"], 间隙=rw["间隙"] / W))
+    R0 = pickle.load(open(RES / "plan_L-M3.pkl", "rb")) if (RES / "plan_L-M3.pkl").exists() else None
+    for f in sorted(RES.glob("hf_L-M3-FC*.csv")):           # M3 容量 + 自然冷却余量 (仅改变 K^FC, 统一评价器复核)
+        fc = float(f.stem.split("FC")[-1]); E = pd.read_csv(f); x = dict(R0["x"], FC=fc); a = R0["a"]
+        inv = sum(a[k] * x[k] for k in x) - a["N"] * x["N"]
+        op = RK.annual(E, E["日运行费用"].fillna(0).values, nd); sR = RK.annual(E, E["实时失约"].fillna(0).values, nd)
+        gl = RK.annual(E, E["实时失约_GPU台数受限"].fillna(0).values, nd); sD = RK.annual(E, E["延期失约"].fillna(0).values, nd)
+        out.append(dict(方案=f"M3 + 自然冷却余量 (FC={fc:.0f})", GPU=x["N"], 光伏=x["PV"], 自然冷却=fc, 机械制冷=0.0, 能源相关费用=(inv + op) / W,
+                        实时SLA=(1 - E["实时失约"].sum() / E["实时到达"].sum()) * 100, 年化冷却受限失约=sR - gl,
+                        风险调整费用=(inv + op + 100 * sR + 20 * sD) / W, 间隙=np.nan))
     B = None
     if RK.load("L-R100-U3") is not None and RK.load("L-R100-SP") is not None:
         B = pd.DataFrame([RK.boot("L-R100-U3", "L-R100-SP", 100, nd), RK.boot("L-M3", "L-M0", 100, nd)])
