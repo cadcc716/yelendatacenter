@@ -35,6 +35,29 @@ def load_workload():
     return R / R.mean() * C.R_MEAN_GPU, B / B.mean() * C.B_MEAN_GPU
 
 
+def load_workload_long():
+    """BurstGPT v2.0 全部三个文件 (同一时间原点: 第 0–120 日连续, 第 225–334 日连续)。
+    逐时 token 量 -> (日 × 24); 去除中间空档与服务中断日 (任一类日总量 < 中位数 5%), 保持时间顺序。"""
+    hourly = C.PROC / "burstgpt_long_hourly.csv"
+    if not hourly.exists():
+        parts = []
+        for f in ("BurstGPT_1.csv", "BurstGPT_2.csv", "BurstGPT_3.csv"):
+            df = pd.read_csv(C.RAW / f, usecols=["Timestamp", "Total tokens", "Log Type"])
+            df["h"] = (df.Timestamp // 3600).astype(int)
+            parts.append(df.groupby(["h", "Log Type"])["Total tokens"].sum().unstack(fill_value=0))
+        g = pd.concat(parts).groupby(level=0).sum()
+        g = g.reindex(range(int(g.index.max()) + 1), fill_value=0)
+        g.columns = ["API_tokens" if "API" in c else "Conv_tokens" for c in g.columns]
+        g.index.name = "hour"; g.to_csv(hourly)
+    g = pd.read_csv(hourly, index_col=0)
+    R = shift_days(g["Conv_tokens"].values); B = shift_days(g["API_tokens"].values)
+    dR, dB = R.sum(1), B.sum(1)
+    keep = (dR > 0.05 * np.median(dR[dR > 0])) & (dB > 0.05 * np.median(dB[dB > 0]))
+    keep[: C.BURST_DAY0] = False                       # 首个文件前 9 天未进入稳定服务期 (与基准数据一致)
+    R, B = R[keep], B[keep]
+    return R / R.mean() * C.R_MEAN_GPU, B / B.mean() * C.B_MEAN_GPU, np.where(keep)[0]
+
+
 def shift_days(x):
     """逐时序列 -> (日 × 24), 每个调度日从当地 H0 时起算 (最后不完整的一天舍去)。"""
     x = np.asarray(x, float)[C.H0:]
@@ -62,6 +85,50 @@ def load_weather(epw):
     pac = np.clip(np.nan_to_num(np.asarray(pac, float)), 0, pac0)
     month = shift_days(data.index.month.values)[:, 0].astype(int)
     return shift_days(data.temp_air.values), shift_days(pac), month, meta
+
+
+ERA5_SITE = dict(name="宁夏中卫", lat=37.51, lon=105.19, alt=1225.0, tz="Asia/Shanghai")   # 中卫市沙坡头区 (数据中心集群所在地)
+
+
+def load_weather_era5(y0=2014, y1=2024, site=ERA5_SITE):
+    """ERA5 再分析逐时气象 (Open-Meteo archive API, 0.25°): 2 m 气温、GHI/DNI/DHI、10 m 风速 -> PVWatts v5 光伏单位出力。
+    返回 (Tamb 日×24, gpv 日×24, month, year, meta)。缓存于 data/raw/era5_<lat>_<lon>_<y0>_<y1>.csv。"""
+    f = C.RAW / f"era5_{site['lat']}_{site['lon']}_{y0}_{y1}.csv"
+    if not f.exists():
+        import json
+        frames = []
+        for y in range(y0, y1 + 1):
+            url = ("https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={y}-01-01&end_date={y}-12-31"
+                   "&hourly=temperature_2m,shortwave_radiation,direct_normal_irradiance,diffuse_radiation,wind_speed_10m"
+                   "&timezone=Asia%2FShanghai&wind_speed_unit=ms").format(lat=site["lat"], lon=site["lon"], y=y)
+            print("下载 ERA5", y, flush=True)
+            js = json.loads(urllib.request.urlopen(url, timeout=120).read())
+            frames.append(pd.DataFrame(js["hourly"]))
+        pd.concat(frames).to_csv(f, index=False)
+    df = pd.read_csv(f)
+    t = pd.DatetimeIndex(pd.to_datetime(df["time"])).tz_localize(site["tz"], ambiguous="NaT", nonexistent="NaT")
+    loc = pvlib.location.Location(site["lat"], site["lon"], tz=site["tz"], altitude=site["alt"])
+    t_mid = t - pd.Timedelta("30min")                                   # 辐照为前一小时平均
+    sp = loc.get_solarposition(t_mid)
+    poa = pvlib.irradiance.get_total_irradiance(C.PV_TILT, C.PV_AZ, sp.apparent_zenith.values, sp.azimuth.values,
+                                                df.direct_normal_irradiance.values, df.shortwave_radiation.values, df.diffuse_radiation.values,
+                                                dni_extra=pvlib.irradiance.get_extra_radiation(t_mid).values, model="haydavies")
+    prm = pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS["sapm"]["open_rack_glass_polymer"]
+    tc = pvlib.temperature.sapm_cell(poa["poa_global"], df.temperature_2m.values, df.wind_speed_10m.values, **prm)
+    pdc = pvlib.pvsystem.pvwatts_dc(poa["poa_global"], tc, 1.0, C.PV_GAMMA) * (1 - C.PV_LOSS)
+    pac0 = 1 / 1.2
+    pac = pvlib.inverter.pvwatts(np.nan_to_num(np.asarray(pdc, float)), pac0 / C.PV_INV_EFF, C.PV_INV_EFF)
+    pac = np.clip(np.nan_to_num(np.asarray(pac, float)), 0, pac0)
+    idx = pd.to_datetime(df["time"])
+    month = shift_days(idx.dt.month.values)[:, 0].astype(int); year = shift_days(idx.dt.year.values)[:, 0].astype(int)
+    meta = dict(city=site["name"], latitude=site["lat"], longitude=site["lon"], altitude=site["alt"], source="ERA5 (Open-Meteo)", years=(y0, y1))
+    return shift_days(df.temperature_2m.values), shift_days(pac), month, year, meta
+
+
+def gumbel_return(annual_max, n):
+    """年极值 Gumbel 分布 (矩法) 的 n 年一遇值。"""
+    x = np.asarray(annual_max, float); b = x.std(ddof=1) * np.sqrt(6) / np.pi; mu = x.mean() - 0.5772 * b
+    return float(mu - b * np.log(-np.log(1 - 1 / n)))
 
 
 def tou_price():

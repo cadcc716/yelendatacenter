@@ -99,7 +99,13 @@ def thermal_tables(Tamb, zones, P=None):
     Te = Tlo - P["DT_CDU"] - P["DT_EVAP"] + K; Tc = Tamb[None, :] + P["DT_COND"] + K
     cop = np.where(Tc - Te > 1e-6, eta * Te / np.maximum(Tc - Te, 1e-6), P["COP_MAX"])
     cop = np.clip(cop, 1.0, P["COP_MAX"])
-    return phi, 1.0 / cop, np.full_like(phi, P["A_FC"])
+    if P.get("FAN_VAR"):
+        dta = Tlo - P["DT_CDU"] - Tamb[None, :]
+        afc = P["A_FC"] * P["ITD_DES"] / np.maximum(dta, P["ITD_DES"] / P["FAN_FMAX"])
+        afc = np.maximum(afc, P["FAN_FMIN"] * P["A_FC"])
+    else:
+        afc = np.full_like(phi, P["A_FC"])
+    return phi, 1.0 / cop, afc
 
 
 def spec_of(variant):

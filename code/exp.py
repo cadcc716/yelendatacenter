@@ -58,6 +58,29 @@ for c in (30, 100, 300):
     for u in ("M3", "U1", "U2", "U3"):
         PLANS[f"R{c}-{'SP' if u == 'M3' else u}"] = dict(PLANS[u], soft=(float(c), c / 5.0), cfg={"XMAX": XN}, x_lb={"N": 2099}, full=False)
 PLANS["M0-设计工况"] = dict(PLANS["M0"], tstat="hourly", full=False)   # 工程常规做法: 静态 32 ℃ 供液, 按逐时气象与 ASHRAE 设计日校核容量
+# 审稿第 3 项: 关键物理参数稳健性 (一次只改一个参数; 规划与统一评价器使用同一参数) 与风机变工况模型
+_R0 = C.params()["R_TH"]
+SENS = {"Rth0.8": {"R_TH": 0.8 * _R0}, "Rth1.2": {"R_TH": 1.2 * _R0}, "Tc83": {"T_CHIP_MAX": 83.0, "R_TH": _R0},
+        "Tc87": {"T_CHIP_MAX": 87.0, "R_TH": _R0}, "Poff0.08": {"P_OFF": 0.08}, "Poff0.15": {"P_OFF": 0.15},
+        "rho0.1": {"RHO_WARM": 0.10}, "rho0.4": {"RHO_WARM": 0.40}}
+for tg, cf in SENS.items():
+    for m in ("M0", "M3"):
+        PLANS[f"SENS-{tg}-{m}"] = dict(PLANS[m], cfg=cf, full=False, **({"warm": ["M3"]} if m == "M3" else {}))
+for m in ("M0", "M1", "M2", "M3"):
+    PLANS[f"FAN-{m}"] = dict(PLANS[m], cfg={"FAN_VAR": True}, full=False, **({"warm": [m]} if m != "M0" else {}))
+PLANS["FAN-M0-设计工况"] = dict(PLANS["M0"], tstat="hourly", cfg={"FAN_VAR": True}, full=False)
+# 审稿第 1 项 (负荷部分): BurstGPT v2.0 全部 188 个有效日, 负荷与气象相互独立
+for m in ("M0", "M3"):
+    PLANS[f"L-{m}"] = dict(PLANS[m], ds="long", full=False)
+PLANS["L-M0-设计工况"] = dict(PLANS["M0"], tstat="hourly", ds="long", full=False)
+for u in ("M3", "U3"):
+    PLANS[f"L-R100-{'SP' if u == 'M3' else u}"] = dict(PLANS[u], ds="long", soft=(100.0, 20.0), fixN_from="L-M3", warm=["L-M3"], full=False)
+# 中卫真实数据 (需放行 archive-api.open-meteo.com): 运行 ./run_zw.sh
+for m in ("M0", "M1", "M2", "M3"):
+    PLANS[f"Z-{m}"] = dict(PLANS[m], ds="zw", full=False)
+PLANS["Z-M0-设计工况"] = dict(PLANS["M0"], tstat="hourly", ds="zw", full=False)
+for u in ("M3", "U2", "U3"):
+    PLANS[f"Z-R100-{'SP' if u == 'M3' else u}"] = dict(PLANS[u], ds="zw", soft=(100.0, 20.0), fixN_from="Z-M3", warm=["Z-M3"], full=False)
 PLANS["温区粗化-M3"] = dict(PLANS["M3"], cfg={"ZONES": C.ZONES_COARSE, "FIXED_ZONES": [0]}, full=False)
 PLANS["无休眠-M3"] = dict(PLANS["M3"], cfg={"P_OFF": None}, full=False)        # 消融: GPU 调节只含降频, 不含休眠态
 
@@ -73,6 +96,8 @@ def dataset(tag="base"):
             if tag in CLIMATE: kw["epw"] = CLIMATE[tag]
             if tag.startswith("k"): kw["kappa"] = float(tag[1:])
             if tag.startswith("n"): kw["train_frac"] = int(tag[1:]) / 100
+            if tag == "long": kw["load"] = "long"
+            if tag == "zw": kw.update(epw="era5", load="long")    # 中卫 ERA5 多年气象 + BurstGPT 188 日, 按年份时间外推
             if tag in ("b15", "b50"):
                 tot, sh = C.R_MEAN_GPU + C.B_MEAN_GPU, int(tag[1:]) / 100
                 kw.update(r_mean=tot * (1 - sh), b_mean=tot * sh)
@@ -113,14 +138,17 @@ def scen_q(b, x, pl, D, cfg, tl=300):
 
 
 def plan(name, tl=C.TIME_LIMIT):
-    pl = PLANS[name]; D = dataset(pl.get("ds", "base")); cfg = pl.get("cfg")
+    pl = dict(PLANS[name]); D = dataset(pl.get("ds", "base")); cfg = pl.get("cfg")
+    if pl.get("fixN_from"):   # GPU 台数取同一数据集硬约束方案的规划值 (算力 SLA 决定)
+        n0 = int(round(pickle.load(open(RES / f"plan_{pl['fixN_from']}.pkl", "rb"))["x"]["N"]))
+        cfg = dict(cfg or {}); cfg["XMAX"] = dict(C.XMAX, N=n0); pl["x_lb"] = {"N": n0}
     B, nd, amb = support(D, pl)
     t0 = time.time()
     M, V = Mo.build(B, pl["spec"], price=D["price"], n_d=nd, amb=amb, cfg=cfg, soft=pl.get("soft"), x_lb=pl.get("x_lb"))
     start = None
-    if pl.get("soft") is not None:   # 热启动: 以对应硬约束方案及 M3 的容量为候选, 固定容量求解同一模型, 取目标最小者
+    if pl.get("soft") is not None or pl.get("warm"):   # 热启动: 以对应硬约束方案及 M3 的容量为候选, 固定容量求解同一模型, 取目标最小者
         best = np.inf
-        for src in dict.fromkeys(["M3", name.split("-", 1)[1].replace("SP", "M3")]):
+        for src in pl.get("warm") or dict.fromkeys(["M3", name.split("-", 1)[1].replace("SP", "M3")]):
             f = RES / f"plan_{src}.pkl"
             if not f.exists(): continue
             xs = pickle.load(open(f, "rb"))["x"]

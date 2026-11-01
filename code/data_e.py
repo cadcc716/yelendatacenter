@@ -77,14 +77,26 @@ def ashrae_extreme(epw, n=C.DESIGN_RETURN_N):
     return float(f[i + pos])
 
 
-def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", r_mean=C.R_MEAN_GPU, b_mean=C.B_MEAN_GPU, kappa=1.0, train_frac=1.0):
+def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", r_mean=C.R_MEAN_GPU, b_mean=C.B_MEAN_GPU, kappa=1.0, train_frac=1.0, load="base"):
     rng = np.random.default_rng(C.SEED)
-    AR, AB = load_workload()
+    if load == "long":   # BurstGPT v2.0 全部有效日 (负荷与气象相互独立, 各自按时间顺序划分训练/验证/测试)
+        from data_prep import load_workload_long
+        AR, AB, _ = load_workload_long()
+    else:
+        AR, AB = load_workload()
     AR, AB = AR / C.R_MEAN_GPU * r_mean, AB / C.B_MEAN_GPU * b_mean
-    Tamb, gpv, month, meta = load_weather(epw)
+    if epw.startswith("era5"):   # 多年真实气象: 按年份划分 (训练 ≤ 2020, 验证 2021–2022, 测试 2023–2024), 真实时间外推
+        from data_prep import load_weather_era5, gumbel_return
+        Tamb, gpv, month, year, meta = load_weather_era5()
+        Wtr, Wva, Wte = (np.flatnonzero(year <= C.ERA5_SPLIT[0]), np.flatnonzero((year > C.ERA5_SPLIT[0]) & (year <= C.ERA5_SPLIT[1])),
+                         np.flatnonzero(year > C.ERA5_SPLIT[1]))
+        amax = [Tamb[(year == y)].max() for y in np.unique(year[Wtr])]
+        T_des_era5 = gumbel_return(amax, C.DESIGN_RETURN_N)
+    else:
+        Tamb, gpv, month, meta = load_weather(epw); year = None
+        Wtr, Wva, Wte = split_days(month)
     nW = len(AR); la, lb = int(round(C.SPLIT[0] * nW)), int(round(sum(C.SPLIT) * nW))
     Ltr, Lva, Lte = np.arange(la), np.arange(la, lb), np.arange(lb, nW)
-    Wtr, Wva, Wte = split_days(month)
     if train_frac < 1.0:   # 训练样本量实验: 每月只保留训练块中最早的 train_frac 比例日 (验证/测试块不变)
         keep = []
         for m in range(1, 13):
@@ -100,7 +112,7 @@ def build(epw="USA_CO_Denver.Intl.AP.725650_TMY3.epw", r_mean=C.R_MEAN_GPU, b_me
     out["risk_A"] = A
     day = lambda w, l: dict(AR=AR[l], AB=AB[l], Tamb=Tamb[w], gpv=gpv[w], w=int(w), l=int(l), month=int(month[w]))
     # ---------- 季节条件支持集 ----------
-    T_des = ashrae_extreme(epw)
+    T_des = T_des_era5 if epw.startswith("era5") else ashrae_extreme(epw)
     hot_w = max(blocks["tr"][0], key=lambda w: Tamb[w].max()); hot_d = season[month[hot_w]]
     out["design"] = dict(T=T_des, base_day=int(hot_w), season=int(hot_d), n=C.DESIGN_RETURN_N)
     sup, ambs, cal, U0, Tbar, val_days, test_days = [], {"U2": [], "U3": []}, [], [], [], [], []

@@ -66,6 +66,10 @@ C_W = 30.0             # kWh/K 液冷环路等效热容(≈25.8 m3 水), 既有�
 DT_CDU = 3.0           # K CDU 换热端差 (典型 2–5 K)                                                    [C]
 ITD_DES = 11.1         # K 干冷器设计进口温差/最小逼近 20°F (ACEEE 2026 高温液冷技术经济研究)            [B]
 A_FC = 0.045           # kWe/kWth 干冷器风机电耗 (ACEEE 2026: 0.045 kWe/kWt)                             [B]
+# 风机变工况 (审稿 B2): 风机相似律 P ∝ V³, 所需风量 V ∝ Q/ΔT_a; 取 0 至满风量的割线作线性保守近似 (满负荷时精确, 部分负荷时高估),
+# 单位散热风机电耗 a^FC = A_FC·ITD_des/ΔT_a, 下限 FAN_FMIN·A_FC (最低转速/固定损耗), 上限 FAN_FMAX·A_FC; ΔT_a = T̲_j − ΔT_CDU − T_amb
+FAN_VAR = False
+FAN_FMIN, FAN_FMAX = 0.2, 10.0
 COP_AHRI = 10.1 / 3.412  # 风冷冷水机组 ≥150 RT 最低 EER 10.1 → COP 2.96 (ASHRAE 90.1-2019 表6.8.1-3)    [B]
 COP_MAX = 8.0          # 高出水温工况 COP 上限 (模型假设, 需厂家曲线)                                     [C]
 DT_EVAP, DT_COND = 3.0, 10.0  # K 蒸发/冷凝端差 (Carnot 比例标定用)                                    [C]
@@ -113,6 +117,7 @@ VALLEY_H = list(range(9, 17))                       # 低谷 9–17 时 (午间�
 R_MEAN_GPU = 500.0     # 实时任务年均需求 (GPU·h_nom/h) —— 轨迹规模化系数, 案例设计值                   [C]
 B_MEAN_GPU = 200.0     # 可延期任务年均需求                                                             [C]
 D_DEADLINE = 12        # h 可延期任务最大延期 (≤ Azure/OpenAI Batch 24 h 目标完成窗口)                  [B/C]
+ERA5_SPLIT = (2020, 2022)   # ERA5 多年气象按年份划分: 训练 ≤2020, 验证 2021–2022, 测试 2023–2024
 BURST_DAY0 = 9         # BurstGPT API 日志在第9天后进入稳定服务期
 H0 = 6                 # 调度日窗口起点(当地时刻): 6:00–次日6:00, 避开可延期任务晚间到达高峰与日末清零冲突 [C]
 

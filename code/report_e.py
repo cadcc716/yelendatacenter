@@ -199,6 +199,18 @@ $Q_{{ds}}(x)=\\min\\,[C^{{\\rm op}}_{{ds}}+c_R\\sum_t e^{{\\rm R}}_{{dst}}+c_B\\
    - 因此在风险成本框架下，"条件化优于无条件"不成立；它只在硬约束框架中成立（表3）。
 """
 
+def decomp_section():
+    comp = {"光伏投资": ["年化_PV"], "自然冷却投资": ["年化_FC"], "机械制冷投资": ["年化_MC"], "储能投资": ["年化_PB", "年化_EB"], "运行费用": ["复核年运行费用"]}
+    rows, tot = [], np.zeros(6)
+    for k, cs in comp.items():
+        v = {m: sum(S.loc[m, c] for c in cs) / W for m in ("M0", "M1", "M2", "M3")}
+        d1, d2, d3 = v["M1"] - v["M0"], v["M2"] - v["M0"], v["M3"] - v["M0"]
+        r = np.array([d1, d2, d3 - d1 - d2, d3, 0.5 * (d1 + v["M3"] - v["M2"]), 0.5 * (d2 + v["M3"] - v["M1"])]); tot += r
+        rows.append([k] + [f"{x:+.1f}" for x in r])
+    rows.append(["**合计**"] + [f"**{x:+.1f}**" for x in tot])
+    return md(pd.DataFrame(rows, columns=["分项", "仅GPU调节 M1−M0", "仅热耦合 M2−M0", "交互项", "合计 M3−M0", "Shapley: GPU调节", "Shapley: 热耦合"]))
+
+
 rep = f"""# 考虑GPU运行调节与液冷热状态耦合的AI数据中心分布鲁棒容量配置——修订版实验方案 E1–E5 结果报告（v2）
 
 > 按 `main` 分支《数学模型与完整实验方案_修订版》第 5 节执行。数值由 `code/exp.py` 求解、`code/report_e.py` 从 `results/exp/*.csv` 直接生成；图件见 `figures/exp/`；
@@ -247,6 +259,14 @@ rep = f"""# 考虑GPU运行调节与液冷热状态耦合的AI数据中心分布
 4. **交互项 $I_{{GT}}$ = {I_hf:+.1f} 万元 > 0**：两种机制单独收益之和（{dE('M1') + dE('M2'):+.1f}）小于联合收益（{dE('M3'):+.1f}），是“算力调节—热安全温区—自然冷却能力”链式耦合的定量证据。M2 规划间隙 {S.loc['M2', '间隙'] / W:.1f} 万元，数值精度以此为限。
 5. **安全性**：M3 在 40 ℃ 测试日冷却受限失约 {m3['实时失约_冷却热安全受限']:.0f} GPU·h，设计日无失约；冷却修复成本 {f(m3['冷却修复成本'] / W)} 万元/年，修复后仍比 M0 低 {f(c['M0'] - m3rep)} 万元/年。M0-W45 账面费用低，但冷却失约 {S.loc['M0-W45', '实时失约_冷却热安全受限']:,.0f} GPU·h、设计日失约 {DC.loc['M0-W45', '实时失约'] + DC.loc['M0-W45', '延期失约']:,.0f} GPU·h，属于少服务换来的低成本。
 6. **消融（E4）**：取消休眠态 {sleep_val:+.1f} 万元/年；5 温区粗化 {coarse_val:+.1f} 万元/年（自然冷却需配到 5000 kWth 安装上限）。
+
+### 表1b 节约分解（统一评价器；2×2 析因，万元/年；负值为节约）
+
+{{DECOMP}}
+
+- **冷水机组的取消几乎全部来自交互项**：机械制冷投资 −37.2 万元中，交互项占 −35.1 万元（94%）；单独 GPU 调节或单独热耦合都几乎不改变冷水机组容量。这是"GPU 运行模式—液冷温区—自然冷却"耦合约束的直接定量证据。
+- **光伏投资的节约（−56.4 万元）全部来自 GPU 调节（休眠降低负荷）**，与热耦合无关；光伏减少又使运行购电增加约 28 万元。
+- 按 Shapley 归因，59.0 万元总节约中 GPU 调节约占 3/4、热耦合约占 1/4。论文应分别陈述两类机制的贡献，不把总节约全部归于热耦合。
 
 ## 3 同容量运行比较（表2）
 
@@ -310,6 +330,6 @@ rep = f"""# 考虑GPU运行调节与液冷热状态耦合的AI数据中心分布
 4. 10 温区仍按下界计算自然冷却，是保守近似。
 """
 N_TEXT = (C.ROOT / "docs/_n_text.md").read_text(encoding="utf-8").strip() if (C.ROOT / "docs/_n_text.md").exists() else "（训练样本量实验完成后填写）"
-rep = rep.replace("{N_TEXT}", N_TEXT).replace("{SOFT_TEXT}", soft_section())
+rep = rep.replace("{DECOMP}", decomp_section()).replace("{N_TEXT}", N_TEXT).replace("{SOFT_TEXT}", soft_section())
 (C.ROOT / "docs/实验结果报告_E1-E5.md").write_text(rep, encoding="utf-8")
 print("written docs/实验结果报告_E1-E5.md")
