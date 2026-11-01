@@ -17,7 +17,9 @@
 | `code/verify.py` | 数值验证：V1 收紧大M=论文原式、V2 对偶重构=割平面迭代、V3 储能互斥 |
 | `code/data_e.py` | 修订版数据集：时间顺序训练/验证/测试划分、代表日+极端日+ASHRAE 设计极端日、U0/U1/U2/U3 模糊集与验证块校准、连续压力片段 |
 | `code/exp.py` | 修订版 E1–E5 实验：方案定义、统一物理评价器、修复诊断、同容量运行比较、设计日校核、求解效率；`run_exp.sh`/`run_exp2.sh` 并行驱动 |
-| `code/plot_e.py`, `code/report_e.py` | E1–E5 图件（`figures/exp/`，17 张）与报告生成 |
+| `code/plot_e.py`, `code/report_e.py` | E1–E5 图件（`figures/exp/`，图2–图20）与报告生成 |
+| `code/risk_e.py`, `code/run_soft.sh` | E3 补充：风险成本型（软约束）规划的样本外风险费用与配对区块 bootstrap |
+| `docs/审稿意见_中国电机工程学报.md` | 以中国电机工程学报审稿人/编辑视角的审查意见与最终可支撑创新点 |
 | `code/report_tables.py`, `code/build_report.py` | 结果 CSV → Markdown 表格 → 组装报告 |
 | `code/plot_a.py` | 图组A：23 pt Times New Roman 时序对比图 |
 | `code/plot_b.py` | 图组B：8.5 cm 单栏 600 dpi 重设计图（Baseline 对比、差值/变化率） |

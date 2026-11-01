@@ -595,17 +595,16 @@ def fig20():
     for i, n in enumerate(names):
         a.text(x[i] - w / 2, t.loc[n, "自然冷却"] + 40, f"{t.loc[n, '自然冷却']:.0f}", ha="center", fontsize=6.8, rotation=90, va="bottom")
         a.text(x[i] + w / 2, t.loc[n, "机械制冷"] + 40, f"{t.loc[n, '机械制冷']:.0f}", ha="center", fontsize=6.8, rotation=90, va="bottom")
-    a.set_xticks(x, [lab[n] for n in names]); a.set_ylabel("冷源容量/kW$_{th}$"); a.legend(fontsize=8, loc="upper right")
-    a.set_ylim(0, max(t.loc[names, "自然冷却"].max(), t.loc[names, "机械制冷"].max()) * 1.3); panel(a, "(a)")
+    a.set_xticks(x, [lab[n] for n in names]); a.set_ylabel("冷源容量/kW$_{th}$"); a.legend(fontsize=8, loc="upper center", ncol=2)
+    a.set_ylim(0, max(t.loc[names, "自然冷却"].max(), t.loc[names, "机械制冷"].max()) * 1.45); panel(a, "(a)")
     base = t.loc[names, "能源投资"].values; op = t.loc[names, "年运行费用"].values; pen = t.loc[names, "失约费用"].values
     b.bar(x, base, 0.6, color="#B5C7E3", edgecolor="0.3", lw=0.5, label="能源设备年化投资")
     b.bar(x, op, 0.6, bottom=base, color="#D9D9D9", edgecolor="0.3", lw=0.5, label="年运行费用")
     b.bar(x, pen, 0.6, bottom=base + op, color="#E64B35", edgecolor="0.3", lw=0.5, label="失约费用 ($c_R$=100)")
     for i, n in enumerate(names):
-        b.text(x[i], base[i] + op[i] + pen[i] + 4, f"{base[i] + op[i] + pen[i]:.1f}", ha="center", fontsize=7.5)
-    lo = (base + op).min() * 0.85
-    b.set_ylim(lo, (base + op + pen).max() * 1.06); b.set_xticks(x, [lab[n] for n in names]); b.set_ylabel("风险调整年化费用/万元")
-    b.legend(fontsize=7.2, loc="upper left", ncol=1); panel(b, "(b)")
+        b.text(x[i], base[i] + op[i] + pen[i] + 6, f"{base[i] + op[i] + pen[i]:.1f}", ha="center", fontsize=7.5)
+    b.set_ylim(0, (base + op + pen).max() * 1.32); b.set_xticks(x, [lab[n] for n in names]); b.set_ylabel("风险调整年化费用/万元")
+    b.legend(fontsize=7.2, loc="upper center", ncol=3, columnspacing=0.8, handlelength=1.2); panel(b, "(b)")
     # (c) 夏季类别: 经验概率 vs 最坏分布
     pw = PW[PW["季节"] == 1]
     sc = pw[pw["方案"] == "R100-SP"]["情景"].tolist()
