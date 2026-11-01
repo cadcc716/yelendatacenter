@@ -42,6 +42,8 @@ def load_workload_long():
     if not hourly.exists():
         parts = []
         for f in ("BurstGPT_1.csv", "BurstGPT_2.csv", "BurstGPT_3.csv"):
+            if not (C.RAW / f).exists():
+                print("下载", f); urllib.request.urlretrieve(f"https://github.com/HPMLL/BurstGPT/releases/download/v2.0/{f}", C.RAW / f)
             df = pd.read_csv(C.RAW / f, usecols=["Timestamp", "Total tokens", "Log Type"])
             df["h"] = (df.Timestamp // 3600).astype(int)
             parts.append(df.groupby(["h", "Log Type"])["Total tokens"].sum().unstack(fill_value=0))
