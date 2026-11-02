@@ -80,9 +80,47 @@ def long():
     return pd.DataFrame(out), B
 
 
+def zw():
+    """宁夏中卫 ERA5 2023–2024 测试年 (按年份时间外推) + BurstGPT 188 日负荷。"""
+    D = X.dataset("zw"); nd = D["n_d"]; out = []
+    DC = pd.read_csv(RES / "design_check.csv").set_index("方案") if (RES / "design_check.csv").exists() else None
+    names = (("Z-M0", "M0 静态基准"), ("Z-M0-设计工况", "M0-设计工况(工程常规)"), ("Z-M1", "M1 +GPU调节"), ("Z-M2", "M2 +热反馈"),
+             ("Z-M3", "M3 完整耦合(硬约束)"), ("Z-R100-SP", "软约束 SP"), ("Z-R100-U2", "软约束 U2"), ("Z-R100-U3", "软约束 U3(本文)"))
+    for nm, lab in names:
+        r = RK.summary(nm, 100, nd); rw = row(nm)
+        if r is None or rw is None: continue
+        st = RES / f"stress_{nm}.csv"; s2 = np.nan
+        if st.exists():
+            S = pd.read_csv(st); s2 = float(S[S["压力片段"].str.startswith("ST2")]["实时失约"].iloc[0])
+        dc = DC.loc[nm] if (DC is not None and nm in DC.index) else None
+        out.append(dict(方案=lab, 代号=nm, 光伏=rw["PV"], 自然冷却=rw["FC"], 机械制冷=abs(max(rw["MC"], 0)),
+                        冷源投资=(rw["年化_FC"] + rw["年化_MC"]) / W, 光伏投资=rw["年化_PV"] / W, 年运行费用=rw["复核年运行费用"] / W,
+                        能源相关费用=rw["复核能源相关费用"] / W, 冷却电量MWh=rw["复核冷却电量MWh"], 实时SLA=rw["实时SLA"] * 100,
+                        年化冷却受限失约=r["其中冷却受限"], 风险调整费用=r["风险调整费用"],
+                        设计日失约=(dc["实时失约"] + dc["延期失约"]) if dc is not None else np.nan, 热浪72h失约=s2, 间隙=rw["间隙"] / W))
+    T = pd.DataFrame(out)
+    t = T.set_index("代号")
+    dec = None
+    if all(k in t.index for k in ("Z-M0", "Z-M1", "Z-M2", "Z-M3")):
+        rows = []
+        for k, c in (("光伏投资", "光伏投资"), ("冷源投资", "冷源投资"), ("运行费用", "年运行费用"), ("能源相关费用", "能源相关费用")):
+            v = {m: t.loc[f"Z-{m}", c] for m in ("M0", "M1", "M2", "M3")}
+            d1, d2, d3 = v["M1"] - v["M0"], v["M2"] - v["M0"], v["M3"] - v["M0"]
+            rows.append(dict(分项=k, 仅GPU调节=d1, 仅热耦合=d2, 交互项=d3 - d1 - d2, 合计=d3,
+                             Shapley_GPU调节=0.5 * (d1 + v["M3"] - v["M2"]), Shapley_热耦合=0.5 * (d2 + v["M3"] - v["M1"])))
+        dec = pd.DataFrame(rows)
+    B = []
+    for a, b in (("Z-R100-U3", "Z-R100-SP"), ("Z-R100-U2", "Z-R100-SP"), ("Z-R100-U3", "Z-R100-U2"), ("Z-M3", "Z-M0"), ("Z-M3", "Z-M0-设计工况"), ("Z-R100-U3", "Z-M0")):
+        if RK.load(a) is not None and RK.load(b) is not None: B.append(RK.boot(a, b, 100, nd))
+    return T, dec, pd.DataFrame(B)
+
+
 if __name__ == "__main__":
     pd.set_option("display.width", 250)
     S = sens(); S.to_csv(RES / "rob_sens.csv", index=False); print(S.round(2).to_string())
     F = fan(); F.to_csv(RES / "rob_fan.csv", index=False); print(F.round(3).to_string())
     Lg, B = long(); Lg.to_csv(RES / "rob_long.csv", index=False); print(Lg.round(2).to_string())
     if B is not None: B.to_csv(RES / "rob_long_boot.csv", index=False); print(B.round(2).to_string())
+    Z, Zd, Zb = zw(); Z.to_csv(RES / "rob_zw.csv", index=False); print(Z.round(2).to_string())
+    if Zd is not None: Zd.to_csv(RES / "rob_zw_decomp.csv", index=False); print(Zd.round(1).to_string())
+    if len(Zb): Zb.to_csv(RES / "rob_zw_boot.csv", index=False); print(Zb.round(2).to_string())
