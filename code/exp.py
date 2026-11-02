@@ -80,7 +80,7 @@ for m in ("M0", "M1", "M2", "M3"):
     PLANS[f"Z-{m}"] = dict(PLANS[m], ds="zw", full=False, **({"warm": ["L-M3", "M3"]} if m == "M3" else {}))
 PLANS["Z-M0-设计工况"] = dict(PLANS["M0"], tstat="hourly", ds="zw", full=False)
 for u in ("M3", "U2", "U3"):
-    PLANS[f"Z-R100-{'SP' if u == 'M3' else u}"] = dict(PLANS[u], ds="zw", soft=(100.0, 20.0), fixN_from="Z-M3", warm=["Z-M3"], full=False)
+    PLANS[f"Z-R100-{'SP' if u == 'M3' else u}"] = dict(PLANS[u], ds="zw", soft=(100.0, 20.0), fixN_from="Z-M0", warm=["Z-M3", "Z-M1", "Z-M0"], full=False)
 PLANS["温区粗化-M3"] = dict(PLANS["M3"], cfg={"ZONES": C.ZONES_COARSE, "FIXED_ZONES": [0]}, full=False)
 PLANS["无休眠-M3"] = dict(PLANS["M3"], cfg={"P_OFF": None}, full=False)        # 消融: GPU 调节只含降频, 不含休眠态
 
@@ -150,6 +150,7 @@ def plan(name, tl=C.TIME_LIMIT):
         best = np.inf
         for src in pl.get("warm") or dict.fromkeys(["M3", name.split("-", 1)[1].replace("SP", "M3")]):
             f = RES / f"plan_{src}.pkl"
+            if src == name: continue
             if not f.exists(): continue
             xs = pickle.load(open(f, "rb"))["x"]
             Mf, _ = Mo.build(B, pl["spec"], x_fix=xs, price=D["price"], n_d=nd, amb=amb, cfg=cfg, soft=pl.get("soft"))
