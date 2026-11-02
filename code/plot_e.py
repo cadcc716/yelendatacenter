@@ -710,7 +710,34 @@ def X_design_T():
     return float(X.dataset("zw")["design"]["T"])
 
 
-FIGS = {"22": fig22, "21": fig21, "20": fig20, "2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6, "7": fig7, "8": fig8, "9": fig9, "10": fig10, "11": fig11,
+# ====================== 图23 中卫: 经验分布与最坏分布 / 情景风险费用 ======================
+def fig23():
+    U = pickle.load(open(RES / "plan_Z-R100-U3.pkl", "rb")); Sp = pickle.load(open(RES / "plan_Z-R100-SP.pkl", "rb"))
+    fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 6.4 * CM), layout="constrained", gridspec_kw=dict(width_ratios=[1.25, 1]))
+    sea = ["春", "夏", "秋", "冬"]; xs, lab, ph, pw = [], [], [], []; x0 = 0; cuts = []
+    for d in range(4):
+        bl = [bb for bb in U["blocks"] if bb["d"] == d]
+        for k, (bb, pp) in enumerate(zip(bl, U["pw"][d])):
+            xs.append(x0 + k); ph.append(bb["p"]); pw.append(pp)
+            t = bb["tag"]; lab.append("设计" if t.startswith("设计") else ("热" if "T_max" in t else ("峰" if "R_peak" in t else t[-1])))
+        cuts.append((x0 + (len(bl) - 1) / 2, sea[d])); x0 += len(bl) + 1
+    xs = np.array(xs); w = 0.4
+    a.bar(xs - w / 2, ph, w, color="#BDBDBD", edgecolor="0.3", lw=0.4, label="经验概率 $\\hat p$")
+    a.bar(xs + w / 2, pw, w, color=COLM["U3"], edgecolor="0.3", lw=0.4, label="最坏分布 $p^*$ (U3)")
+    a.set_xticks(xs, lab, fontsize=6.3); a.set_ylabel("情景概率"); a.legend(fontsize=7.5, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=2, frameon=False)
+    for cx, nm in cuts: a.text(cx, a.get_ylim()[1] * 0.97 if False else 0.78, nm + "季", ha="center", fontsize=8)
+    a.set_ylim(0, 0.85); panel(a, "(a)", -0.12, 1.08)
+    bl = [bb for bb in U["blocks"] if bb["d"] == 1]; qU = [o["Cop"] / 1e4 for o in U["out"] if o["d"] == 1]; qS = [o["Cop"] / 1e4 for o in Sp["out"] if o["d"] == 1]
+    lb = ["代表" + bb["tag"][-1] if bb["tag"].startswith("代表") else ("最热日" if "T_max" in bb["tag"] else ("负荷峰" if "R_peak" in bb["tag"] else "设计日")) for bb in bl]
+    xx = np.arange(len(bl))
+    b.bar(xx - w / 2, qS, w, color="#8C8C8C", edgecolor="0.3", lw=0.4, label=f"SP 容量 (FC={Sp['x']['FC']:.0f})")
+    b.bar(xx + w / 2, qU, w, color=COLM["U3"], edgecolor="0.3", lw=0.4, label=f"U3 容量 (FC={U['x']['FC']:.0f})")
+    b.set_yscale("log"); b.set_xticks(xx, lb, rotation=30, ha="right", fontsize=7.2); b.set_ylabel("夏季情景风险费用 $Q_{ds}$/万元")
+    b.legend(fontsize=7.2, loc="upper left"); panel(b, "(b)", -0.16, 1.08)
+    save(fig, "图23_中卫条件半方差模糊集的最坏分布与情景风险费用")
+
+
+FIGS = {"23": fig23, "22": fig22, "21": fig21, "20": fig20, "2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6, "7": fig7, "8": fig8, "9": fig9, "10": fig10, "11": fig11,
         "12": fig12, "13": fig13, "14": fig14, "15": fig15, "16": fig16, "17": fig17, "18": fig18, "19": fig19}
 
 if __name__ == "__main__":

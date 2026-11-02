@@ -390,15 +390,22 @@ def post(name):
     print(f"[post] {name} 冷却修复成本={row.get('冷却修复成本')}", flush=True)
 
 
-def ops():
-    """5.3.3 同容量运行比较: 固定 x_ref = M3 规划容量, 只改变运行策略 (a, b)。"""
-    R = pickle.load(open(RES / "plan_M3.pkl", "rb")); D = dataset()
+OPS = {"M0策略": (False, "fixed", "SP"), "M1策略": (True, "fixed", "SP"), "M2策略": (False, "dyn", "SP"), "M3策略": (True, "dyn", "SP")}
+
+
+def ops(ref="M3", only=None):
+    """5.3.3 同容量运行比较: 固定 x_ref = ref 规划容量, 只改变运行策略 (a, b)。ref='Z-M3' 时用中卫数据, 结果加前缀 Z-。"""
+    R = pickle.load(open(RES / f"plan_{ref}.pkl", "rb")); D = dataset(PLANS[ref].get("ds", "base")); pre = "Z-" if ref.startswith("Z-") else ""
+    for nm, spec in OPS.items():
+        if only and nm != only: continue
+        E = evaluate(R["x"], D, spec=spec, cfg=R["cfg"]); E.insert(0, "策略", nm); E.to_csv(RES / f"ops_{pre}{nm}.csv", index=False)
+        s = hf_summary(E, R, D); print("[ops]", pre + nm, s["复核年运行费用"], s["实时SLA"], flush=True)
     rows = []
-    for nm, spec in {"M0策略": (False, "fixed", "SP"), "M1策略": (True, "fixed", "SP"), "M2策略": (False, "dyn", "SP"),
-                     "M3策略": (True, "dyn", "SP")}.items():
-        E = evaluate(R["x"], D, spec=spec); E.insert(0, "策略", nm); E.to_csv(RES / f"ops_{nm}.csv", index=False)
-        s = hf_summary(E, R, D); s["策略"] = nm; rows.append(s); print("[ops]", nm, s["复核年运行费用"], s["实时SLA"], flush=True)
-    pd.DataFrame(rows).to_csv(RES / "ops_summary.csv", index=False)
+    for nm in OPS:
+        f = RES / f"ops_{pre}{nm}.csv"
+        if f.exists():
+            s = hf_summary(pd.read_csv(f), R, D); s["策略"] = nm; rows.append(s)
+    pd.DataFrame(rows).to_csv(RES / f"ops_{pre}summary.csv", index=False)
 
 
 def bench(nc, alg):
@@ -453,7 +460,7 @@ def collect():
 if __name__ == "__main__":
     w = sys.argv[1]
     if w == "plan": job(sys.argv[2])
-    elif w == "ops": ops()
+    elif w == "ops": ops(*sys.argv[2:4])
     elif w == "bench": bench(*sys.argv[2:4])
     elif w == "collect": collect()
     elif w == "design": design_check()
