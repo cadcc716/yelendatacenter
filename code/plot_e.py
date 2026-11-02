@@ -694,9 +694,13 @@ def fig22():
     c.set_ylim(lo * 1.25, hi * 1.9 if hi > 0 else 5); panel(c, "(c)")
     lb = {"Z-R100-U3 − Z-R100-SP": "软约束 U3 − SP", "Z-R100-U2 − Z-R100-SP": "软约束 U2 − SP", "Z-R100-U3 − Z-R100-U2": "软约束 U3 − U2",
           "Z-M3 − Z-M0": "M3 − M0", "Z-M3 − Z-M0-设计工况": "M3 − M0 设计工况", "Z-R100-U3 − Z-M0": "软约束 U3 − M0"}
-    Zb = Zb[Zb["比较"].isin(lb)].reset_index(drop=True); yy = np.arange(len(Zb))[::-1]
+    Zb = Zb[Zb["比较"].isin(lb)].reset_index(drop=True)
+    big = Zb[Zb["差值万元"].abs() > 300]; Zb = Zb[Zb["差值万元"].abs() <= 300].reset_index(drop=True); yy = np.arange(len(Zb))[::-1]
+    if len(big):
+        d.text(0.02, 0.98, "轴外 (SP 低配, 测试年 SLA 95.3%):\n" + "\n".join(f"{lb[r['比较']]}: {r['差值万元']:.0f} [{r['CI下']:.0f}, {r['CI上']:.0f}]" for _, r in big.iterrows()),
+               transform=d.transAxes, va="top", fontsize=6.8, color="#B03A2E", bbox=dict(fc="#FDEDEC", ec="none", pad=1.5))
     d.errorbar(Zb["差值万元"], yy, xerr=[Zb["差值万元"] - Zb["CI下"], Zb["CI上"] - Zb["差值万元"]], fmt="o", color="#3C5488", mfc="white", capsize=2.5, lw=1.0)
-    d.axvline(0, color="0.3", lw=0.7); d.set_yticks(yy, [lb[k] for k in Zb["比较"]], fontsize=7.5)
+    d.axvline(0, color="0.3", lw=0.7); d.set_yticks(yy, [lb[k] for k in Zb["比较"]], fontsize=7.5); d.set_ylim(-0.6, len(Zb) + 1.4)
     d.set_xlabel("风险调整年化费用差/万元 (95% CI)"); panel(d, "(d)", -0.38)
     save(fig, "图22_宁夏中卫真实气象_按年份外推的配置与样本外风险费用")
 

@@ -4,7 +4,7 @@
 """
 import pickle
 import numpy as np, pandas as pd
-import config as C
+import config as C, exp as X
 
 RES = C.RES / "exp"; W = 1e4
 S = pd.read_csv(RES / "summary.csv", index_col=0)
@@ -263,6 +263,61 @@ def rob_section():
 """
 
 
+def zw_section():
+    fz, fd, fb = RES / "rob_zw.csv", RES / "rob_zw_decomp.csv", RES / "rob_zw_boot.csv"
+    if not (fz.exists() and fd.exists() and fb.exists()): return "（中卫结果待生成）"
+    Z, Zd, Zb = pd.read_csv(fz), pd.read_csv(fd), pd.read_csv(fb)
+    t1 = md(pd.DataFrame([[r["方案"], f"{r['光伏']:.0f}", f"{r['自然冷却']:.0f}", f"{r['机械制冷']:.0f}", f(r["能源相关费用"]), f"{r['冷却电量MWh']:.0f}",
+                           f"{r['实时SLA']:.2f}", f"{r['年化冷却受限失约']:,.0f}", f"**{r['风险调整费用']:.1f}**",
+                           "—" if pd.isna(r["设计日失约"]) else f"{r['设计日失约']:,.0f}", "—" if pd.isna(r["热浪72h失约"]) else f"{r['热浪72h失约']:,.0f}",
+                           f"{r['间隙']:.1f}"] for _, r in Z.iterrows()],
+                         columns=["方案", "光伏kWp", "自然冷却kWth", "机械制冷kWth", "能源相关费用万元", "冷却电量MWh", "实时SLA%", "年化冷却受限失约GPU·h",
+                                  "风险调整费用万元", "设计日失约GPU·h", "72h热浪失约GPU·h", "规划间隙万元"]))
+    t2 = md(pd.DataFrame([[r["分项"], f"{r['仅GPU调节']:+.1f}", f"{r['仅热耦合']:+.1f}", f"{r['交互项']:+.1f}", f"{r['合计']:+.1f}",
+                           f"{r['Shapley_GPU调节']:+.1f}", f"{r['Shapley_热耦合']:+.1f}"] for _, r in Zd.iterrows()],
+                         columns=["分项", "仅GPU调节", "仅热耦合", "交互项", "合计 M3−M0", "Shapley: GPU调节", "Shapley: 热耦合"]))
+    lb = {"Z-R100-U3 − Z-R100-SP": "软约束 U3 − SP", "Z-R100-U2 − Z-R100-SP": "软约束 U2 − SP", "Z-R100-U3 − Z-R100-U2": "软约束 U3 − U2",
+          "Z-M3 − Z-M0": "M3 − M0", "Z-M3 − Z-M0-设计工况": "M3 − M0 设计工况(工程常规)", "Z-R100-U3 − Z-M0": "软约束 U3 − M0"}
+    t3 = md(pd.DataFrame([[lb.get(r["比较"], r["比较"]), f"{r['差值万元']:+.1f}", f"[{r['CI下']:+.1f}, {r['CI上']:+.1f}]", f"{r['优于概率'] * 100:.0f}%"]
+                          for _, r in Zb.iterrows()], columns=["比较", "风险调整费用差 万元/年", "95%置信区间", "前者更优概率"]))
+    z = Z.set_index("代号"); dm = z.loc["Z-M3", "能源相关费用"] - z.loc["Z-M0", "能源相关费用"]
+    return f"""**数据**：
+- 宁夏中卫（37.51°N，105.19°E，海拔 1225 m）ERA5 再分析逐时气象，2014–2024 年，来源为 Open-Meteo；
+- 按年份做真实时间外推：训练 2014–2020，验证 2021–2022，测试 2023–2024（730 天）；
+- 20 年一遇设计温度用训练年年极值的 Gumbel 分布估计，为 {X.dataset('zw')['design']['T']:.1f} ℃；
+- 负荷为 BurstGPT 188 日，与气象相互独立。
+- 测试年 2023–2024 年 ≥30 ℃ 的小时数为 625 / 552 h，高于训练年平均（约 410 h），属于含升温趋势的真实外推。
+
+### 表12 中卫真实气象下的配置与样本外表现（统一评价器，2023–2024 年测试日年化；失约单价 100 元/GPU·h）
+
+{t1}
+
+### 表13 中卫节约分解（万元/年）
+
+{t2}
+
+### 表14 配对区块 bootstrap（2023–2024 年测试日，2000 次）
+
+{t3}
+
+**结论（中卫真实数据）：**
+1. **完整耦合仍显著降本**：
+   - 能源相关费用比 M0 低 {dm:.1f} 万元/年（{dm / z.loc['Z-M0', '能源相关费用'] * 100:.1f}%），冷水机组 {z.loc['Z-M0', '机械制冷']:.0f} → {z.loc['Z-M3', '机械制冷']:.0f} kWth，冷却电量低约 11%；
+   - 计入失约后，相对 M0 和工程常规设计的风险调整费用差，95% 置信区间都不含 0。
+2. **交互项依然是冷水机组节约的主因**：冷源投资节约中交互项约占 73%，单独热反馈（M2）几乎不改变冷水机组。
+3. **设计日（{X.dataset('zw')['design']['T']:.1f} ℃）**：所有耦合方案零失约。
+4. **软约束 DRO 显著优于 SP**：
+   - SP 的目标函数对冷源容量几乎不敏感：自然冷却在 1983 与 1500 kWth 之间，目标只差约 0.7 万元，局部搜索选了 1500 kWth。因为罕见高温在经验分布中权重很小；
+   - 在更热的 2023–2024 测试年，SP 的实时 SLA 跌至 95.3%，设计日失约约 9100 GPU·h；
+   - U2 / U3 通过最坏分布保留约 3220 kWth 自然冷却，设计日零失约，风险调整费用显著低于 SP；
+   - 即使采用 SP 局部搜索前的解（1983 kWth），U3 仍低约 135 万元/年（95% CI [−163, −108]）。
+5. **限制**：
+   - U3 与 U2 结果相同，正负半方差在中卫数据上没有增量；
+   - U3 与硬约束 M3 基本相同（相差约 2 万元）；
+   - M3 在测试年有约 2100 GPU·h/年的冷却受限失约（M0 为 0），但其节约足以覆盖。
+"""
+
+
 rep = f"""# 考虑GPU运行调节与液冷热状态耦合的AI数据中心分布鲁棒容量配置——修订版实验方案 E1–E5 结果报告（v2）
 
 > 按 `main` 分支《数学模型与完整实验方案_修订版》第 5 节执行。数值由 `code/exp.py` 求解、`code/report_e.py` 从 `results/exp/*.csv` 直接生成；图件见 `figures/exp/`；
@@ -372,6 +427,10 @@ rep = f"""# 考虑GPU运行调节与液冷热状态耦合的AI数据中心分布
 
 {{ROB}}
 
+## 7c 宁夏中卫真实气象（ERA5 2014–2024，按年份时间外推）
+
+{{ZW}}
+
 ## 8 E5 求解效率
 
 {bench}
@@ -381,11 +440,11 @@ rep = f"""# 考虑GPU运行调节与液冷热状态耦合的AI数据中心分布
 1. 规划间隙：M2（15.3 万元）、U3（9.6 万元）、坦帕 M3（34.4 万元）、30% 样本量算例（34–38 万元）未收敛；κ 前沿为 30 min 结果。未收敛的 M3 类方案已用固定整数变量的容量局部搜索改进可行解，下界仍取 MILP 下界。M0 与基准 M3 均已收敛，因此主结论不受间隙影响；建议用商业求解器复算其余算例。
 5. 自然冷却风机电耗系数为常数、空气侧冷却为固定系数，且 M3 不配冷水机组，因此 M3 冷源日电量与日均温几乎不相关（相关系数约 −0.07），高温日冷却电耗可能被低估。
 6. M3 在 40 ℃ 真实热浪日有 105 GPU·h 冷却受限失约（M0 为 0），72 h 热浪压力测试中 M3 失约 183 GPU·h、M0 为 78 GPU·h：完整耦合以更低成本换取了更小的高温安全余量，冷却修复（+8.3 万元/年）后可消除。
-2. 气象为丹佛替代数据，正式稿须用中卫 CSWD/TMYx 与其 ASHRAE 设计值重算。
+2. E1–E5 主体实验仍基于丹佛典型气象年；中卫 ERA5 真实气象的核心复算见 7c 节，正式稿建议以中卫结果为主、丹佛与其他气候为适用边界。
 3. 休眠待机功率 0.03 kW/台、热备用比例 20% 为 C 级设定值，需实测；BurstGPT 仅 51 天。
 4. 10 温区仍按下界计算自然冷却，是保守近似。
 """
 N_TEXT = (C.ROOT / "docs/_n_text.md").read_text(encoding="utf-8").strip() if (C.ROOT / "docs/_n_text.md").exists() else "（训练样本量实验完成后填写）"
-rep = rep.replace("{ROB}", rob_section()).replace("{DECOMP}", decomp_section()).replace("{N_TEXT}", N_TEXT).replace("{SOFT_TEXT}", soft_section())
+rep = rep.replace("{ZW}", zw_section()).replace("{ROB}", rob_section()).replace("{DECOMP}", decomp_section()).replace("{N_TEXT}", N_TEXT).replace("{SOFT_TEXT}", soft_section())
 (C.ROOT / "docs/实验结果报告_E1-E5.md").write_text(rep, encoding="utf-8")
 print("written docs/实验结果报告_E1-E5.md")
