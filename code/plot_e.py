@@ -51,7 +51,8 @@ def fig2():
     v = np.array([P["MODES"][k][0] for k in ks]); pg = np.array([P["MODES"][k][1] for k in ks])
     ptot = pg + P["P_HOST"]; e = ptot / v
     tsafe = P["T_CHIP_MAX"] - P["R_TH"] * pg
-    fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 5.6 * CM), layout="constrained", gridspec_kw=dict(width_ratios=[1.15, 1]))
+    fig = plt.figure(figsize=(W2, 10.5 * CM), layout="constrained"); gs = fig.add_gridspec(2, 2, height_ratios=[1.25, 0.8], width_ratios=[1.15, 1])
+    a = fig.add_subplot(gs[0, 0]); b = fig.add_subplot(gs[0, 1]); c = fig.add_subplot(gs[1, :])
     x = np.arange(3); w = 0.34
     a.bar(x - w / 2, v * 100, w, color="#8FA9D6", edgecolor="#3C5488", lw=0.6, label="相对处理速率 $v_{rk}$")
     a.bar(x + w / 2, ptot / ptot[0] * 100, w, color="#F4A6A6", edgecolor="#C0392B", lw=0.6, label="整机功率 $p_{rk}$")
@@ -76,13 +77,30 @@ def fig2():
     b.set_xticks(x); b.set_xticklabels(lab); b.set_xlim(-0.5, 3.1); b.set_ylim(20, 56)
     b.set_ylabel("允许的液冷温度上限/℃"); panel(b, "(b)")
     b.set_title("$T^{\\mathrm{chip,max}}-R^{\\mathrm{th}}h_{k}$", fontsize=9, loc="left")
+    # (c) 中卫 2014–2024 逐时气温下, 各模式最高安全温区的自然冷却可用系数分布
+    import data_prep as DP
+    Tz = DP.load_weather_era5()[0].ravel(); cats = [("φ=1 完全自然冷却", "#2E8B57"), ("0<φ<1 部分", "#F6C85F"), ("φ=0 需机械制冷", "#E64B35")]
+    fr = []
+    for i, k in enumerate(ks):
+        lo = max(z[0] for z in P["ZONES"] if z[1] <= tsafe[i] + 1e-9)
+        ph = np.clip((lo - P["DT_CDU"] - Tz) / P["ITD_DES"], 0, 1)
+        fr.append([(ph >= 1).mean() * 100, ((ph > 0) & (ph < 1)).mean() * 100, (ph <= 0).mean() * 100])
+    fr = np.array(fr); left = np.zeros(3); yy = np.arange(3)[::-1]
+    for j, (lb, cl) in enumerate(cats):
+        c.barh(yy, fr[:, j], 0.55, left=left, color=cl, edgecolor="0.3", lw=0.4, label=lb)
+        for i in range(3):
+            if fr[i, j] > 1.5: c.text(max(left[i], 80) + (min(fr[i, j], left[i] + fr[i, j] - 80)) / 2, yy[i], f"{fr[i, j]:.1f}%", ha="center", va="center", fontsize=7.5, color="white" if j != 1 else "0.2")
+        left += fr[:, j]
+    c.set_yticks(yy, lab); c.set_xlim(80, 100); c.set_xlabel("中卫 2014–2024 年逐时气温下的小时占比/% (横轴自 80% 起)")
+    c.legend(fontsize=7.5, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, frameon=False); panel(c, "(c)", -0.08, 1.12)
     save(fig, "图2_GPU运行模式特性与热安全上限")
 
 
 # ====================== 图3 液冷温度 × 环境温度: 自然冷却可用系数与可用 GPU 模式 ======================
 def fig3():
-    P = C.params(); D = pickle.load(open(C.PROC / "dataset_base.pkl", "rb"))
-    Ta = np.linspace(-15, 44, 300); Tw = np.linspace(25, 53, 300)
+    import exp as X, data_prep as DP
+    P = C.params(); D = X.dataset("zw"); Tz, _, _, yr, _ = DP.load_weather_era5()
+    Ta = np.linspace(-25, 44, 300); Tw = np.linspace(25, 53, 300)
     phi = np.clip((Tw[:, None] - P["DT_CDU"] - Ta[None, :]) / P["ITD_DES"], 0, 1)
     cm = LinearSegmentedColormap.from_list("phi", ["#F7F7F7", "#C6DBEF", "#6BAED6", "#2171B5", "#08306B"])
     fig = plt.figure(figsize=(W2, 7.0 * CM), layout="constrained")
@@ -95,16 +113,18 @@ def fig3():
     for k, ls in zip(P["MODES"], ["-", "--", ":"]):
         t = P["T_CHIP_MAX"] - P["R_TH"] * P["MODES"][k][1]
         ax.axhline(t, color="#E64B35", lw=1.1, ls=ls)
-        ax.text(-14.5, t - 0.4, names[k] + f" {t:.1f}℃", color="white", fontsize=8, va="top")
+        ax.text(-24.5, t - 0.4, names[k] + f" {t:.1f}℃", color="white", fontsize=8, va="top")
     for lo, hi in P["ZONES"][1:]: ax.axhline(lo, color="0.35", lw=0.4, ls=(0, (2, 2)))
     ax.set_xlabel("室外干球温度 $T^{\\mathrm{amb}}$/℃"); ax.set_ylabel("液冷环路温度 $T^{w}$/℃")
     cb = fig.colorbar(im, cax=cax); cb.set_label("自然冷却可用系数 $\\underline{\\phi}$")
-    Tall = D["Tamb_all"].ravel(); hot = np.array([max(b["Tamb"].max() for b in S) for S in D["test"]])
-    top.hist(Tall, bins=np.arange(-15, 43, 1.5), color="#9ECAE1", edgecolor="white", lw=0.3)
-    top.set_ylabel("小时数"); top.tick_params(labelbottom=False); top.spines[["top", "right"]].set_visible(False)
-    for t, lab, ha, dx in ((36.7, "训练集最高\n36.7℃", "right", -0.3), (40.0, "测试集最高\n40.0℃", "left", 0.3)):
+    ny = len(np.unique(yr)); bins = np.arange(-25, 43, 1.5)
+    top.hist(Tz[yr <= 2020].ravel(), bins=bins, color="#9ECAE1", edgecolor="white", lw=0.3, weights=np.full(Tz[yr <= 2020].size, 1 / 7), label="训练年 (2014–2020)")
+    top.hist(Tz[yr >= 2023].ravel(), bins=bins, histtype="step", color="#E64B35", lw=1.0, weights=np.full(Tz[yr >= 2023].size, 1 / 2), label="测试年 (2023–2024)")
+    top.set_ylabel("年小时数"); top.tick_params(labelbottom=False); top.spines[["top", "right"]].set_visible(False); top.legend(fontsize=7, loc="upper left", frameon=False)
+    ttr, tte, tds = Tz[yr <= 2020].max(), Tz[yr >= 2023].max(), D["design"]["T"]
+    for t, lab, ha, dx in ((ttr, f"训练年最高\n{ttr:.1f}℃", "right", -0.3), (tds, f"设计温度\n{tds:.1f}℃", "left", 0.3)):
         ax.axvline(t, color="k", lw=0.7, ls="--"); ax.text(t + dx, 26, lab, ha=ha, fontsize=7.5)
-    ax.set_xlim(-15, 44)
+    ax.set_xlim(-25, 44)
     save(fig, "图3_液冷温区与气象共同决定可用GPU模式和自然冷却能力")
 
 
@@ -130,8 +150,8 @@ def hourly(name, sel=None):
     return {k: cache[k] for k in sel}
 
 
-def hottest_test_day():
-    D = pickle.load(open(C.PROC / "dataset_base.pkl", "rb"))
+def hottest_test_day(tag="base"):
+    D = pickle.load(open(C.PROC / f"dataset_{tag}.pkl", "rb"))
     best = max(((d, i) for d in range(4) for i in range(len(D["test"][d]))), key=lambda k: D["test"][k[0]][k[1]]["Tamb"].max())
     return best, D
 
@@ -238,9 +258,10 @@ def fig6():
 
 
 # ====================== 图7 最高温测试日运行调度 (M0 容量 vs M3 容量, 统一评价器) ======================
-def fig7():
-    (d, i), D = hottest_test_day(); price = D["price"]
-    ms = ["M0", "M3"]; H = {m: hourly(m, [(d, i)])[(d, i)] for m in ms}
+def fig7(ms=("M0", "M3"), tag="base", name="图7_测试集最高温日运行调度_静态基准与完整耦合", labs_=None):
+    (d, i), D = hottest_test_day(tag); price = D["price"]
+    ms = list(ms); H = {m: hourly(m, [(d, i)])[(d, i)] for m in ms}
+    LAB = labs_ or {m: LABM.get(m, m) for m in ms}
     fig, axs = plt.subplots(2, 2, figsize=(W2, 9.0 * CM), layout="constrained", sharex=True, gridspec_kw=dict(height_ratios=[1.35, 1]))
     t = np.arange(24); tt = np.arange(25)
     ymax = max((H[m]["Pg"] + H[m]["PPV"] + H[m]["Pdis"]).max() for m in ms) * 1.15
@@ -253,7 +274,7 @@ def fig7():
         a.step(tt, np.r_[L, L[-1]], where="post", color="#3C5488", lw=1.1, label="总用电负荷")
         cool = o["PFC"] + o["PMC"]
         a.step(tt, np.r_[cool, cool[-1]], where="post", color="#C0392B", lw=1.1, label="冷源电功率")
-        a.set_ylim(0, ymax); a.set_title(f"({'ab'[k]}) {LABM[m]} 容量", fontsize=9, loc="left")
+        a.set_ylim(0, ymax); a.set_title(f"({'ab'[k]}) {LAB[m]} 容量", fontsize=9, loc="left")
         if k == 0: a.set_ylabel("功率/kW")
         b.stackplot(tt, np.r_[o["qFC"], o["qFC"][-1]], np.r_[o["qMC"], o["qMC"][-1]], step="post", colors=["#7FC97F", "#F4A6A6"],
                     labels=["自然冷却散热", "机械制冷散热"], lw=0)
@@ -264,11 +285,11 @@ def fig7():
         if k == 1: bt.set_ylabel("室外温度/℃", color="0.4")
         b3 = b.twinx(); b3.bar(t + 0.5, o["sR"], 0.7, color="#C0392B", alpha=0.45, label="实时失约")
         b3.set_ylim(0, max(1.0, max(H[mm]["sR"].max() for mm in ms)) * 1.6); b3.set_yticks([])
-        tot = o["sR"].sum(); b.text(0.3, hmax * 0.93, f"实时失约 {tot:.0f} GPU·h; 机械制冷电量 {o['PMC'].sum():.0f} kWh", fontsize=7.5)
+        tot = abs(o["sR"].sum()); b.text(0.3, hmax * 0.93, f"实时失约 {tot:.0f} GPU·h; 机械制冷电量 {o['PMC'].sum():.0f} kWh", fontsize=7.5)
     h, l = axs[0, 0].get_legend_handles_labels(); legend_top(fig, h, l, 5)
     h, l = axs[1, 0].get_legend_handles_labels(); h3, l3 = b3.get_legend_handles_labels(); h4, l4 = bt.get_legend_handles_labels()
     fig.legend(h + h4 + h3, l + l4 + l3, loc="upper center", bbox_to_anchor=(0.5, 0.0), ncol=5, frameon=False)
-    save(fig, "图7_测试集最高温日运行调度_静态基准与完整耦合")
+    save(fig, name)
 
 
 # ====================== 图8 测试日 × 时段 液冷温度热力图 (完整耦合 M3) ======================
@@ -737,7 +758,42 @@ def fig23():
     save(fig, "图23_中卫条件半方差模糊集的最坏分布与情景风险费用")
 
 
-FIGS = {"23": fig23, "22": fig22, "21": fig21, "20": fig20, "2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6, "7": fig7, "8": fig8, "9": fig9, "10": fig10, "11": fig11,
+def fig24():
+    fig7(("Z-M0", "Z-M3"), "zw", "图24_中卫测试年最高温日运行调度_静态基准与完整耦合", {"Z-M0": "M0 静态基准", "Z-M3": "M3 完整耦合"})
+
+
+# ====================== 图25 中卫: 多指标方法对比 ======================
+def fig25():
+    Z = pd.read_csv(RES / "rob_zw.csv").set_index("代号")
+    ms = [("Z-M0", "M0 静态基准", "#8C8C8C"), ("Z-M0-设计工况", "M0-D 设计工况法", "#B09C85"), ("Z-M3", "M3 完整耦合", COLM["M3"]),
+          ("Z-R100-SP", "R-SP 随机规划", "#91D1C2"), ("Z-R100-U3", "R-U3 本文方法", COLM["U3"])]
+    ind = [("能源相关费用", "能源相关\n年化费用", True), ("冷源投资", "冷源\n投资", True), ("冷却电量MWh", "冷却\n电量", True),
+           ("年化冷却受限失约", "冷却受限\n失约", True), ("设计日失约", "设计日\n失约", True), ("风险调整费用", "风险调整\n费用", True)]
+    fig, (a, b) = plt.subplots(1, 2, figsize=(W2, 7.2 * CM), layout="constrained", gridspec_kw=dict(width_ratios=[1, 1.15]))
+    a.remove(); a = fig.add_subplot(1, 2, 1, projection="polar")
+    th = np.linspace(0, 2 * np.pi, len(ind), endpoint=False); th2 = np.r_[th, th[0]]
+    for code, lb, cl in ms:
+        v = []
+        for col, _, low in ind:
+            vals = Z.loc[[m[0] for m in ms], col].astype(float); lo, hi = vals.min(), vals.max()
+            sc = 1.0 if hi - lo < 1e-9 else (hi - Z.loc[code, col]) / (hi - lo)       # 越小越好 → 归一化得分 (1 最优)
+            v.append(0.15 + 0.85 * sc)
+        v = np.r_[v, v[0]]
+        a.plot(th2, v, color=cl, lw=1.4 if "U3" in code else 0.9, label=lb); a.fill(th2, v, color=cl, alpha=0.18 if "U3" in code else 0.05)
+    a.set_xticks(th); a.set_xticklabels([i[1] for i in ind], fontsize=7); a.set_yticks([]); a.set_ylim(0, 1.05)
+    a.legend(fontsize=6.8, loc="upper center", bbox_to_anchor=(0.5, -0.05), ncol=2, frameon=False); panel(a, "(a)", -0.1, 1.05)
+    x = np.arange(len(ms)); en = [Z.loc[m[0], "能源相关费用"] for m in ms]; rk = [Z.loc[m[0], "风险调整费用"] - Z.loc[m[0], "能源相关费用"] for m in ms]
+    b.bar(x, en, 0.6, color=[m[2] for m in ms], edgecolor="0.3", lw=0.5, label="能源相关年化费用")
+    b.bar(x, rk, 0.6, bottom=en, color="none", edgecolor="#C0392B", hatch="////", lw=0.5, label="失约风险费用")
+    for i, (e, r_) in enumerate(zip(en, rk)):
+        tot = e + r_; b.text(i, min(tot, 1330) + 15, f"{tot:,.0f}" + (" (轴外)" if tot > 1400 else ""), ha="center", fontsize=7.5, color="#C0392B" if tot > 1400 else "k")
+    b.set_ylim(0, 1400); b.set_xticks(x, [m[1].replace(" ", "\n", 1) for m in ms], fontsize=7)
+    b.set_ylabel("风险调整年化费用/万元"); b.legend(fontsize=7.5, loc="upper left")
+    panel(b, "(b)")
+    save(fig, "图25_中卫多指标方法对比")
+
+
+FIGS = {"25": fig25, "24": fig24, "23": fig23, "22": fig22, "21": fig21, "20": fig20, "2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6, "7": fig7, "8": fig8, "9": fig9, "10": fig10, "11": fig11,
         "12": fig12, "13": fig13, "14": fig14, "15": fig15, "16": fig16, "17": fig17, "18": fig18, "19": fig19}
 
 if __name__ == "__main__":
