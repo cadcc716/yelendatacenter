@@ -66,8 +66,9 @@ def response(H, D):
 
 if __name__ == "__main__":
     names = sys.argv[1:] or ["M0", "M3", "U3"]
-    D = X.dataset(); rows, pr, rs = [], [], []
+    tag = "_zw" if names[0].startswith("Z-") else ""; rows, pr, rs = [], [], []
     for nm in names:
+        D = X.dataset(X.PLANS[nm].get("ds", "base"))
         R = pickle.load(open(RES / f"plan_{nm}.pkl", "rb"))
         # (a) 规划情景 (训练支撑集)
         for b, o in zip(R["blocks"], R["out"]):
@@ -79,13 +80,13 @@ if __name__ == "__main__":
             r = check_day(o, R["x"], D["test"][d][i], D["price"], P, nm); r["口径"] = "测试日"; rows.append(r)
         pr.append(dict(方案=nm, **price_response(H, D))); rs.append(dict(方案=nm, **response(H, D)))
         print("checked", nm, flush=True)
-    K = pd.DataFrame(rows); K.to_csv(RES / "checks_physics.csv", index=False)
+    K = pd.DataFrame(rows); K.to_csv(RES / f"checks_physics{tag}.csv", index=False)
     agg = K.groupby(["方案", "口径"]).agg(功率平衡残差kW=("功率平衡残差kW", "max"), 热平衡残差kWh=("热平衡残差kWh", "max"), GPU超N=("GPU超N", "max"),
                                          光伏超可用=("光伏超可用", "max"), 购电峰值=("购电峰值", "max"), 机械制冷超容量=("机械制冷超容量", "max"),
                                          自然冷却超容量=("自然冷却超容量", "max"), 最高热点温度=("最高热点温度", "max"), 实时完成误差=("实时完成误差", "max"),
                                          日末积压=("日末积压", "max"), 同时充放电h=("同时充放电h", "sum"), 液冷温度min=("液冷温度min", "min"),
                                          液冷温度max=("液冷温度max", "max"), 低温时段机械制冷散热kWh=("低温时段机械制冷散热kWh", "sum"),
                                          机械制冷散热kWh=("机械制冷散热kWh", "sum"))
-    agg.to_csv(RES / "checks_summary.csv"); pd.DataFrame(pr).to_csv(RES / "checks_price.csv", index=False); pd.DataFrame(rs).to_csv(RES / "checks_response.csv", index=False)
+    agg.to_csv(RES / f"checks_summary{tag}.csv"); pd.DataFrame(pr).to_csv(RES / f"checks_price{tag}.csv", index=False); pd.DataFrame(rs).to_csv(RES / f"checks_response{tag}.csv", index=False)
     pd.set_option("display.width", 250)
     print(agg.round(4).T.to_string()); print(pd.DataFrame(pr).round(3).to_string()); print(pd.DataFrame(rs).round(3).to_string())
