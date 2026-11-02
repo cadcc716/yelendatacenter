@@ -96,6 +96,20 @@ def load_weather_era5(y0=2014, y1=2024, site=ERA5_SITE):
     """ERA5 再分析逐时气象 (Open-Meteo archive API, 0.25°): 2 m 气温、GHI/DNI/DHI、10 m 风速 -> PVWatts v5 光伏单位出力。
     返回 (Tamb 日×24, gpv 日×24, month, year, meta)。缓存于 data/raw/era5_<lat>_<lon>_<y0>_<y1>.csv。"""
     f = C.RAW / f"era5_{site['lat']}_{site['lon']}_{y0}_{y1}.csv"
+    if not f.exists():   # 手动下载的 Open-Meteo 文件 (JSON 或 CSV 格式, 放在 data/raw/zhongwei_era5*.json|csv) 优先
+        import glob, json
+        man = sorted(glob.glob(str(C.RAW / "zhongwei_era5*")))
+        if man:
+            frames = []
+            for m in man:
+                if m.endswith(".json"):
+                    frames.append(pd.DataFrame(json.load(open(m, encoding="utf-8"))["hourly"]))
+                else:   # Open-Meteo CSV: 前若干行为站点元数据, 数据表以 "time," 开头
+                    lines = open(m, encoding="utf-8").read().splitlines(); k = next(i for i, l in enumerate(lines) if l.startswith("time"))
+                    d = pd.read_csv(m, skiprows=k); d.columns = [c.split(" (")[0] for c in d.columns]; frames.append(d)
+            df = pd.concat(frames).drop_duplicates("time").sort_values("time")
+            df = df[(df["time"] >= f"{y0}-01-01") & (df["time"] < f"{y1 + 1}-01-01")]
+            df.to_csv(f, index=False)
     if not f.exists():
         import json
         frames = []
