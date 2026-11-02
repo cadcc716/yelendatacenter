@@ -77,7 +77,7 @@ for u in ("M3", "U3"):
     PLANS[f"L-R100-{'SP' if u == 'M3' else u}"] = dict(PLANS[u], ds="long", soft=(100.0, 20.0), fixN_from="L-M3", warm=["L-M3"], full=False)
 # 中卫真实数据 (需放行 archive-api.open-meteo.com): 运行 ./run_zw.sh
 for m in ("M0", "M1", "M2", "M3"):
-    PLANS[f"Z-{m}"] = dict(PLANS[m], ds="zw", full=False)
+    PLANS[f"Z-{m}"] = dict(PLANS[m], ds="zw", full=False, **({"warm": ["L-M3", "M3"]} if m == "M3" else {}))
 PLANS["Z-M0-设计工况"] = dict(PLANS["M0"], tstat="hourly", ds="zw", full=False)
 for u in ("M3", "U2", "U3"):
     PLANS[f"Z-R100-{'SP' if u == 'M3' else u}"] = dict(PLANS[u], ds="zw", soft=(100.0, 20.0), fixN_from="Z-M3", warm=["Z-M3"], full=False)
