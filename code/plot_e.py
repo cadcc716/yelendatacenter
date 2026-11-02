@@ -662,7 +662,51 @@ def fig21():
     save(fig, "图21_稳健性_参数敏感性_风机变工况与长负荷数据")
 
 
-FIGS = {"21": fig21, "20": fig20, "2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6, "7": fig7, "8": fig8, "9": fig9, "10": fig10, "11": fig11,
+# ====================== 图22 宁夏中卫真实气象 (ERA5 2014–2024, 按年份外推) ======================
+def fig22():
+    import data_prep as DP
+    Z = pd.read_csv(RES / "rob_zw.csv").set_index("代号"); Zd = pd.read_csv(RES / "rob_zw_decomp.csv"); Zb = pd.read_csv(RES / "rob_zw_boot.csv")
+    T, g, mo, yr, _ = DP.load_weather_era5()
+    fig, ax = plt.subplots(2, 2, figsize=(W2, 11.6 * CM), layout="constrained"); (a, b), (c, d) = ax
+    ys = np.unique(yr); h30 = [(T[yr == y] >= 30).sum() for y in ys]; tmax = [T[yr == y].max() for y in ys]
+    cc = ["#8FA9D6" if y <= 2020 else ("#BDBDBD" if y <= 2022 else "#E64B35") for y in ys]
+    a.bar(ys, h30, color=cc, edgecolor="0.3", lw=0.5); a2 = a.twinx(); a2.plot(ys, tmax, "o-", color="0.2", ms=3.5, lw=1.0)
+    a2.axhline(X_design_T(), color="#B03A2E", ls="--", lw=0.9); a2.text(ys[0] - 0.3, X_design_T() + 0.15, f"20 年一遇设计温度 {X_design_T():.1f} ℃", fontsize=7, color="#B03A2E")
+    a.set_ylabel("≥30 ℃ 小时数/h"); a2.set_ylabel("年最高气温/℃"); a2.set_ylim(34, 42.5); a.set_xticks(ys, [str(y)[2:] for y in ys])
+    a.set_xlabel("年份 (20xx)")
+    a.legend(handles=[mpatches.Patch(color="#8FA9D6", label="训练"), mpatches.Patch(color="#BDBDBD", label="验证"), mpatches.Patch(color="#E64B35", label="测试")],
+             fontsize=7, loc="upper left", ncol=3); a.set_ylim(0, max(h30) * 1.35); panel(a, "(a)")
+    names = [n for n in ["Z-M0", "Z-M0-设计工况", "Z-M1", "Z-M2", "Z-M3", "Z-R100-SP", "Z-R100-U2", "Z-R100-U3"] if n in Z.index]
+    lab = {"Z-M0": "M0", "Z-M0-设计工况": "M0\n设计", "Z-M1": "M1", "Z-M2": "M2", "Z-M3": "M3", "Z-R100-SP": "软\nSP", "Z-R100-U2": "软\nU2", "Z-R100-U3": "软\nU3"}
+    x = np.arange(len(names)); w = 0.38
+    b.bar(x - w / 2, [Z.loc[n, "自然冷却"] for n in names], w, color=DEV["FC"][1], edgecolor="0.3", lw=0.5, label="自然冷却")
+    b.bar(x + w / 2, [Z.loc[n, "机械制冷"] for n in names], w, color=DEV["MC"][1], edgecolor="0.3", lw=0.5, label="机械制冷")
+    b.set_xticks(x, [lab[n] for n in names], fontsize=7.5); b.set_ylabel("冷源容量/kW$_{th}$"); b.legend(fontsize=7.5, ncol=2, loc="upper left")
+    b.set_ylim(0, Z.loc[names, ["自然冷却", "机械制冷"]].values.max() * 1.3); panel(b, "(b)")
+    comp = ["光伏投资", "冷源投资", "运行费用"]; t = Zd.set_index("分项").loc[comp]
+    xx = np.arange(3); ww = 0.26
+    for k, (col, lb, cl) in enumerate((("仅GPU调节", "仅 GPU 调节", "#4DBBD5"), ("仅热耦合", "仅热耦合", "#00A087"), ("交互项", "交互项", "#E64B35"))):
+        c.bar(xx + (k - 1) * ww, t[col], ww, color=cl, edgecolor="0.3", lw=0.5, label=lb)
+    c.axhline(0, color="0.3", lw=0.7); c.set_xticks(xx, comp); c.set_ylabel("相对 M0 的变化/(万元/年)"); c.legend(fontsize=7.5, ncol=3, loc="upper left")
+    tot = Zd.set_index("分项").loc["能源相关费用"]
+    c.text(0.98, 0.05, f"能源相关费用合计 {tot['合计']:+.1f}\n其中交互项 {tot['交互项']:+.1f}", transform=c.transAxes, ha="right", fontsize=7.5)
+    lo = min(t[["仅GPU调节", "仅热耦合", "交互项"]].values.min(), 0); hi = t[["仅GPU调节", "仅热耦合", "交互项"]].values.max()
+    c.set_ylim(lo * 1.25, hi * 1.9 if hi > 0 else 5); panel(c, "(c)")
+    lb = {"Z-R100-U3 − Z-R100-SP": "软约束 U3 − SP", "Z-R100-U2 − Z-R100-SP": "软约束 U2 − SP", "Z-R100-U3 − Z-R100-U2": "软约束 U3 − U2",
+          "Z-M3 − Z-M0": "M3 − M0", "Z-M3 − Z-M0-设计工况": "M3 − M0 设计工况", "Z-R100-U3 − Z-M0": "软约束 U3 − M0"}
+    Zb = Zb[Zb["比较"].isin(lb)].reset_index(drop=True); yy = np.arange(len(Zb))[::-1]
+    d.errorbar(Zb["差值万元"], yy, xerr=[Zb["差值万元"] - Zb["CI下"], Zb["CI上"] - Zb["差值万元"]], fmt="o", color="#3C5488", mfc="white", capsize=2.5, lw=1.0)
+    d.axvline(0, color="0.3", lw=0.7); d.set_yticks(yy, [lb[k] for k in Zb["比较"]], fontsize=7.5)
+    d.set_xlabel("风险调整年化费用差/万元 (95% CI)"); panel(d, "(d)", -0.38)
+    save(fig, "图22_宁夏中卫真实气象_按年份外推的配置与样本外风险费用")
+
+
+def X_design_T():
+    import exp as X
+    return float(X.dataset("zw")["design"]["T"])
+
+
+FIGS = {"22": fig22, "21": fig21, "20": fig20, "2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6, "7": fig7, "8": fig8, "9": fig9, "10": fig10, "11": fig11,
         "12": fig12, "13": fig13, "14": fig14, "15": fig15, "16": fig16, "17": fig17, "18": fig18, "19": fig19}
 
 if __name__ == "__main__":
