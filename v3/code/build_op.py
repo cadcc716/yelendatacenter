@@ -111,11 +111,11 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None):
     M.con([(Tw[[T]], 1.0), (Tw[[0]], -1.0)], lo=0.0, hi=0.0)                 # 周期条件 T_w,1 = T_w,T+1
     nxt = np.r_[np.arange(1, T), 0]                                          # 时段末温区（周期）
     # ---------- (12) 热安全门控 ----------
+    for j in range(J):     # 第一行按温区汇总：Σ_{r,k} m_rkjt ≤ N^max·u_jt（与逐档写法整数可行域相同，松弛更紧）
+        tj = [(mR[i, j], 1.0) for i, k in enumerate(KR) if okR[i, j]] + [(mB[i, j], 1.0) for i, k in enumerate(KB) if okB[i, j]]
+        if tj: M.con(tj + [(u[j], -Nmax)], hi=0.0)
     for mm, KK in ((mR, KR), (mB, KB)):
         for i, k in enumerate(KK):
-            for j in range(J):
-                if (gear_ok[k] and safe[k, j] and zone_ok[j]):
-                    M.con([(mm[i, j], 1.0), (u[j], -Nmax)], hi=0.0)
             if flags["thermal"]:
                 sj = [j for j in range(J) if safe[k, j]]
                 M.con([(mm[i, j], 1.0) for j in range(J)] + [(u[j][nxt], -Nmax) for j in sj], hi=0.0)
@@ -133,7 +133,7 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None):
     M.con([(PMC, 1.0)] + [(qMC[j], -1.0 / cop[j]) for j in range(J)], lo=0.0, hi=0.0)
     # ---------- (17) 蓄冷罐 ----------
     V["S"] = S = M.var(T + 1); V["qch"] = qch = M.var(T); V["qdis"] = qdis = M.var(T)
-    V["z"] = z = M.var(T, 0.0, 1.0 if flags["coldflex"] else 0.0, integer=flags["coldflex"])
+    V["z"] = z = M.var(T, 0.0, 1.0 if flags["coldflex"] else 0.0, integer=flags["coldflex"] and not P["RELAX_COMPL"])
     Qt = xm["TES"] / P["TES_TAU"]
     M.con([(S[1:], 1.0), (S[:-1], -(1 - P["TES_LOSS"])), (qch, -P["TES_EFF"] * P["DT"]), (qdis, P["DT"] / P["TES_EFF"])], lo=0.0, hi=0.0)
     M.con([(S, 1.0), (X["TES"], -1.0)], hi=0.0)
@@ -161,7 +161,7 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None):
     M.con([(WT, 1.0), (X["WT"], -gwt)], hi=0.0)
     M.con([(cur, 1.0), (PV, 1.0), (WT, 1.0), (X["PV"], -gpv), (X["WT"], -gwt)], lo=0.0, hi=0.0)
     V["SB"] = SB = M.var(T + 1); V["Pch"] = Pch = M.var(T); V["Pdis"] = Pdis = M.var(T)
-    V["b"] = b = M.var(T, 0.0, 1.0, integer=True)
+    V["b"] = b = M.var(T, 0.0, 1.0, integer=not P["RELAX_COMPL"])
     PBm = PR.xmax(P)["PB"]
     M.con([(SB[1:], 1.0), (SB[:-1], -(1 - P["B_LOSS"])), (Pch, -P["B_ETA_C"] * P["DT"]), (Pdis, P["DT"] / P["B_ETA_D"])], lo=0.0, hi=0.0)
     M.con([(SB, 1.0), (X["EB"], -P["B_SOC_MAX"])], hi=0.0)
@@ -169,7 +169,7 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None):
     M.con([(Pch, 1.0), (X["PB"], -1.0)], hi=0.0); M.con([(Pdis, 1.0), (X["PB"], -1.0)], hi=0.0)
     M.con([(Pch, 1.0), (b, -PBm)], hi=0.0); M.con([(Pdis, 1.0), (b, PBm)], hi=PBm)
     M.con([(SB[[0, T]], 1.0), (X["EB"], -P["B_SOC0"])], lo=0.0, hi=0.0)
-    V["buy"] = buy = M.var(T); V["sell"] = sell = M.var(T); V["g"] = gam = M.var(T, 0.0, 1.0, integer=True)
+    V["buy"] = buy = M.var(T); V["sell"] = sell = M.var(T); V["g"] = gam = M.var(T, 0.0, 1.0, integer=not P["RELAX_COMPL"])
     Pg = P["P_GRID_MAX"]
     M.con([(buy, 1.0), (gam, -Pg)], hi=0.0); M.con([(sell, 1.0), (gam, Pg)], hi=Pg)
     # ---------- (24) 电功率平衡 ----------

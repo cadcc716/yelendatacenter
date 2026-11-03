@@ -64,6 +64,7 @@ BASE = dict(
     N_CAP=8000, PEAK_RATIO=0.85, RB_RATIO=(0.6, 0.4),
     H_PEAK=3000.0, H_SUMMER=300.0,
     # ---------------- 求解 ----------------
+    RELAX_COMPL=True,     # 蓄冷、储能、购售电互斥 0-1 变量松弛（同时充放、同时购售无经济收益），求解后校验
     MIP_GAP=1e-4, TIME_LIMIT=1800.0,
 )
 
