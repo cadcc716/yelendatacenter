@@ -51,7 +51,7 @@ def solve_sub(P, D, flags, x, days, tl=600, gap=1e-4):
     return np.array(Q), R
 
 
-def ccg(P, D, scen="S5", th=None, eps=1e-3, max_it=10, tl_master=3600, gap_master=5e-4, log=print, start=None):
+def ccg(P, D, scen="S5", th=None, eps=1e-3, max_it=10, tl_master=2700, gap_master=2e-4, log=print, start=None):
     flags = BO.flags_of(scen); days = list(D["med"]); p0 = D["p0"]
     th1, thi = th if th is not None else PR.theta(P)
     cuts = [p0.copy()]; LB, UB = -np.inf, np.inf; hist = []; best = None; t0 = time.time(); x0 = None
@@ -59,7 +59,6 @@ def ccg(P, D, scen="S5", th=None, eps=1e-3, max_it=10, tl_master=3600, gap_maste
         M, X, Vs, eta, a = build_master(P, D, flags, days, cuts)
         sol, st, obj, gabs = M.solve(gap=gap_master, tl=tl_master, start=x0)
         if sol is None: raise RuntimeError(f"主问题失败: {st}")
-        x0 = sol if False else None
         x = {c: float(sol[X[c]][0]) for c in BO.CAPS}; x["N"] = round(x["N"])
         inv = sum(a[c] * x[c] for c in BO.CAPS)
         LB = max(LB, obj - gabs)
