@@ -195,6 +195,7 @@ def two_step(site, scen, tag, method="ccg", prev=None, over=None, log=print):
         r2b = with_check(f2, P, D, scen, th, log=log, fixN=Nstar, init=init, cutoff=cutoff, seed=seed,
                          gap=ENV("GAP2", 1e-3), tl=2 * ENV("TL2", 2700.0), eps=ENV("EPS", 1e-3))
         r2 = r2b if r2b["obj"] <= r2["obj"] else r2
+    r2["obj_pre_ls"] = r2["obj"]; r2["x_pre_ls"] = dict(r2["x"])
     if ENV("LS", 1) == 1:                       # 容量邻域搜索改进初始可行解（最优性仍以 MILP 下界衡量）
         import local_search as LS
         imp, hist = LS.search(P, D, scen, th, r2, list(D["med"]), D["p0"], r2["a"], log=log, worst_p=worst_p,
