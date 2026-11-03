@@ -2,17 +2,19 @@
 单个典型日的运行约束 式(1)–(29)，以及容量变量 式(28)(33)。
 开关 flags（执行方案 5.2 节“✕”的实现方式）：
   dvfs     False → GPU 固定第 1 档
-  thermal  False → 按 45 ℃ 温水液冷设计（方案A）：冷却瞬时平衡，自然冷却系数按 45–50 ℃ 温区由逐时气温计算，
+  thermal  True  → 热耦合：温区门控 + 温区漏电 + 气象相关自然冷却与冷机 COP + 液冷热惯性 C_w
+           False → 按 45 ℃ 温水液冷设计（方案A）：C_w = 0 冷却瞬时平衡，自然冷却系数按 45–50 ℃ 温区由逐时气温计算，
                     冷机 COP 取设计日值，漏电取参考值，不施加门控
-  coldflex False → C_w = 0（逐时瞬时平衡），不配蓄冷
+  tes      False → 不配蓄冷（E_TES = 0）
   heat     False → K_HP = 0
+场景可行域嵌套：S1 ⊂ S2，S3 ⊂ S4 ⊂ S5。园区禁止向电网反送电（防逆流）；不配置风电。
 """
 import numpy as np
 import params as PR
 from milp import MILP, INF
 
-CAPS = ["N", "PV", "WT", "PB", "EB", "FC", "MC", "TES", "HP"]
-SCEN = {   # 名称: (dvfs, thermal, coldflex, heat)
+CAPS = ["N", "PV", "PB", "EB", "FC", "MC", "TES", "HP"]
+SCEN = {   # 名称: (dvfs, thermal, tes, heat)
     "S1": (False, False, False, False),
     "S2": (True, False, False, False),
     "S3": (True, True, False, False),
@@ -23,18 +25,21 @@ SCEN = {   # 名称: (dvfs, thermal, coldflex, heat)
 
 def flags_of(name):
     d, t, c, h = SCEN.get(name, SCEN["S5"])
-    return dict(dvfs=d, thermal=t, coldflex=c, heat=h)
+    return dict(dvfs=d, thermal=t, tes=c, heat=h)
 
 
-def add_capacity(M, P, flags, fix=None, integer_N=True):
-    """容量变量与投资费用 式(28)(33)。fix: 固定容量（字典），用于单日测试、子问题(36)与样本外测试。"""
+def add_capacity(M, P, flags, fix=None, integer_N=True, fixN=None):
+    """容量变量与投资费用 式(28)(33)。fix: 固定全部容量（单日测试、子问题(36)、样本外测试）；
+    fixN: 两步法第二步，固定 GPU 数量且不计其年化投资（常数项），目标只含能源侧年化成本。"""
     a = PR.annual_cost(P); xm = PR.xmax(P); X = {}
     ub = dict(xm)
-    if not flags["coldflex"]: ub["TES"] = 0.0
+    if not flags["tes"]: ub["TES"] = 0.0
     if not flags["heat"]: ub["HP"] = 0.0
     for k in CAPS:
         if fix is not None:
             v = float(fix.get(k, 0.0)); X[k] = M.var(1, v, v)
+        elif k == "N" and fixN is not None:
+            X[k] = M.var(1, float(fixN), float(fixN))
         else:
             X[k] = M.var(1, 0.0, ub[k], integer=(k == "N" and integer_N), cost=a[k])
     if fix is None:
@@ -47,7 +52,7 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
     V['Q'] 为该日运行成本 C_op（式(29)，元/日），以权重 w 计入目标。"""
     T = P["T"]; G = P["GEARS"]; J = len(P["ZONES"]); Z = PR.zone_consts(P)
     KR, KB = P["K_R"], P["K_B"]
-    AR, AB, Ta, gpv, gwt, Hd = (np.asarray(day[k], float) for k in ("AR", "AB", "Tamb", "gPV", "gWT", "H"))
+    AR, AB, Ta, gpv, Hd = (np.asarray(day[k], float) for k in ("AR", "AB", "Tamb", "gPV", "H"))
     Nmax = P["N_BIGM"]; V = {}
     # ---------- 温区相关常数 ----------
     if flags["thermal"]:
@@ -135,7 +140,7 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
     M.con([(PMC, 1.0)] + [(qMC[j], -1.0 / cop[j]) for j in range(J)], lo=0.0, hi=0.0)
     # ---------- (17) 蓄冷罐 ----------
     V["S"] = S = M.var(T + 1); V["qch"] = qch = M.var(T); V["qdis"] = qdis = M.var(T)
-    V["z"] = z = M.var(T, 0.0, 1.0 if flags["coldflex"] else 0.0, integer=flags["coldflex"] and not P["RELAX_COMPL"])
+    V["z"] = z = M.var(T, 0.0, 1.0 if flags["tes"] else 0.0, integer=flags["tes"] and not P["RELAX_COMPL"])
     Qt = xm["TES"] / P["TES_TAU"]
     M.con([(S[1:], 1.0), (S[:-1], -(1 - P["TES_LOSS"])), (qch, -P["TES_EFF"] * P["DT"]), (qdis, P["DT"] / P["TES_EFF"])], lo=0.0, hi=0.0)
     M.con([(S, 1.0), (X["TES"], -1.0)], hi=0.0)
@@ -145,7 +150,7 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
     M.con([(qdis, 1.0), (z, Qt)], hi=Qt)
     M.con([(S[[0, T]], 1.0), (X["TES"], -P["TES_SOC0"])], lo=0.0, hi=0.0)
     # ---------- (9) 液冷环路热平衡 ----------
-    Cw = P["C_W"] if flags["coldflex"] else 0.0
+    Cw = P["C_W"] if flags["thermal"] else 0.0               # 液冷热惯性归入热耦合
     terms = [(PIT, P["DT"] * P["BETA"]), (qch, P["DT"]), (qdis, -P["DT"])]
     terms += [(q[j], -P["DT"]) for q in (qFC, qMC, qHP) for j in range(J)]
     if Cw > 0: terms += [(Tw[1:], -Cw), (Tw[:-1], Cw)]
@@ -158,10 +163,9 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
     M.con([(HHP, 1.0), (X["HP"], -1.0)], hi=0.0)
     # ---------- (20)(21)(22)(23) 辅助电耗、风光、储能、电网 ----------
     kaux = P["DELTA_E"] + P["A_CIRC"] * P["BETA"] + P["A_AIR"] * (1 - P["BETA"])
-    V["PV"] = PV = M.var(T); V["WT"] = WT = M.var(T); V["cur"] = cur = M.var(T)
+    V["PV"] = PV = M.var(T); V["cur"] = cur = M.var(T)
     M.con([(PV, 1.0), (X["PV"], -gpv)], hi=0.0)
-    M.con([(WT, 1.0), (X["WT"], -gwt)], hi=0.0)
-    M.con([(cur, 1.0), (PV, 1.0), (WT, 1.0), (X["PV"], -gpv), (X["WT"], -gwt)], lo=0.0, hi=0.0)
+    M.con([(cur, 1.0), (PV, 1.0), (X["PV"], -gpv)], lo=0.0, hi=0.0)
     V["SB"] = SB = M.var(T + 1); V["Pch"] = Pch = M.var(T); V["Pdis"] = Pdis = M.var(T)
     V["b"] = b = M.var(T, 0.0, 1.0, integer=not P["RELAX_COMPL"])
     PBm = PR.xmax(P)["PB"]
@@ -171,12 +175,11 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
     M.con([(Pch, 1.0), (X["PB"], -1.0)], hi=0.0); M.con([(Pdis, 1.0), (X["PB"], -1.0)], hi=0.0)
     M.con([(Pch, 1.0), (b, -PBm)], hi=0.0); M.con([(Pdis, 1.0), (b, PBm)], hi=PBm)
     M.con([(SB[[0, T]], 1.0), (X["EB"], -P["B_SOC0"])], lo=0.0, hi=0.0)
-    V["buy"] = buy = M.var(T); V["sell"] = sell = M.var(T); V["g"] = gam = M.var(T, 0.0, 1.0, integer=not P["RELAX_COMPL"])
+    V["buy"] = buy = M.var(T, 0.0, P["P_GRID_MAX"])            # 式(23)：0 ≤ P_buy ≤ P_grid,max，禁止反送电
     Pg = P["P_GRID_MAX"]
-    M.con([(buy, 1.0), (gam, -Pg)], hi=0.0); M.con([(sell, 1.0), (gam, Pg)], hi=Pg)
     # ---------- (24) 电功率平衡 ----------
-    M.con([(buy, 1.0), (PV, 1.0), (WT, 1.0), (Pdis, 1.0), (PIT, -(1 + kaux)), (PFC, -1.0), (PMC, -1.0), (PHP, -1.0),
-           (Pch, -1.0), (sell, -1.0)], lo=P["P0"], hi=P["P0"])
+    M.con([(buy, 1.0), (PV, 1.0), (Pdis, 1.0), (PIT, -(1 + kaux)), (PFC, -1.0), (PMC, -1.0), (PHP, -1.0),
+           (Pch, -1.0)], lo=P["P0"], hi=P["P0"])
     # ---------- (26)(27) 阶梯碳交易 ----------
     Vn = P["CO2_V"]
     V["eps"] = eps = M.var(Vn, 0.0, np.r_[np.full(Vn - 1, P["CO2_LEN"]), INF]); V["eps_s"] = eps_s = M.var(1)
@@ -185,7 +188,7 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
     # ---------- (29) 运行成本 ----------
     c = PR.price(P); lam = P["CO2_PRICE"]
     V["Q"] = Q = M.var(1, -INF, INF, cost=w)
-    M.row([(Q, 1.0), (buy, -c * P["DT"]), (sell, P["C_SELL"] * P["DT"]), (HHP, P["C_HEAT"] * P["DT"]),
+    M.row([(Q, 1.0), (buy, -c * P["DT"]), (HHP, P["C_HEAT"] * P["DT"]),
            (cur, -P["C_CUR"] * P["DT"]), (Pch, -P["C_DEG"] * P["DT"]), (Pdis, -P["C_DEG"] * P["DT"]),
            (LR, -P["C_R"]), (O, -P["C_O"]), (eps, -lam * (1 + np.arange(Vn) * P["CO2_GROW"])), (eps_s, lam)], lo=0.0, hi=0.0)
     V["_c"] = dict(phi=phi, cop=cop, plk=plk, kaux=kaux, price=c)
@@ -195,7 +198,7 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
 
 
 def day_of(D, i):
-    return {k: D[k][i] for k in ("AR", "AB", "Tamb", "gPV", "gWT", "H")}
+    return {k: D[k][i] for k in ("AR", "AB", "Tamb", "gPV", "H")}
 
 
 def tamb_design(D, P):

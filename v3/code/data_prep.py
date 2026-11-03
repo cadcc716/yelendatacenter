@@ -1,10 +1,13 @@
 """
 数据准备（执行方案 5.1 节、式(30)(31)）
-  气象：Open-Meteo 历史逐时 JSON（2023 年），换算为光伏、风电单位出力系数
+  气象：中卫为 Open-Meteo（ERA5）逐时 JSON，贵安、韶关为 NASA POWER 逐时 JSON（2023 年）；
+        三地统一用水平总辐照 GHI → Erbs 直散分离 → 倾斜面辐照，换算为光伏单位出力系数。
+        中卫以光伏资源为主、风资源不足，不配置风电
   算力负荷：Azure LLM 推理 trace（2024-05 一周）→ 实时任务日内形状与工作日/周末系数
             Alibaba cluster-trace-gpu-v2020（PAI 任务表）→ 可延期任务逐日到达形状
-  热负荷：采暖季（11-01 至次年 03-31）随日均气温线性变化，峰值 3 MW_th；非采暖季 0.3 MW_th 生活热水
-  典型日：6 类日轨迹联合归一化，k-medoids 聚为 K 个典型日，输出 ξ_s、p0、θ1、θ∞
+  热负荷：采暖季（11-01 至次年 03-31）随日均气温线性变化，峰值 3 MW_th；非采暖季 0.3 MW_th 生活热水；
+          贵安、韶关无集中供热，仅保留 0.3 MW_th 生活热水
+  典型日：5 类日轨迹（光伏、实时任务、可延期任务、气温、热负荷）联合归一化，k-medoids 聚为 K 个典型日，输出 ξ_s、p0、θ1、θ∞
 
 用法：python data_prep.py <site>      site ∈ SITES
 原始 trace 的逐时汇总（v3/data/trace/*.csv）由 aggregate_traces() 从原始文件生成。
@@ -16,13 +19,11 @@ import params as PR
 
 ROOT = Path(__file__).resolve().parents[2]
 V3 = ROOT / "v3"; OUT = V3 / "data"; TRACE = OUT / "trace"
-SITES = {   # 名称: (纬度, 经度, 气象文件, 年份)；基准算例为宁夏中卫（东数西算宁夏枢纽中卫集群）
-    "zhongwei": (37.50, 105.22, ROOT / "data/raw/zhongwei_era5.json", 2023),
-    "guian": (26.40, 106.39, ROOT / "data/raw/guian_2023.json", 2023),
-    "shaoguan": (24.81, 113.60, ROOT / "data/raw/shaoguan_2023.json", 2023),
+SITES = {   # 名称: (纬度, 经度, 气象文件, 年份, 是否集中供热)；基准算例为宁夏中卫（东数西算宁夏枢纽中卫集群）
+    "zhongwei": (37.50, 105.22, ROOT / "data/raw/zhongwei_era5.json", 2023, True),
+    "guian": (26.40, 106.38, ROOT / "data/raw/guian_2023.json", 2023, False),
+    "shaoguan": (24.81, 113.60, ROOT / "data/raw/shaoguan_2023.json", 2023, False),
 }
-HUB = 100.0            # 风机轮毂高度 m
-SHEAR = 1 / 7          # 风切变指数（仅在缺少 100 m 风速时由 10 m 外推）
 
 
 # ---------------------------------------------------------------- trace 汇总
@@ -78,45 +79,48 @@ def ali_days():
 
 # ---------------------------------------------------------------- 气象与风光
 def load_weather(site):
-    lat, lon, f, yr = SITES[site]
+    """返回北京时间逐时序列（8760 行），列 Tamb、GHI；时刻 t 的辐照为 [t, t+1) 时段平均。
+    Open-Meteo：辐照为前一小时平均、标注在时段末，前移 1 h；气温为瞬时值。
+    NASA POWER：LST = UTC + round(经度/15)，辐照为 [t, t+1) 平均，换算到北京时间（UTC+8）。"""
+    lat, lon, f, yr, _ = SITES[site]
     if not f.exists(): raise FileNotFoundError(f"缺少气象文件 {f}")
-    d = json.load(open(f)); h = d["hourly"]; u = d.get("hourly_units", {})
-    W = pd.DataFrame(h); W["time"] = pd.to_datetime(W["time"])
-    W = W[W.time.dt.year == yr].set_index("time")
-    if "Asia/Shanghai" not in d.get("timezone", "") and d.get("utc_offset_seconds", 0) != 28800:
-        W.index = W.index.tz_localize("UTC").tz_convert("Asia/Shanghai").tz_localize(None)
-    for c in [c for c in W.columns if c.startswith("wind_speed")]:
-        if u.get(c, "m/s").startswith("km"): W[c] = W[c] / 3.6
-    W = W[~W.index.duplicated()].reindex(pd.date_range(f"{yr}-01-01", f"{yr}-12-31 23:00", freq="h")).interpolate(limit_direction="both")
-    if len(W) == 8784: W = W[~((W.index.month == 2) & (W.index.day == 29))]
+    d = json.load(open(f)); idx = pd.date_range(f"{yr}-01-01", f"{yr}-12-31 23:00", freq="h")
+    if "hourly" in d:                                       # Open-Meteo
+        W = pd.DataFrame(d["hourly"]); W["time"] = pd.to_datetime(W["time"]); W = W.set_index("time")
+        W = W[~W.index.duplicated()]
+        if d.get("utc_offset_seconds", 0) != 28800:
+            W.index = W.index + pd.Timedelta(seconds=28800 - d.get("utc_offset_seconds", 0))
+        T = W["temperature_2m"].reindex(idx)
+        G = W["shortwave_radiation"].shift(-1, freq="h").reindex(idx)
+    else:                                                   # NASA POWER
+        par = d["properties"]["parameter"]; off = 8 - round(lon / 15)
+        t = pd.to_datetime(list(par["T2M"].keys()), format="%Y%m%d%H") + pd.Timedelta(hours=off)
+        T = pd.Series(list(par["T2M"].values()), index=t, dtype=float).reindex(idx)
+        G = pd.Series(list(par["ALLSKY_SFC_SW_DWN"].values()), index=t, dtype=float).reindex(idx)
+        T[T <= -999] = np.nan; G[G <= -999] = np.nan
+    W = pd.DataFrame({"Tamb": T, "GHI": G}).interpolate(limit_direction="both")
+    W["GHI"] = W["GHI"].clip(lower=0)
     return W
 
 
 def pv_output(W, lat, lon):
-    """固定倾角（=纬度、正南）组件，Hay-Davies 天空散射模型；电池温度按 NOCT 法，
-    温度系数 −0.37 %/K，系统综合效率 0.86。返回单位装机出力系数。"""
+    """固定倾角（=纬度、正南）组件：GHI 经 Erbs 模型分离直射与散射，Hay-Davies 模型换算倾斜面辐照；
+    电池温度按 NOCT 法，温度系数 −0.37 %/K，系统综合效率 0.86。太阳位置取时段中点。返回单位装机出力系数。"""
     import pvlib
     t = W.index.tz_localize("Asia/Shanghai")
-    sp = pvlib.solarposition.get_solarposition(t - pd.Timedelta("30min"), lat, lon)   # 时段中点（Open-Meteo 为前一小时平均）
-    dni_extra = np.asarray(pvlib.irradiance.get_extra_radiation(t))
-    poa = pvlib.irradiance.get_total_irradiance(abs(lat), 180, sp["apparent_zenith"].values, sp["azimuth"].values,
-                                                W["direct_normal_irradiance"].values, W["shortwave_radiation"].values,
-                                                W["diffuse_radiation"].values, dni_extra=dni_extra, model="haydavies")
+    sp = pvlib.solarposition.get_solarposition(t + pd.Timedelta("30min"), lat, lon)
+    zen = sp["apparent_zenith"].values; azi = sp["azimuth"].values; ghi = W["GHI"].values
+    dec = pvlib.irradiance.erbs(ghi, zen, t + pd.Timedelta("30min"))
+    dni = np.nan_to_num(np.asarray(dec["dni"], float)); dhi = np.nan_to_num(np.asarray(dec["dhi"], float))
+    dni_extra = np.asarray(pvlib.irradiance.get_extra_radiation(t), float)
+    poa = pvlib.irradiance.get_total_irradiance(abs(lat), 180, zen, azi, dni, ghi, dhi, dni_extra=dni_extra, model="haydavies")
     G = np.nan_to_num(np.asarray(poa["poa_global"], float)).clip(0)
-    Tc = W["temperature_2m"].values + (45 - 20) / 800 * G
+    Tc = W["Tamb"].values + (45 - 20) / 800 * G
     return np.clip(G / 1000 * (1 - 0.0037 * (Tc - 25)) * 0.86, 0, 1)
 
 
-def wind_output(W):
-    """轮毂 100 m 风速（缺失时由 10 m 风速按指数律外推）；通用 2–3 MW 级功率曲线：
-    切入 3 m/s、额定 11 m/s、切出 25 m/s，切入至额定间按三次方。"""
-    v = W["wind_speed_100m"].values if "wind_speed_100m" in W else W["wind_speed_10m"].values * (HUB / 10) ** SHEAR
-    g = np.where(v < 3, 0, np.where(v < 11, (v ** 3 - 27) / (11 ** 3 - 27), np.where(v <= 25, 1, 0)))
-    return g.clip(0, 1), v
-
-
 # ---------------------------------------------------------------- 负荷与热负荷
-def heat_demand(P, Tamb_day, dates):
+def heat_demand(P, Tamb_day, dates, district=True):
     """采暖季热负荷 ∝ (18 − 日均气温)，叠加生活热水；日内形状取居民/办公典型曲线。"""
     heat_shape = np.array([1.10, 1.12, 1.14, 1.15, 1.15, 1.18, 1.20, 1.15, 1.02, 0.92, 0.85, 0.80,
                            0.78, 0.78, 0.80, 0.84, 0.90, 0.98, 1.05, 1.08, 1.08, 1.06, 1.05, 1.08])
@@ -124,7 +128,7 @@ def heat_demand(P, Tamb_day, dates):
                           1.00, 0.90, 0.80, 0.80, 0.90, 1.10, 1.40, 1.70, 1.80, 1.50, 1.00, 0.60])
     heat_shape = heat_shape / heat_shape.max(); dhw_shape = dhw_shape / dhw_shape.max()
     md = np.array([d.month * 100 + d.day for d in dates])
-    season = (md >= 1101) | (md <= 331)
+    season = ((md >= 1101) | (md <= 331)) & district
     Tm = Tamb_day.mean(1)
     hdd = np.clip(18 - Tm, 0, None) * season
     H = P["H_SUMMER"] * dhw_shape[None, :] + (hdd / max(hdd.max(), 1e-9))[:, None] * heat_shape[None, :]
@@ -178,21 +182,23 @@ def kmedoids(X, K, n_init=50, seed=0):
 
 def build(site, P=None, save=True):
     P = P or PR.params()
-    lat, lon, _, yr = SITES[site]
+    lat, lon, _, yr, district = SITES[site]
     W = load_weather(site)
     dates = pd.date_range(f"{yr}-01-01", periods=365, freq="D")
-    Tamb = W["temperature_2m"].values.reshape(365, 24)
+    Tamb = W["Tamb"].values.reshape(365, 24)
     gPV = pv_output(W, lat, lon).reshape(365, 24)
-    gWT, v = wind_output(W); gWT = gWT.reshape(365, 24)
     AR, AB = compute_load(P, dates)
-    H, season = heat_demand(P, Tamb, dates)
-    feats = dict(gPV=gPV, gWT=gWT, AR=AR, AB=AB, Tamb=Tamb, H=H)
+    if district:
+        H, season = heat_demand(P, Tamb, dates)
+    else:                                                   # 无集中供热：仅生活热水
+        H, season = heat_demand(P, Tamb, dates, district=False)
+    feats = dict(gPV=gPV, AR=AR, AB=AB, Tamb=Tamb, H=H)
     Z = np.concatenate([(a - a.min()) / (a.max() - a.min() + 1e-12) for a in feats.values()], axis=1)
     med, lab = kmedoids(Z, P["K"])
     p0 = np.bincount(lab, minlength=P["K"]) / 365
     th1, thi = PR.theta(P)
     out = dict(site=site, dates=np.array(dates.strftime("%Y-%m-%d"), dtype="U10"), heating=season, med=med, lab=lab, p0=p0,
-               theta1=th1, thetainf=thi, wind_hub=v.reshape(365, 24), **feats)
+               theta1=th1, thetainf=thi, **feats)
     if save:
         np.savez(OUT / f"{site}_data.npz", **out)
     return out
@@ -201,7 +207,7 @@ def build(site, P=None, save=True):
 def summary(D):
     s = D
     print(f"站点 {s['site']}: 年均气温 {s['Tamb'].mean():.1f} ℃, 最高 {s['Tamb'].max():.1f}, 最低 {s['Tamb'].min():.1f}; "
-          f"光伏利用小时 {s['gPV'].sum():.0f} h, 风电利用小时 {s['gWT'].sum():.0f} h, 轮毂平均风速 {s['wind_hub'].mean():.2f} m/s")
+          f"光伏利用小时 {s['gPV'].sum():.0f} h")
     tot = s["AR"] + s["AB"]
     print(f"算力需求: 小时峰值 {tot.max():.0f} GPU, 均值 {tot.mean():.0f} GPU (平均利用率 {tot.mean() / 8000:.1%}), 实时:可延期 = "
           f"{s['AR'].sum() / tot.sum():.2f}:{s['AB'].sum() / tot.sum():.2f}")

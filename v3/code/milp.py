@@ -51,7 +51,7 @@ class MILP:
         s.r.append(np.full(keep.sum(), s.nr)); s.cidx.append(I[keep]); s.v.append(A[keep])
         s.rl.append(np.array([lo], float)); s.ru.append(np.array([hi], float)); s.nr += 1
 
-    def solve(s, gap=1e-4, tl=1800.0, verbose=False, start=None, abs_gap=1.0):
+    def solve(s, gap=1e-4, tl=1800.0, verbose=False, start=None, abs_gap=1.0, cutoff=None):
         A = sp.csc_matrix((np.concatenate(s.v), (np.concatenate(s.r), np.concatenate(s.cidx))), shape=(s.nr, s.n))
         lp = highspy.HighsLp(); lp.num_col_, lp.num_row_ = s.n, s.nr
         cost = np.concatenate(s.c)
@@ -66,6 +66,7 @@ class MILP:
         h = highspy.Highs(); h.setOptionValue("output_flag", verbose)
         h.setOptionValue("mip_rel_gap", gap); h.setOptionValue("time_limit", tl)
         h.setOptionValue("mip_abs_gap", abs_gap)
+        if cutoff is not None: h.setOptionValue("objective_bound", float(cutoff))   # 截断值（上一场景能源侧成本）
         if os.environ.get("MIP_HEUR"): h.setOptionValue("mip_heuristic_effort", float(os.environ["MIP_HEUR"]))   # 原始启发式强度（默认 0.05）
         h.setOptionValue("threads", int(__import__("os").environ.get("HIGHS_THREADS", 4))); h.passModel(lp)
         if start is not None:   # 热启动: 同结构模型的可行解 (列顺序一致)

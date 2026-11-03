@@ -1,13 +1,15 @@
 """
-两阶段分布鲁棒容量规划 式(32)–(39)：C&CG 求解与等价单层 MILP
-  C&CG 主问题(35)：容量 x（N 取连续变量）+ 全部 K 个典型日运行变量 + 概率割；上一轮解热启动；LB 取 best bound
-  子问题(36)：固定 x，逐典型日求解运行 MILP；子问题(37)：最恶劣分布线性规划
-  收敛后 N 取整，固定全部容量重算运行成本与最恶劣分布（最终报告值）
-  等价单层 MILP：对(37)取对偶，
-      min C_inv(x) + λ + Σ p0_s π_s + θ1 μ + θ∞ Σ ν_s
-      s.t. λ + π_s ≥ 365·C_op,s(y_s)，−(μ+ν_s) ≤ π_s ≤ μ+ν_s，μ, ν_s ≥ 0，y_s ∈ Y(x, ξ_s)
+两阶段分布鲁棒容量规划 式(32)–(40)：两步法 + 嵌套热启动
+  第一步：以总成本为目标（N 取连续变量），求得 GPU 数量 N*（取整）
+  第二步：固定 N = N*，去掉 GPU 年化投资常数项，只以能源侧年化成本为目标再求解；
+          MIP 相对间隙与 C&CG 收敛判据 ε 均相对能源侧成本计算
+  嵌套热启动：S4 ← S3（E_TES = 0），S5 ← S4（K_HP = 0），S2 ← S1；上一场景的能源侧成本作为截断值，
+          并作为本场景上界的初值，保证 S5 ≤ S4 ≤ S3、S2 ≤ S1
+  C&CG：主问题(35)（上一轮解热启动，LB 取 best bound）、子问题(36)(37)；最恶劣分布与已有割重复即判收敛
+  等价单层 MILP(40)：(37) 的对偶并入外层最小化
   θ1 = θ∞ = 0 → SP；θ1 = 2、θ∞ = 1 → RO
-用法：python ccg_solve.py <site> <开关场景S1–S5> <结果标签> [ccg|mono]
+用法：python ccg_solve.py <site> <开关场景S1–S5> <结果标签> [ccg|mono] [上一场景结果pkl]
+环境变量：GAP1/TL1（第一步）、GAP2/TL2（第二步）、EPS、STEP1（ccg|mono，第一步解法）、PARAM_OVER（JSON 参数覆盖）
 """
 import os, sys, time, pickle, json
 import numpy as np
@@ -16,7 +18,7 @@ import params as PR, build_op as BO
 from milp import MILP, INF
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TL_MASTER = float(os.environ.get("TL_MASTER", 2700)); GAP_MASTER = float(os.environ.get("GAP_MASTER", 2e-4))
+ENV = lambda k, d: type(d)(os.environ.get(k, d))
 
 
 def worst_p(Q, p0, th1, thi):
@@ -30,8 +32,9 @@ def worst_p(Q, p0, th1, thi):
     p = np.clip(r.x[:K], 0, None); return p / p.sum()
 
 
-def build_master(P, D, flags, days, int_add=None):
-    M = MILP(); X, a = BO.add_capacity(M, P, flags, integer_N=False)
+def build_master(P, D, flags, days, int_add=None, fixN=None):
+    M = MILP(); X, a = BO.add_capacity(M, P, flags, integer_N=False, fixN=fixN)
+    if fixN is not None: a = dict(a, N=0.0)          # 第二步：GPU 投资为常数，不计入目标
     Td = BO.tamb_design(D, P); Vs = []
     for s, i in enumerate(days):
         Vs.append(BO.add_day(M, P, X, BO.day_of(D, i), flags, w=0.0, Tamb_des=Td, int_add=(int_add or {}).get(s)))
@@ -50,11 +53,11 @@ def solve_sub(P, D, flags, x, days, int_add=None, tl=600, gap=1e-4):
 
 
 def simul_check(R, tol=1.0):
-    """同时充放电(b) / 同时充放冷(z) / 同时购售电(g) 的时段，返回 {场景序号: {变量: [时段]}}。"""
+    """同时充放电(b) / 同时充放冷(z) 的时段，返回 {典型日序号: {变量: [时段]}}。"""
     out = {}
     for s, r in enumerate(R):
         d = {}
-        for var, a, b in (("b", "Pch", "Pdis"), ("z", "qch", "qdis"), ("g", "buy", "sell")):
+        for var, a, b in (("b", "Pch", "Pdis"), ("z", "qch", "qdis")):
             ts = np.where(np.minimum(r[a], r[b]) > tol)[0]
             if len(ts): d[var] = ts.tolist()
         if d: out[s] = d
@@ -62,115 +65,142 @@ def simul_check(R, tol=1.0):
 
 
 def start_from(M, X, Vs, r):
-    """由已有结果（容量 x 与各典型日运行解 R）构造完整初始解向量，用于热启动（要求模型结构一致、可行域包含该解）。"""
+    """由已有结果（容量 x 与各典型日运行解 R）构造完整初始解向量（要求本模型可行域包含该解）。"""
     v = np.zeros(M.n)
-    for c in BO.CAPS: v[X[c]] = r["x"][c]
+    for c in BO.CAPS: v[X[c]] = r["x"].get(c, 0.0)
     for V, R in zip(Vs, r["R"]):
         for k, idx in V.items():
-            if k.startswith("_"): continue
+            if k.startswith("_") or k not in R: continue
             v[idx] = R[k]
     return v
 
 
-def load_init():
-    f = os.environ.get("INIT_FROM")
-    return pickle.load(open(f, "rb")) if f else None
-
-
-def finalize(P, D, flags, x, days, p0, th1, thi, int_add, a):
-    """N 取整后固定全部容量，重算运行成本与最恶劣分布。"""
-    x = dict(x); x["N"] = float(round(x["N"]))
+def evaluate(P, D, flags, x, days, p0, th, int_add, a):
+    """固定全部容量，逐典型日求运行成本，得最恶劣分布与目标值。"""
     Q, R = solve_sub(P, D, flags, x, days, int_add)
-    p = worst_p(Q, p0, th1, thi); inv = sum(a[c] * x[c] for c in BO.CAPS)
-    return dict(x=x, Q=Q, R=R, p=p, inv=inv, obj=inv + P["DAYS"] * float(p @ Q))
+    p = worst_p(Q, p0, *th); inv = sum(a[c] * x[c] for c in BO.CAPS)
+    return dict(x=dict(x), Q=Q, R=R, p=p, inv=inv, obj=inv + P["DAYS"] * float(p @ Q))
 
 
-def ccg(P, D, scen, th, eps=1e-3, max_it=10, log=print, int_add=None):
+def ccg(P, D, scen, th, fixN=None, int_add=None, init=None, cutoff=None, seed=None, gap=2e-4, tl=2700, eps=1e-3, max_it=10, log=print):
     flags = BO.flags_of(scen); days = list(D["med"]); p0 = D["p0"]; th1, thi = th
-    M, X, Vs, a = build_master(P, D, flags, days, int_add)
+    M, X, Vs, a = build_master(P, D, flags, days, int_add, fixN)
     eta = M.var(1, -INF, INF, cost=1.0)
-    cuts = []; LB, UB = -np.inf, np.inf; hist = []; best = None; t0 = time.time(); start = None
-    init = load_init()
-    if init is not None: start = start_from(M, X, Vs, init)
+    cuts = []; LB, UB = -np.inf, np.inf; hist = []; best = None; t0 = time.time()
+    start = start_from(M, X, Vs, init) if init is not None else None
+    if seed is not None: UB, best = seed["obj"], seed          # 上一场景解在本场景可行，作为上界初值
     p = p0.copy()
     for k in range(1, max_it + 1):
         cuts.append(p)
         M.row([(eta, 1.0)] + [(V["Q"], -P["DAYS"] * p[s]) for s, V in enumerate(Vs)], lo=0.0)
-        if start is not None:   # 热启动：上一轮解，η 取满足全部割的最小值
+        if start is not None:   # η 取满足全部割的最小值
             qv = np.array([start[V["Q"]][0] for V in Vs])
             start[eta] = max(P["DAYS"] * float(c @ qv) for c in cuts)
-        sol, st, obj, gabs = M.solve(gap=GAP_MASTER, tl=TL_MASTER, start=start)
-        if sol is None: raise RuntimeError(f"主问题失败: {st}")
-        start = sol.copy()
-        LB = max(LB, M.dual_bound)
+        sol, st, obj, gabs = M.solve(gap=gap, tl=tl, start=start, cutoff=cutoff)
+        if sol is None:
+            log(f"[{scen}] 主问题未得到优于截断值的解（{st}），沿用上一场景解", flush=True)
+            LB = max(LB, M.dual_bound if np.isfinite(M.dual_bound) else LB); break
+        start = sol.copy(); LB = max(LB, M.dual_bound)
         x = {c: float(sol[X[c]][0]) for c in BO.CAPS}
-        inv = sum(a[c] * x[c] for c in BO.CAPS)
-        Q, R = solve_sub(P, D, flags, x, days, int_add)
-        p = worst_p(Q, p0, th1, thi)
-        ub_k = inv + P["DAYS"] * float(p @ Q)
-        if ub_k < UB: UB = ub_k; best = dict(x=x)
-        gap = (UB - LB) / abs(UB)
-        hist.append(dict(it=k, LB=LB, UB=UB, gap=gap, t=time.time() - t0, master_status=st, master_gap=gabs / abs(obj)))
-        log(f"[{scen} θ=({th1:.3g},{thi:.3g})] 迭代 {k}: LB {LB / 1e4:.1f} 万元, UB {UB / 1e4:.1f} 万元, gap {gap:.2e}, "
-            f"主问题gap {gabs / abs(obj):.1e}, N {x['N']:.1f}, FC {x['FC']:.0f}, MC {x['MC']:.0f}, TES {x['TES']:.0f}, HP {x['HP']:.0f}, "
-            f"PV {x['PV']:.0f}, WT {x['WT']:.0f}, EB {x['EB']:.0f}, PB {x['PB']:.0f}, 用时 {time.time() - t0:.0f} s", flush=True)
-        if gap <= eps: break
-        if any(np.allclose(p, c, atol=1e-6) for c in cuts): break
-    fin = finalize(P, D, flags, best["x"], days, p0, th1, thi, int_add, a)
-    fin.update(hist=hist, scen=scen, theta=(th1, thi), days=days, p0=p0, a=a, method="ccg", x_cont=best["x"],
-               t=time.time() - t0, LB=LB, gap_final=(fin["obj"] - LB) / abs(fin["obj"]))
-    log(f"[{scen}] 取整 N={fin['x']['N']:.0f} 后最终目标 {fin['obj'] / 1e4:.1f} 万元，相对 LB gap {fin['gap_final']:.2e}", flush=True)
-    return fin
+        if fixN is None: x["N"] = x["N"]                     # 第一步 N 连续
+        ev = evaluate(P, D, flags, x, days, p0, th, int_add, a)
+        if ev["obj"] < UB: UB, best = ev["obj"], ev
+        p = worst_p(ev["Q"], p0, th1, thi)
+        gapk = (UB - LB) / abs(UB)
+        hist.append(dict(it=k, LB=LB, UB=UB, gap=gapk, t=time.time() - t0, master_status=st, master_gap=gabs / max(abs(obj), 1e-9)))
+        log(f"[{scen} θ=({th1:.3g},{thi:.3g}) N{'*=' + str(int(fixN)) if fixN is not None else '连续'}] 迭代 {k}: LB {LB / 1e4:.2f} 万元, "
+            f"UB {UB / 1e4:.2f} 万元, gap {gapk:.2e}, 主问题gap {gabs / max(abs(obj), 1e-9):.1e}, N {x['N']:.1f}, FC {x['FC']:.0f}, "
+            f"MC {x['MC']:.0f}, TES {x['TES']:.0f}, HP {x['HP']:.0f}, PV {x['PV']:.0f}, EB {x['EB']:.0f}, PB {x['PB']:.0f}, "
+            f"用时 {time.time() - t0:.0f} s", flush=True)
+        if gapk <= eps: break
+        if any(np.allclose(p, c, atol=1e-6) for c in cuts): break     # 最恶劣分布重复，判定收敛
+    best = dict(best); best.update(hist=hist, LB=LB, gap_final=(best["obj"] - LB) / abs(best["obj"]) if np.isfinite(LB) else np.nan,
+                                   t=time.time() - t0, a=a, method="ccg")
+    return best
 
 
-def mono(P, D, scen, th, log=print, int_add=None, tl=None, gap=None):
-    """等价单层 MILP（(37)的对偶）。"""
+def mono(P, D, scen, th, fixN=None, int_add=None, init=None, cutoff=None, seed=None, gap=2e-4, tl=2700, log=print, **_):
     flags = BO.flags_of(scen); days = list(D["med"]); p0 = D["p0"]; th1, thi = th; K = len(days); t0 = time.time()
-    M, X, Vs, a = build_master(P, D, flags, days, int_add)
+    M, X, Vs, a = build_master(P, D, flags, days, int_add, fixN)
     lam = M.var(1, -INF, INF, cost=1.0); pi = M.var(K, -INF, INF, cost=p0)
     mu = M.var(1, 0.0, INF, cost=th1); nu = M.var(K, 0.0, INF, cost=thi)
     for s, V in enumerate(Vs):
         M.row([(lam, 1.0), (pi[s], 1.0), (V["Q"], -P["DAYS"])], lo=0.0)
         M.row([(pi[s], 1.0), (mu, -1.0), (nu[s], -1.0)], hi=0.0)
         M.row([(pi[s], 1.0), (mu, 1.0), (nu[s], 1.0)], lo=0.0)
-    init = load_init(); start = None
+    start = None
     if init is not None:     # 可行初值：μ = ν = π = 0，λ = 365·max_s Q_s
-        start = start_from(M, X, Vs, init)
-        start[lam] = P["DAYS"] * max(start[V["Q"]][0] for V in Vs)
-    sol, st, obj, gabs = M.solve(gap=gap or GAP_MASTER, tl=tl or TL_MASTER, start=start)
-    x = {c: float(sol[X[c]][0]) for c in BO.CAPS}
-    fin = finalize(P, D, flags, x, days, p0, th1, thi, int_add, a)
-    fin.update(hist=[dict(it=1, LB=M.dual_bound, UB=obj, gap=gabs / abs(obj), t=time.time() - t0, master_status=st)], scen=scen,
-               theta=(th1, thi), days=days, p0=p0, a=a, method="mono", x_cont=x, t=time.time() - t0, LB=M.dual_bound,
-               obj_milp=obj, gap_final=(fin["obj"] - M.dual_bound) / abs(fin["obj"]))
-    log(f"[{scen} 单层MILP θ=({th1:.3g},{thi:.3g})] 状态 {st}, 目标 {obj / 1e4:.1f} 万元, best bound {M.dual_bound / 1e4:.1f}, "
-        f"gap {gabs / abs(obj):.2e}; 取整后 {fin['obj'] / 1e4:.1f} 万元, N {fin['x']['N']:.0f}, FC {x['FC']:.0f}, MC {x['MC']:.0f}, "
-        f"TES {x['TES']:.0f}, HP {x['HP']:.0f}, PV {x['PV']:.0f}, WT {x['WT']:.0f}, EB {x['EB']:.0f}, PB {x['PB']:.0f}, 用时 {time.time() - t0:.0f} s", flush=True)
-    return fin
+        start = start_from(M, X, Vs, init); start[lam] = P["DAYS"] * max(start[V["Q"]][0] for V in Vs)
+    sol, st, obj, gabs = M.solve(gap=gap, tl=tl, start=start, cutoff=cutoff)
+    if sol is None:
+        log(f"[{scen} 单层] 未得到优于截断值的解（{st}），沿用上一场景解", flush=True)
+        best = dict(seed); LB = M.dual_bound
+    else:
+        x = {c: float(sol[X[c]][0]) for c in BO.CAPS}
+        best = evaluate(P, D, flags, x, days, p0, th, int_add, a); LB = M.dual_bound
+        if seed is not None and seed["obj"] < best["obj"]: best = dict(seed)
+    best.update(hist=[dict(it=1, LB=LB, UB=obj, gap=gabs / max(abs(obj), 1e-9), t=time.time() - t0, master_status=st)], LB=LB,
+                gap_final=(best["obj"] - LB) / abs(best["obj"]), t=time.time() - t0, a=a, method="mono", obj_milp=obj)
+    log(f"[{scen} 单层MILP θ=({th1:.3g},{thi:.3g}) N{'*=' + str(int(fixN)) if fixN is not None else '连续'}] 状态 {st}, "
+        f"MILP目标 {obj / 1e4:.2f} 万元, best bound {LB / 1e4:.2f}, 最终 {best['obj'] / 1e4:.2f} 万元, gap {best['gap_final']:.2e}, "
+        f"N {best['x']['N']:.1f}, FC {best['x']['FC']:.0f}, MC {best['x']['MC']:.0f}, TES {best['x']['TES']:.0f}, HP {best['x']['HP']:.0f}, "
+        f"PV {best['x']['PV']:.0f}, EB {best['x']['EB']:.0f}, PB {best['x']['PB']:.0f}, 用时 {time.time() - t0:.0f} s", flush=True)
+    return best
 
 
-def run(site, scen, tag, method="ccg", over=None):
-    P = PR.params(**(over or {})); D = dict(np.load(f"{ROOT}/data/{site}_data.npz"))
-    th = {"SP": (0.0, 0.0), "RO": (2.0, 1.0)}.get(tag.split("_")[0]) or PR.theta(P)
-    f = mono if method == "mono" else ccg
+def with_check(f, P, D, scen, th, log=print, **kw):
+    """求解后校验同时充放电/充放冷，出现则只在相应典型日、时段加回 0-1 变量重解。"""
     int_add = None
-    for rnd in range(3):            # 校验同时充放/购售，出现则只在相应场景、时段加回 0-1 变量后重解
-        r = f(P, D, scen, th, int_add=int_add)
-        sc = simul_check(r["R"])
-        r["simul"] = sc; r["int_add"] = int_add
-        if not sc: break
-        print(f"[{scen}] 发现同时充放/购售: {sc}，加回对应 0-1 变量重解", flush=True)
+    for _ in range(3):
+        r = f(P, D, scen, th, int_add=int_add, log=log, **kw)
+        sc = simul_check(r["R"]); r["simul"] = sc; r["int_add"] = int_add
+        if not sc: return r
+        log(f"[{scen}] 发现同时充放: {sc}，加回对应 0-1 变量重解", flush=True)
         int_add = int_add or {}
         for s, d in sc.items():
-            for var, ts in d.items():
-                int_add.setdefault(s, {}).setdefault(var, set()).update(ts)
-    r["params_over"] = over or {}
-    pickle.dump(r, open(f"{ROOT}/results/{site}_{tag}{'_mono' if method == 'mono' else ''}.pkl", "wb"))
+            for var, ts in d.items(): int_add.setdefault(s, {}).setdefault(var, set()).update(ts)
     return r
+
+
+def two_step(site, scen, tag, method="ccg", prev=None, over=None, log=print):
+    P = PR.params(**(over or {})); D = dict(np.load(f"{ROOT}/data/{site}_data.npz"))
+    th = {"SP": (0.0, 0.0), "RO": (2.0, 1.0)}.get(tag.split("_")[0]) or PR.theta(P)
+    f1 = mono if ENV("STEP1", method) == "mono" else ccg
+    f2 = mono if method == "mono" else ccg
+    # 第一步：总成本，求 N*
+    r1 = with_check(f1, P, D, scen, th, log=log, gap=ENV("GAP1", 3e-3), tl=ENV("TL1", 1500.0))
+    Nstar = float(round(r1["x"]["N"]))
+    log(f"[{scen}] 第一步：N* = {Nstar:.0f}，总成本 {r1['obj'] / 1e4:.2f} 万元", flush=True)
+    # 第二步：固定 N*，能源侧成本；嵌套热启动与截断
+    init = cutoff = seed = None
+    if prev is not None:
+        pr = pickle.load(open(prev, "rb"))
+        if abs(pr["x"]["N"] - Nstar) < 0.5:
+            flags = BO.flags_of(scen); a2 = dict(PR.annual_cost(P), N=0.0)
+            init = pr; cutoff = pr["obj"] * (1 + 1e-7) + 1.0
+            seed = dict(x=dict(pr["x"]), Q=pr["Q"], R=pr["R"], p=pr["p"], inv=pr["inv"], obj=pr["obj"])
+            log(f"[{scen}] 嵌套热启动：初始解与截断值取自 {os.path.basename(prev)}（能源侧 {pr['obj'] / 1e4:.2f} 万元）", flush=True)
+        else:
+            log(f"[{scen}] 上一场景 N*={pr['x']['N']:.0f} 与本场景 N*={Nstar:.0f} 不同，不做嵌套热启动", flush=True)
+    r2 = with_check(f2, P, D, scen, th, log=log, fixN=Nstar, init=init, cutoff=cutoff, seed=seed,
+                    gap=ENV("GAP2", 1e-3), tl=ENV("TL2", 2700.0), eps=ENV("EPS", 1e-3))
+    if seed is not None and r2["obj"] > seed["obj"] * (1 + 1e-6):          # 单调性校验
+        log(f"[{scen}] 能源侧成本 {r2['obj'] / 1e4:.2f} 高于上一场景 {seed['obj'] / 1e4:.2f}，延长时限重解", flush=True)
+        r2b = with_check(f2, P, D, scen, th, log=log, fixN=Nstar, init=init, cutoff=cutoff, seed=seed,
+                         gap=ENV("GAP2", 1e-3), tl=2 * ENV("TL2", 2700.0), eps=ENV("EPS", 1e-3))
+        r2 = r2b if r2b["obj"] <= r2["obj"] else r2
+    r2.update(step1=dict(N=Nstar, obj_total=r1["obj"], x=r1["x"], gap=r1["gap_final"], t=r1["t"], hist=r1["hist"]),
+              scen=scen, theta=th, days=list(D["med"]), p0=D["p0"], params_over=over or {}, prev=prev,
+              a_full=PR.annual_cost(P))
+    log(f"[{scen}] 第二步：能源侧年化成本 {r2['obj'] / 1e4:.2f} 万元，gap {r2['gap_final']:.2e}", flush=True)
+    return r2
 
 
 if __name__ == "__main__":
     site, scen, tag = sys.argv[1:4]
     method = sys.argv[4] if len(sys.argv) > 4 else "ccg"
+    prev = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] != "-" else None
     over = json.loads(os.environ["PARAM_OVER"]) if os.environ.get("PARAM_OVER") else None
-    run(site, scen, tag, method, over)
+    r = two_step(site, scen, tag, method, prev, over)
+    out = os.environ.get("OUT") or f"{ROOT}/results/{site}_{tag}{'_mono' if method == 'mono' else ''}.pkl"
+    pickle.dump(r, open(out, "wb"))

@@ -1,2 +1,4 @@
 log_*.txt
 *.pkl
+trial/*.pkl
+trial/log_*.txt
