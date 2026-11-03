@@ -2,7 +2,8 @@
 单个典型日的运行约束 式(1)–(29)，以及容量变量 式(28)(33)。
 开关 flags（执行方案 5.2 节“✕”的实现方式）：
   dvfs     False → GPU 固定第 1 档
-  thermal  False → 液冷固定在设计温区（T_W_DES），自然冷却系数与冷机 COP 取设计日值，漏电取参考值，不施加门控
+  thermal  False → 按 45 ℃ 温水液冷设计（方案A）：冷却瞬时平衡，自然冷却系数按 45–50 ℃ 温区由逐时气温计算，
+                    冷机 COP 取设计日值，漏电取参考值，不施加门控
   coldflex False → C_w = 0（逐时瞬时平衡），不配蓄冷
   heat     False → K_HP = 0
 """
@@ -41,13 +42,13 @@ def add_capacity(M, P, flags, fix=None, integer_N=True):
     return X, a
 
 
-def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None):
+def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
     """在模型 M 中加入一个典型日的运行变量与约束，返回变量索引字典 V；
     V['Q'] 为该日运行成本 C_op（式(29)，元/日），以权重 w 计入目标。"""
     T = P["T"]; G = P["GEARS"]; J = len(P["ZONES"]); Z = PR.zone_consts(P)
     KR, KB = P["K_R"], P["K_B"]
     AR, AB, Ta, gpv, gwt, Hd = (np.asarray(day[k], float) for k in ("AR", "AB", "Tamb", "gPV", "gWT", "H"))
-    Nmax = PR.xmax(P)["N"]; V = {}
+    Nmax = P["N_BIGM"]; V = {}
     # ---------- 温区相关常数 ----------
     if flags["thermal"]:
         phi, cop = PR.weather_consts(P, Ta)                       # (J, T)
@@ -55,8 +56,9 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None):
         zone_ok = np.ones(J, bool)
     else:
         jd = int(np.where(Z["lo"] == P["T_W_DES"])[0][0])
-        phi_d, cop_d = PR.weather_consts(P, np.array([Tamb_des]))
-        phi = np.repeat(phi_d[:, :1], T, 1); cop = np.repeat(cop_d[:, :1], T, 1)
+        phi, _ = PR.weather_consts(P, Ta)                          # 自然冷却：45–50 ℃ 温区、逐时气温
+        _, cop_d = PR.weather_consts(P, np.array([Tamb_des]))
+        cop = np.repeat(cop_d[:, :1], T, 1)                       # 冷机 COP：设计日值
         plk = np.full(J, P["P_LK0"]); safe = np.ones((len(G), J), bool)
         zone_ok = np.arange(J) == jd
     gear_ok = np.array([True] * len(G)) if flags["dvfs"] else (np.arange(len(G)) == 0)
@@ -116,7 +118,7 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None):
         if tj: M.con(tj + [(u[j], -Nmax)], hi=0.0)
     for mm, KK in ((mR, KR), (mB, KB)):
         for i, k in enumerate(KK):
-            if flags["thermal"]:
+            if flags["thermal"] and P["GATE_NEXT"]:
                 sj = [j for j in range(J) if safe[k, j]]
                 M.con([(mm[i, j], 1.0) for j in range(J)] + [(u[j][nxt], -Nmax) for j in sj], hi=0.0)
     # ---------- (13)–(16) 自然冷却与机械制冷 ----------
@@ -187,6 +189,8 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None):
            (cur, -P["C_CUR"] * P["DT"]), (Pch, -P["C_DEG"] * P["DT"]), (Pdis, -P["C_DEG"] * P["DT"]),
            (LR, -P["C_R"]), (O, -P["C_O"]), (eps, -lam * (1 + np.arange(Vn) * P["CO2_GROW"])), (eps_s, lam)], lo=0.0, hi=0.0)
     V["_c"] = dict(phi=phi, cop=cop, plk=plk, kaux=kaux, price=c)
+    for k, ts in (int_add or {}).items():          # 校验发现同时充放/购售的时段，只对这些时段加回 0-1 变量
+        M.set_int(V[k][list(ts)])
     return V
 
 

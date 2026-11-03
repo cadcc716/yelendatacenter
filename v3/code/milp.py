@@ -12,6 +12,11 @@ class MILP:
         s.r, s.cidx, s.v, s.rl, s.ru, s.nr = [], [], [], [], [], 0
         s.n = 0
         s.extra = []          # 追加目标系数 (索引, 系数)
+        s.int_extra = []      # 事后指定为整数的变量索引
+        s.dual_bound = None
+
+    def set_int(s, idx):
+        s.int_extra.append(np.ravel(idx))
 
     def add_cost(s, idx, coef):
         s.extra.append((np.ravel(idx), np.broadcast_to(coef, np.shape(np.ravel(idx))).astype(float)))
@@ -56,6 +61,7 @@ class MILP:
         lp.a_matrix_.format_ = highspy.MatrixFormat.kColwise
         lp.a_matrix_.start_, lp.a_matrix_.index_, lp.a_matrix_.value_ = A.indptr, A.indices, A.data
         it = np.concatenate(s.it)
+        for ix in s.int_extra: it[ix] = 1
         if it.any(): lp.integrality_ = [highspy.HighsVarType(int(i)) for i in it]
         h = highspy.Highs(); h.setOptionValue("output_flag", verbose)
         h.setOptionValue("mip_rel_gap", gap); h.setOptionValue("time_limit", tl)
@@ -66,5 +72,6 @@ class MILP:
         h.run()
         st = h.modelStatusToString(h.getModelStatus()); info = h.getInfo()
         sol = np.array(h.getSolution().col_value) if info.primal_solution_status == 2 else None
+        s.dual_bound = info.mip_dual_bound if it.any() else info.objective_function_value
         gapv = abs(info.objective_function_value - info.mip_dual_bound) if it.any() else 0.0   # 绝对间隙 元
         return sol, st, info.objective_function_value, gapv

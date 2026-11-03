@@ -3,7 +3,7 @@
   气象：Open-Meteo 历史逐时 JSON（2023 年），换算为光伏、风电单位出力系数
   算力负荷：Azure LLM 推理 trace（2024-05 一周）→ 实时任务日内形状与工作日/周末系数
             Alibaba cluster-trace-gpu-v2020（PAI 任务表）→ 可延期任务逐日到达形状
-  热负荷：采暖季（10-15 至次年 04-15）随日均气温线性变化，峰值 3 MW_th；非采暖季 0.3 MW_th 生活热水
+  热负荷：采暖季（11-01 至次年 03-31）随日均气温线性变化，峰值 3 MW_th；非采暖季 0.3 MW_th 生活热水
   典型日：6 类日轨迹联合归一化，k-medoids 聚为 K 个典型日，输出 ξ_s、p0、θ1、θ∞
 
 用法：python data_prep.py <site>      site ∈ SITES
@@ -16,11 +16,10 @@ import params as PR
 
 ROOT = Path(__file__).resolve().parents[2]
 V3 = ROOT / "v3"; OUT = V3 / "data"; TRACE = OUT / "trace"
-SITES = {   # 名称: (纬度, 经度, 气象文件, 年份)
-    "ulanqab": (41.03, 113.13, ROOT / "data/raw/ulanqab_2023.json", 2023),
+SITES = {   # 名称: (纬度, 经度, 气象文件, 年份)；基准算例为宁夏中卫（东数西算宁夏枢纽中卫集群）
+    "zhongwei": (37.50, 105.22, ROOT / "data/raw/zhongwei_era5.json", 2023),
     "guian": (26.40, 106.39, ROOT / "data/raw/guian_2023.json", 2023),
     "shaoguan": (24.81, 113.60, ROOT / "data/raw/shaoguan_2023.json", 2023),
-    "zhongwei": (37.50, 105.22, ROOT / "data/raw/zhongwei_era5.json", 2023),   # 调试替代站点（同为国家算力枢纽）
 }
 HUB = 100.0            # 风机轮毂高度 m
 SHEAR = 1 / 7          # 风切变指数（仅在缺少 100 m 风速时由 10 m 外推）
@@ -125,7 +124,7 @@ def heat_demand(P, Tamb_day, dates):
                           1.00, 0.90, 0.80, 0.80, 0.90, 1.10, 1.40, 1.70, 1.80, 1.50, 1.00, 0.60])
     heat_shape = heat_shape / heat_shape.max(); dhw_shape = dhw_shape / dhw_shape.max()
     md = np.array([d.month * 100 + d.day for d in dates])
-    season = (md >= 1015) | (md <= 415)
+    season = (md >= 1101) | (md <= 331)
     Tm = Tamb_day.mean(1)
     hdd = np.clip(18 - Tm, 0, None) * season
     H = P["H_SUMMER"] * dhw_shape[None, :] + (hdd / max(hdd.max(), 1e-9))[:, None] * heat_shape[None, :]
@@ -212,5 +211,5 @@ def summary(D):
 
 
 if __name__ == "__main__":
-    site = sys.argv[1] if len(sys.argv) > 1 else "ulanqab"
+    site = sys.argv[1] if len(sys.argv) > 1 else "zhongwei"
     summary(build(site))

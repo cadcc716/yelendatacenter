@@ -7,7 +7,12 @@ from copy import deepcopy
 import numpy as np
 
 # 调参记录（验收不达标时按执行方案第二节最后一列，在给定区间内调整）
-CHANGES = []
+CHANGES = [
+    "采暖季 10-15–04-15 → 11-01–03-31",
+    "实时切除惩罚 c_R 30 → 150 元/(GPU·h)",
+    "自然冷却安装上限 12 → 20 MW_th",
+    "式(12) N^max 取 6000",
+]
 
 BASE = dict(
     T=24, DT=1.0, DAYS=365,
@@ -30,8 +35,9 @@ BASE = dict(
     T_SUP=70.0, ETA_C=0.45, COP_HP_MAX=7.0,
     TES_LOSS=0.005, TES_EFF=0.97, TES_TAU=4.0, TES_SOC0=0.5,
     DELTA_E=0.03, A_CIRC=0.02, A_AIR=0.25, P0=300.0,
-    # 无热耦合场景（S1、S2）的常规设计口径：液冷按温水设计工况 45 ℃ 运行（ASHRAE W45 级），
-    # 冷机 COP 取设计日值（设计气温取全年 0.4% 最高小时气温），漏电取参考值，不施加门控
+    # 无热耦合场景（S1、S2）的常规设计口径（方案A）：按 45 ℃ 温水液冷设计（ASHRAE W45 级），
+    # 冷却逐时瞬时平衡，自然冷却系数按 45–50 ℃ 温区由逐时气温计算，冷机 COP 取设计日值
+    # （设计气温取全年 0.4% 最高小时气温），漏电取参考值，不施加门控
     T_W_DES=45.0, AMB_DES_Q=0.996,
     # ---------------- 电池（表C 外的常规取值） ----------------
     B_ETA_C=0.95, B_ETA_D=0.95, B_LOSS=0.0002, B_SOC_MIN=0.1, B_SOC_MAX=0.9, B_SOC0=0.5, C_B_MAX=0.5,
@@ -43,7 +49,7 @@ BASE = dict(
         WT=(4500.0, 20, 0.02, 10000.0),
         EB=(600.0, 12, 0.015, 80000.0),
         PB=(300.0, 12, 0.015, 20000.0),
-        FC=(800.0, 20, 0.02, 12000.0),
+        FC=(800.0, 20, 0.02, 20000.0),      # 上限由 12 MW 提至 20 MW（用户修订）
         MC=(1200.0, 20, 0.02, 10000.0),
         TES=(150.0, 25, 0.01, 60000.0),
         HP=(2000.0, 20, 0.02, 6000.0),
@@ -55,7 +61,7 @@ BASE = dict(
     C_SELL=0.28, C_HEAT=0.20, P_GRID_MAX=12000.0,
     E_GRID=0.57e-3, E_HEAT=0.22e-3,                       # t/kWh、t/kWh_th
     QUOTA=0.6e-3, CO2_PRICE=80.0, CO2_LEN=20.0, CO2_GROW=0.25, CO2_V=5,   # t/(GPU·h)、元/t、t
-    C_R=30.0, C_O=3.0, C_CUR=0.1, C_DEG=0.02,
+    C_R=150.0, C_O=3.0, C_CUR=0.1, C_DEG=0.02,            # 实时切除惩罚由 30 提至 150 元/(GPU·h)（用户修订）
     D_DEADLINE=6,
     B_PERIODIC=True,      # 可延期积压按周期条件 B_1 = B_{T+1}（式(7')(8')）；False 为原式(7)(8) 日末清零
     # ---------------- 模糊集 ----------------
@@ -64,6 +70,8 @@ BASE = dict(
     N_CAP=8000, PEAK_RATIO=0.85, RB_RATIO=(0.6, 0.4),
     H_PEAK=3000.0, H_SUMMER=300.0,
     # ---------------- 求解 ----------------
+    N_BIGM=6000.0,        # 式(12) 中的 N^max（用户修订：6000）
+    GATE_NEXT=True,       # 式(12)第二行（时段末温区安全）；诊断时可关闭
     RELAX_COMPL=True,     # 蓄冷、储能、购售电互斥 0-1 变量松弛（同时充放、同时购售无经济收益），求解后校验
     MIP_GAP=1e-4, TIME_LIMIT=1800.0,
 )
@@ -72,6 +80,8 @@ BASE = dict(
 def params(**over):
     P = deepcopy(BASE)
     for k, v in over.items():
+        if k.startswith("CAP_"):              # 安装上限覆盖，如 CAP_PV=40000
+            c = list(P["COST"][k[4:]]); c[3] = v; P["COST"][k[4:]] = tuple(c); continue
         if k not in P: raise KeyError(k)
         P[k] = v
     return P
