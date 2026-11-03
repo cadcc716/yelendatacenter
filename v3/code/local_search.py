@@ -51,15 +51,15 @@ def search(P, D, scen, th, best, days, p0, a, par=None, max_eval=60, log=print, 
                 if all(step[k] * max(cur[k], absmin.get(k, 0)) < floor[k] for k in vars_): break
                 for k in vars_: step[k] /= 2
             improved = False
-            moves = []
-            for k in vars_:
-                d = max(step[k] * cur[k], step[k] * absmin.get(k, 0), floor[k])
-                moves += [{k: +d}, {k: -d}]
+            moves = []                                  # 冷侧移动优先，储能移动最后
             if flags["tes"]:
                 dt = max(step["TES"] * max(cur["TES"], absmin["TES"]), floor["TES"]); dm = max(step["MC"] * cur["MC"], floor["MC"])
-                moves += [{"TES": +dt, "MC": -dm}, {"TES": -dt, "MC": +dm}]
+                moves += [{"TES": +dt, "MC": -dm}, {"TES": +2 * dt, "MC": -2 * dm}, {"TES": -dt, "MC": +dm}]
             if flags["heat"] and flags["tes"]:
                 moves += [{"HP": +max(step["HP"] * max(cur["HP"], absmin["HP"]), floor["HP"]), "TES": +max(step["TES"] * max(cur["TES"], absmin["TES"]), floor["TES"])}]
+            for k in [v for v in ("MC", "TES", "HP", "FC", "EB", "PB") if v in vars_]:
+                d = max(step[k] * cur[k], step[k] * absmin.get(k, 0), floor[k])
+                moves += [{k: +d}, {k: -d}]
             for mv in moves:
                 x = dict(cur)
                 for k, d in mv.items(): x[k] = x[k] + d
