@@ -48,12 +48,15 @@ if __name__ == "__main__":
         with Pool(int(os.environ.get("PAR", 2))) as pool: res = pool.map(one, [(site, r["x"], s, i) for s, i in enumerate(r["days"])])
         hrs, dT = nominal_violation(r, P)
         E = lambda k: 365 * sum(q * d[k] for q, d in zip(p0, res))
-        imax = int(np.argmax(D["Tamb"][r["days"]].max(1)))
+        imax = int(np.argmax(D["Tamb"][r["days"]].max(1)))                         # 最高气温典型日
+        iw = int(np.argmax([d["MC_max"] + 1e3 * d["LR_h"] for d in res]))         # 冷却最紧张（缺额最多）典型日
         rows.append({"方案": tag[-2:], "复核PUE": E("E_tot") / E("E_IT"), "年实时缺额/GPU·h": E("LR"), "实时满足率/%": 100 * (1 - E("LR") / E("AR")),
                      "年实时缺额时长/h": E("LR_h"), "年超期量/GPU·h": E("O"), "年超期时长/h": E("O_h"),
                      "名义运行热越限时长/h": 365 * float(p0 @ hrs), "名义运行最大超温/K": float(dT.max()),
                      "夏季典型日缺额时长/h": res[imax]["LR_h"], "夏季典型日超期时长/h": res[imax]["O_h"],
-                     "夏季典型日名义热越限/h": int(hrs[imax]), "夏季典型日日期": str(D["dates"][r["days"][imax]])})
+                     "夏季典型日名义热越限/h": int(hrs[imax]), "夏季典型日日期": str(D["dates"][r["days"][imax]]),
+                     "最不利典型日日期": str(D["dates"][r["days"][iw]]), "最不利日缺额时长/h": res[iw]["LR_h"],
+                     "最不利日缺额/GPU·h": res[iw]["LR"], "最不利日名义热越限/h": int(hrs[iw])})
         for d in res: detail.append(dict(方案=tag[-2:], 日期=str(D["dates"][d["day"]]), **{k: v for k, v in d.items() if k not in ("s", "day")}))
     T = pd.DataFrame(rows); T.to_csv(f"{ROOT}/results/{site}_tableF.csv", index=False)
     pd.DataFrame(detail).to_csv(f"{ROOT}/results/{site}_tableF_days.csv", index=False)
