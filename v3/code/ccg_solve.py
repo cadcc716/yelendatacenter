@@ -182,6 +182,12 @@ def two_step(site, scen, tag, method="ccg", prev=None, over=None, log=print):
             log(f"[{scen}] 嵌套热启动：初始解与截断值取自 {os.path.basename(prev)}（能源侧 {pr['obj'] / 1e4:.2f} 万元）", flush=True)
         else:
             log(f"[{scen}] 上一场景 N*={pr['x']['N']:.0f} 与本场景 N*={Nstar:.0f} 不同，不做嵌套热启动", flush=True)
+    # 第一步容量（N 取 N*）作为第二步的候选初值，与上一场景解比较取优
+    a2 = dict(PR.annual_cost(P), N=0.0); x1 = dict(r1["x"], N=Nstar)
+    c1 = evaluate(P, D, BO.flags_of(scen), x1, list(D["med"]), D["p0"], th, None, a2)
+    log(f"[{scen}] 第一步容量在第二步口径下的能源侧成本 {c1['obj'] / 1e4:.2f} 万元", flush=True)
+    if seed is None or c1["obj"] < seed["obj"]:
+        seed = dict(c1); init = c1; cutoff = c1["obj"] * (1 + 1e-7) + 1.0
     r2 = with_check(f2, P, D, scen, th, log=log, fixN=Nstar, init=init, cutoff=cutoff, seed=seed,
                     gap=ENV("GAP2", 1e-3), tl=ENV("TL2", 2700.0), eps=ENV("EPS", 1e-3))
     if seed is not None and r2["obj"] > seed["obj"] * (1 + 1e-6):          # 单调性校验
@@ -189,6 +195,16 @@ def two_step(site, scen, tag, method="ccg", prev=None, over=None, log=print):
         r2b = with_check(f2, P, D, scen, th, log=log, fixN=Nstar, init=init, cutoff=cutoff, seed=seed,
                          gap=ENV("GAP2", 1e-3), tl=2 * ENV("TL2", 2700.0), eps=ENV("EPS", 1e-3))
         r2 = r2b if r2b["obj"] <= r2["obj"] else r2
+    if ENV("LS", 1) == 1:                       # 容量邻域搜索改进初始可行解（最优性仍以 MILP 下界衡量）
+        import local_search as LS
+        imp, hist = LS.search(P, D, scen, th, r2, list(D["med"]), D["p0"], r2["a"], log=log, worst_p=worst_p,
+                              max_eval=ENV("LS_MAX", 60))
+        r2["ls_hist"] = hist
+        if imp is not None:
+            ev = evaluate(P, D, BO.flags_of(scen), imp["x"], list(D["med"]), D["p0"], th, r2.get("int_add"), r2["a"])
+            ev["simul"] = simul_check(ev["R"])
+            log(f"[{scen}] 邻域搜索改进：{r2['obj'] / 1e4:.2f} → {ev['obj'] / 1e4:.2f} 万元", flush=True)
+            r2.update(ev); r2["gap_final"] = (r2["obj"] - r2["LB"]) / abs(r2["obj"])
     r2.update(step1=dict(N=Nstar, obj_total=r1["obj"], x=r1["x"], gap=r1["gap_final"], t=r1["t"], hist=r1["hist"]),
               scen=scen, theta=th, days=list(D["med"]), p0=D["p0"], params_over=over or {}, prev=prev,
               a_full=PR.annual_cost(P))
