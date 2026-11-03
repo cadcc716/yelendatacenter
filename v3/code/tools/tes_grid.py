@@ -18,7 +18,7 @@ def one(a):
 if __name__ == "__main__":
     base = pickle.load(open(sys.argv[1], "rb")); over = json.loads(sys.argv[2]) if len(sys.argv) > 2 else {}
     P = PR.params(**over); D = dict(np.load(f"{ROOT}/data/zhongwei_data.npz")); a = dict(PR.annual_cost(P), N=0.0)
-    grid = [(t, m) for t in (0, 5000, 10000, 20000) for m in (3048, 2700, 2400, 2100)]
+    grid = [tuple(map(float, g.split(":"))) for g in os.environ["GRID"].split(",")] if os.environ.get("GRID") else [(t, m) for t in (0, 5000, 10000, 20000) for m in (3048, 2700, 2400, 2100)]
     jobs = [(dict(base["x"], TES=float(t), MC=float(m)), i, over) for t, m in grid for i in base["days"]]
     with Pool(int(os.environ.get("PAR", 3))) as p: Q = np.array(p.map(one, jobs)).reshape(len(grid), -1)
     p0 = np.asarray(base["p0"])
