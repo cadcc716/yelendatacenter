@@ -21,7 +21,9 @@ if __name__ == "__main__":
     grid = [tuple(map(float, g.split(":"))) for g in os.environ["GRID"].split(",")] if os.environ.get("GRID") else [(t, m) for t in (0, 5000, 10000, 20000) for m in (3048, 2700, 2400, 2100)]
     jobs = [(dict(base["x"], TES=float(t), MC=float(m)), i, over) for t, m in grid for i in base["days"]]
     with Pool(int(os.environ.get("PAR", 3))) as p: Q = np.array(p.map(one, jobs)).reshape(len(grid), -1)
-    p0 = np.asarray(base["p0"])
+    p0 = np.asarray(base["p0"]); th = tuple(base.get("theta", (0.0, 0.0))) if os.environ.get("DRO") else (0.0, 0.0)
+    import ccg_solve as CG
     for (t, m), q in zip(grid, Q):
         x = dict(base["x"], TES=float(t), MC=float(m)); inv = sum(a[c] * x[c] for c in BO.CAPS)
-        print(f"E_TES {t/1e3:5.1f} MWh, K_MC {m/1e3:5.3f} MW: 能源侧 {(inv + 365 * p0 @ q) / 1e4:8.2f} 万元 (投资 {inv/1e4:7.2f}, 运行 {365 * p0 @ q / 1e4:7.2f})", flush=True)
+        p = CG.worst_p(q, p0, *th)
+        print(f"E_TES {t/1e3:5.1f} MWh, K_MC {m/1e3:5.3f} MW: 能源侧 {(inv + 365 * p @ q) / 1e4:8.2f} 万元 (投资 {inv/1e4:7.2f}, 运行 {365 * p @ q / 1e4:7.2f})", flush=True)
