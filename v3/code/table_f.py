@@ -45,7 +45,7 @@ if __name__ == "__main__":
     P = PR.params(); D = dict(np.load(f"{ROOT}/data/{site}_data.npz")); p0 = D["p0"]; rows = []; detail = []
     for tag in ("DRO_S1", "DRO_S2"):
         r = pickle.load(open(f"{ROOT}/results/{site}_{tag}.pkl", "rb"))
-        with Pool(4) as pool: res = pool.map(one, [(site, r["x"], s, i) for s, i in enumerate(r["days"])])
+        with Pool(int(os.environ.get("PAR", 2))) as pool: res = pool.map(one, [(site, r["x"], s, i) for s, i in enumerate(r["days"])])
         hrs, dT = nominal_violation(r, P)
         E = lambda k: 365 * sum(q * d[k] for q, d in zip(p0, res))
         imax = int(np.argmax(D["Tamb"][r["days"]].max(1)))
