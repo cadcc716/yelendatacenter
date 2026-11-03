@@ -66,6 +66,7 @@ class MILP:
         h = highspy.Highs(); h.setOptionValue("output_flag", verbose)
         h.setOptionValue("mip_rel_gap", gap); h.setOptionValue("time_limit", tl)
         h.setOptionValue("mip_abs_gap", abs_gap)
+        if os.environ.get("MIP_HEUR"): h.setOptionValue("mip_heuristic_effort", float(os.environ["MIP_HEUR"]))   # 原始启发式强度（默认 0.05）
         h.setOptionValue("threads", int(__import__("os").environ.get("HIGHS_THREADS", 4))); h.passModel(lp)
         if start is not None:   # 热启动: 同结构模型的可行解 (列顺序一致)
             hs = highspy.HighsSolution(); hs.col_value = list(np.asarray(start, float)); hs.value_valid = True; h.setSolution(hs)

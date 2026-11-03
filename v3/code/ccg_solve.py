@@ -61,6 +61,22 @@ def simul_check(R, tol=1.0):
     return out
 
 
+def start_from(M, X, Vs, r):
+    """由已有结果（容量 x 与各典型日运行解 R）构造完整初始解向量，用于热启动（要求模型结构一致、可行域包含该解）。"""
+    v = np.zeros(M.n)
+    for c in BO.CAPS: v[X[c]] = r["x"][c]
+    for V, R in zip(Vs, r["R"]):
+        for k, idx in V.items():
+            if k.startswith("_"): continue
+            v[idx] = R[k]
+    return v
+
+
+def load_init():
+    f = os.environ.get("INIT_FROM")
+    return pickle.load(open(f, "rb")) if f else None
+
+
 def finalize(P, D, flags, x, days, p0, th1, thi, int_add, a):
     """N 取整后固定全部容量，重算运行成本与最恶劣分布。"""
     x = dict(x); x["N"] = float(round(x["N"]))
@@ -74,6 +90,8 @@ def ccg(P, D, scen, th, eps=1e-3, max_it=10, log=print, int_add=None):
     M, X, Vs, a = build_master(P, D, flags, days, int_add)
     eta = M.var(1, -INF, INF, cost=1.0)
     cuts = []; LB, UB = -np.inf, np.inf; hist = []; best = None; t0 = time.time(); start = None
+    init = load_init()
+    if init is not None: start = start_from(M, X, Vs, init)
     p = p0.copy()
     for k in range(1, max_it + 1):
         cuts.append(p)
@@ -115,7 +133,11 @@ def mono(P, D, scen, th, log=print, int_add=None, tl=None, gap=None):
         M.row([(lam, 1.0), (pi[s], 1.0), (V["Q"], -P["DAYS"])], lo=0.0)
         M.row([(pi[s], 1.0), (mu, -1.0), (nu[s], -1.0)], hi=0.0)
         M.row([(pi[s], 1.0), (mu, 1.0), (nu[s], 1.0)], lo=0.0)
-    sol, st, obj, gabs = M.solve(gap=gap or GAP_MASTER, tl=tl or TL_MASTER)
+    init = load_init(); start = None
+    if init is not None:     # 可行初值：μ = ν = π = 0，λ = 365·max_s Q_s
+        start = start_from(M, X, Vs, init)
+        start[lam] = P["DAYS"] * max(start[V["Q"]][0] for V in Vs)
+    sol, st, obj, gabs = M.solve(gap=gap or GAP_MASTER, tl=tl or TL_MASTER, start=start)
     x = {c: float(sol[X[c]][0]) for c in BO.CAPS}
     fin = finalize(P, D, flags, x, days, p0, th1, thi, int_add, a)
     fin.update(hist=[dict(it=1, LB=M.dual_bound, UB=obj, gap=gabs / abs(obj), t=time.time() - t0, master_status=st)], scen=scen,
