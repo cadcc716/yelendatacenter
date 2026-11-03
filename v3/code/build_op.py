@@ -38,8 +38,9 @@ def add_capacity(M, P, flags, fix=None, integer_N=True, fixN=None):
     for k in CAPS:
         if fix is not None:
             v = float(fix.get(k, 0.0)); X[k] = M.var(1, v, v)
+            if k == "N": M.N_fixed = v
         elif k == "N" and fixN is not None:
-            X[k] = M.var(1, float(fixN), float(fixN))
+            X[k] = M.var(1, float(fixN), float(fixN)); M.N_fixed = float(fixN)
         else:
             X[k] = M.var(1, 0.0, ub[k], integer=(k == "N" and integer_N), cost=a[k])
     if fix is None:
@@ -53,7 +54,7 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
     T = P["T"]; G = P["GEARS"]; J = len(P["ZONES"]); Z = PR.zone_consts(P)
     KR, KB = P["K_R"], P["K_B"]
     AR, AB, Ta, gpv, Hd = (np.asarray(day[k], float) for k in ("AR", "AB", "Tamb", "gPV", "H"))
-    Nmax = P["N_BIGM"]; V = {}
+    Nmax = min(P["N_BIGM"], getattr(M, "N_fixed", None) or P["N_BIGM"]); V = {}   # N 固定时取实际装机数
     # ---------- 温区相关常数 ----------
     if flags["thermal"]:
         phi, cop = PR.weather_consts(P, Ta)                       # (J, T)
@@ -135,6 +136,11 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
         M.con([(qMC[j], 1.0), (u[j], -xm["MC"])], hi=0.0)
         M.con([(qHP[j], 1.0), (u[j], -xm["HP"])], hi=0.0)
     M.con([(qMC[j], 1.0) for j in range(J)] + [(X["MC"], -1.0)], hi=0.0)
+    # 自然冷却容量按温区汇总：每时段只有一个温区出力非零，Σ_j q_FC,jt / φ_jt ≤ K_FC 与式(14)整数可行域相同，松弛更紧
+    for t in range(T):
+        jj = [j for j in range(J) if phi[j, t] > 1e-6]
+        if len(jj) > 1:
+            M.row([(qFC[j][t], 1.0 / phi[j, t]) for j in jj] + [(X["FC"], -1.0)], hi=0.0)
     V["PFC"] = PFC = M.var(T); V["PMC"] = PMC = M.var(T)
     M.con([(PFC, 1.0)] + [(qFC[j], -P["A_FC"]) for j in range(J)], lo=0.0, hi=0.0)
     M.con([(PMC, 1.0)] + [(qMC[j], -1.0 / cop[j]) for j in range(J)], lo=0.0, hi=0.0)
