@@ -32,6 +32,7 @@ if __name__ == "__main__":
     while queue or run:
         while queue and len(run) < par:
             g, k, v = queue.pop(0); out = f"{ROOT}/results/{site}_sens_{g}_{v}.pkl"
+            if os.path.exists(out): continue                      # 已完成的点跳过
             code = CODE.format(code=os.path.dirname(os.path.abspath(__file__)), over=json.dumps({k: v}), site=site, out=out)
             log = open(f"{ROOT}/results/log_sens_{g}_{v}.txt", "w")
             run[(g, v)] = subprocess.Popen([sys.executable, "-u", "-c", code], stdout=log, stderr=log, env=env)
