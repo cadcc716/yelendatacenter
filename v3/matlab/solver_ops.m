@@ -8,7 +8,8 @@ if nargin < 3, cutoff = []; end
 if nargin < 4, usex0 = 0; end
 if nargin < 5, show = 0; end
 if strcmp(CFG.solver, 'gurobi')
-    ops = sdpsettings('solver', 'gurobi', 'verbose', double(show), 'usex0', usex0, 'cachesolvers', 1);
+    ops = sdpsettings('solver', 'gurobi', 'verbose', double(show), 'usex0', usex0, 'cachesolvers', 1, ...
+                      'savesolveroutput', 1);  % 保留 Gurobi 返回结构，用于读取 best bound（下界）
     ops.gurobi.DisplayInterval = 60;       % 日志每 60 s 刷新一次
     ops.gurobi.MIPGap = gap;
     ops.gurobi.TimeLimit = tl;
