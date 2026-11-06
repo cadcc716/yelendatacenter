@@ -29,7 +29,8 @@ if strcmp(method, 'mono')
     Fm = [F, lam + pi_ >= P.DAYS * Qv, pi_ <= mu + nu, pi_ >= -(mu + nu), mu >= 0, nu >= 0];
     obj = inv + lam + D.p0(:)' * pi_ + th(1) * mu + th(2) * sum(nu);
     if ~isempty(seed), assign(lam, P.DAYS * max(seed.Q)); assign(pi_, zeros(K, 1)); assign(mu, 0); assign(nu, zeros(K, 1)); end
-    [val, lb, ok] = run_opt(Fm, obj, solver_ops(gap, tl, cutoff, ~isempty(seed)));
+    log_line(sprintf('[%s] 单层 MILP 求解中（%s，时限 %d s，MIPGap %.0e）……', scen, mode, round(tl), gap));
+    [val, lb, ok] = run_opt(Fm, obj, solver_ops(gap, tl, cutoff, ~isempty(seed), show_log()));
     LB = lb;
     if ok
         ev = evaluate_x(P, D, scen, xval(X, P), th, a, int_add);
@@ -46,7 +47,8 @@ else
         if k > 1 || ~isempty(seed)          % η 取满足全部割的最小值，保证热启动可行
             qv = value(Qv); assign(eta, max(P.DAYS * (cuts' * qv)));
         end
-        [val, lb, ok] = run_opt(Fc, inv + eta, solver_ops(gap, tl, cutoff, k > 1 || ~isempty(seed)));
+        log_line(sprintf('[%s] C&CG 第 %d 轮主问题求解中（%s，时限 %d s，MIPGap %.0e）……', scen, k, mode, round(tl), gap));
+        [val, lb, ok] = run_opt(Fc, inv + eta, solver_ops(gap, tl, cutoff, k > 1 || ~isempty(seed), show_log()));
         if ~ok
             log_line(sprintf('[%s] 主问题未得到优于截断值的解，沿用初始解', scen)); break;
         end
@@ -81,4 +83,9 @@ for i = 1:numel(P.CAPS)
     if isa(X.(k), 'sdpvar'), assign(X.(k), seed.x.(k)); end
 end
 for s = 1:numel(Vs), assign_day(Vs{s}, seed.R{s}); end
+end
+
+function s = show_log()
+global CFG
+s = isempty(CFG) || ~isfield(CFG, 'show_log') || CFG.show_log;
 end

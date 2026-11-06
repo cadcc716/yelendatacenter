@@ -11,8 +11,9 @@ fprintf('自检：S5 第352天日运行成本 %.2f 元（应为 17945.19）\n', 
 
 %% 1 极端日试验（优先，回答分布鲁棒是否起作用）
 % 先跑基准典型日集合的 SP/DRO/RO，再跑加入极端日后的 SP/DRO/RO，最后对照
-run_cases('zhongwei', {'S6', 'S5', 'S7'});      % 注意：S5 会尝试用 S4 结果热启动，没有则跳过
-run_extreme('zhongwei');                          % 生成 results/zhongwei_极端日对照.csv
+% 第一轮先用较短的主问题时限（1200 s）看方向；结论确定后再用缺省 3600 s 重算
+run_cases('zhongwei', {'S6', 'S5', 'S7'}, 'ccg', 'tl2', 1200);   % S5 会尝试用 S4 结果热启动，没有则跳过
+run_extreme('zhongwei', 'tl2', 1200);                             % 生成 results/zhongwei_极端日对照.csv
 
 %% 2 主算例 S1–S7（两步法，第二步 C&CG）及单层 MILP 校验
 run_cases('zhongwei');                            % 按 S1→S2、S3→S4→S5、S6、S7 顺序
