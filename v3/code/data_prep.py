@@ -219,3 +219,27 @@ def summary(D):
 if __name__ == "__main__":
     site = sys.argv[1] if len(sys.argv) > 1 else "zhongwei"
     summary(build(site))
+
+
+def add_extremes(site, n_max=4):
+    """极端日试验：在 12 个典型日之外加入极端日作为小概率场景（p0 = 1/365），所在簇概率相应扣减。
+    依次取：全年算力峰值小时所在日、日算力需求最大日、最高气温日、日均气温最高日（重复则跳过）。"""
+    D = dict(np.load(OUT / f"{site}_data.npz")); P = PR.params()
+    AR, AB, T = D["AR"], D["AB"], D["Tamb"]; Dd = P["D_DEADLINE"]
+    Bm = np.array([np.convolve(np.r_[b, b], np.ones(Dd) / Dd)[24:48] for b in AB])
+    cand = [("算力峰值日", int(np.argmax((AR + Bm).max(1)))), ("日需求最大日", int(np.argmax((AR + AB).sum(1)))),
+            ("最高气温日", int(np.argmax(T.max(1)))), ("日均气温最高日", int(np.argmax(T.mean(1))))]
+    med = list(D["med"]); lab = D["lab"]; cnt = np.bincount(lab, minlength=len(med)).astype(float); ext = []
+    for name, d in cand:
+        if d in med or d in [e[1] for e in ext]: continue
+        ext.append((name, d)); cnt[lab[d]] -= 1
+        if len(ext) >= n_max: break
+    p0 = np.r_[cnt, np.ones(len(ext))] / 365
+    K = len(med) + len(ext); th1, thi = PR.theta(P, K=K)
+    out = dict(D); out.update(med=np.array(med + [e[1] for e in ext]), p0=p0, theta1=th1, thetainf=thi,
+                              ext_names=np.array([e[0] for e in ext], dtype="U10"), ext_days=np.array([e[1] for e in ext]))
+    np.savez(OUT / f"{site}_ext_data.npz", **out)
+    for name, d in ext:
+        print(f"  {name}: {D['dates'][d]}，最高气温 {T[d].max():.1f} ℃，小时峰值需求 {(AR + Bm)[d].max():.0f} GPU，日需求 {(AR + AB)[d].sum():.0f} GPU·h")
+    print(f"K = {K}，θ1 = {th1:.4f}，θ∞ = {thi:.4f}；典型日最大小时需求 {(AR + Bm)[D['med']].max():.0f} GPU")
+    return out

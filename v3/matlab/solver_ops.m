@@ -1,0 +1,18 @@
+function ops = solver_ops(gap, tl, cutoff, usex0)
+% SOLVER_OPS  求解器设置。默认 Gurobi；全局变量 CFG.solver 可改为 'glpk'（仅用于无 Gurobi 时的语法测试）。
+%   gap: MIPGap（相对）；tl: 时间上限 s；cutoff: 截断值（可为空）；usex0: 是否用当前变量值热启动
+global CFG
+if isempty(CFG) || ~isfield(CFG, 'solver'), CFG.solver = 'gurobi'; end
+if nargin < 3, cutoff = []; end
+if nargin < 4, usex0 = 0; end
+if strcmp(CFG.solver, 'gurobi')
+    ops = sdpsettings('solver', 'gurobi', 'verbose', 0, 'usex0', usex0, 'cachesolvers', 1);
+    ops.gurobi.MIPGap = gap;
+    ops.gurobi.TimeLimit = tl;
+    ops.gurobi.Threads = 0;                 % 0 = 使用全部核
+    if isfield(CFG, 'MIPFocus'), ops.gurobi.MIPFocus = CFG.MIPFocus; else, ops.gurobi.MIPFocus = 3; end
+    if ~isempty(cutoff), ops.gurobi.Cutoff = cutoff; end
+else
+    ops = sdpsettings('solver', CFG.solver, 'verbose', 0, 'cachesolvers', 1);
+end
+end
