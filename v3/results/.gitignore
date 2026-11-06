@@ -3,3 +3,4 @@ log_*.txt
 trial/*.pkl
 trial/log_*.txt
 archive_tes80/*.pkl
+ext/*.pkl
