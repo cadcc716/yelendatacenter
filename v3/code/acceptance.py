@@ -43,7 +43,26 @@ def sens(site, group):
     for f in fs:
         r = pickle.load(open(f, "rb")); v = BASEV[group] if f.endswith("_base.pkl") else float(f.rsplit("_", 1)[1][:-4])
         rows.append(dict(取值=v, 能源侧成本=r["obj"] / 1e4, 投资=r["inv"] / 1e4, 运行期望=(r["obj"] - r["inv"]) / 1e4, **{k: r["x"][k] for k in BO.CAPS}))
-    return pd.DataFrame(rows).sort_values("取值") if rows else None
+    if not rows: return None
+    T = pd.DataFrame(rows).sort_values("取值")
+    if group in ("alpha", "M"): T = cross_eval(T, [pickle.load(open(f, "rb")) for f in fs], group)
+    return T
+
+
+def cross_eval(T, rs, group):
+    """α1、M 只改变模糊集半径 θ，各点的容量方案对其他点同样可行：把全部方案在每个 θ 下按式(37)评估最恶劣期望，取最低者。
+    对固定方案，最恶劣期望随 θ 单调不减，因此取最小后的曲线单调，并消除各点求解间隙带来的抖动。"""
+    import ccg_solve as C
+    vals = {round(float(f), 6): r for f, r in zip([(BASEV[group] if r["params_over"] == {} else list(r["params_over"].values())[0]) for r in rs], rs)}
+    best, src = [], []
+    for v in T["取值"]:
+        th = vals[round(float(v), 6)]["theta"]
+        F = [(r["inv"] + 365 * float(np.dot(C.worst_p(np.array(r["Q"]), r["p0"], *th), r["Q"]))) / 1e4 for r in rs]
+        k = int(np.argmin(F)); best.append(F[k]); src.append(k)
+    keys = [(BASEV[group] if r["params_over"] == {} else list(r["params_over"].values())[0]) for r in rs]
+    T["能源侧成本_单独"] = T["能源侧成本"].values; T["能源侧成本"] = best; T["θ1"] = [vals[round(float(v), 6)]["theta"][0] for v in T["取值"]]
+    T["采用方案"] = [keys[k] for k in src]
+    return T
 
 
 if __name__ == "__main__":
@@ -109,10 +128,10 @@ if __name__ == "__main__":
     A = sens(site, "alpha")
     if A is None or len(A) < 3: L.append(("C12", "未运行", "未运行"))
     else:
-        th = [PR.theta(PR.params(ALPHA1=a))[0] for a in A["取值"]]; A["θ1"] = th
+        th = A["θ1"].values
         sl = np.diff(A["能源侧成本"]) / np.diff(th)                          # 成本—保守度曲线斜率
         kink = len(sl) >= 2 and (sl.max() > 2 * max(sl.min(), 1e-9))
-        L.append(("C12", "α1 灵敏度（能源侧成本/万元）：" + "，".join(f"{r.取值}: {r.能源侧成本:.1f}" for r in A.itertuples())
+        L.append(("C12", "α1 灵敏度（能源侧成本/万元，交叉评估后）：" + "，".join(f"{r.取值}: {r.能源侧成本:.1f}" for r in A.itertuples())
                   + "；斜率/(万元/单位θ1)：" + "，".join(f"{v:.0f}" for v in sl), ok(A["能源侧成本"].is_monotonic_increasing and kink)))
     Cl = {}
     for st in ("zhongwei", "guian", "shaoguan"):

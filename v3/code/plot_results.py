@@ -209,18 +209,20 @@ def sens(site, g, key):
 
 
 def fig13(site):
-    A = sens(site, "alpha", "ALPHA1"); Mx = sens(site, "M", "M")
-    if len(A) < 3: return
+    import acceptance as AC
+    A = AC.sens(site, "alpha"); Mx = AC.sens(site, "M")
+    if A is None or len(A) < 3: return
     fig, axs = plt.subplots(1, 2, figsize=(17 * PS.CM, 6 * PS.CM))
-    ax = axs[0]; ax.plot(A["inv"], A["op"], "o-", color="#E64B35")
-    for _, r in A.iterrows(): ax.annotate(f"α1={r.v:g}", (r.inv, r.op), textcoords="offset points", xytext=(4, 3), fontsize=7)
-    ax.set_xlabel("非GPU设备年化投资/万元"); ax.set_ylabel("最恶劣分布下期望运行成本/万元"); label(ax, "(a) 置信水平 α1")
-    if len(Mx) >= 3:
-        ax = axs[1]; ax.plot(Mx["inv"], Mx["op"], "s-", color="#3C5488")
-        for _, r in Mx.iterrows(): ax.annotate(f"M={r.v:g}", (r.inv, r.op), textcoords="offset points", xytext=(4, 3), fontsize=7)
-        ax.set_xlabel("非GPU设备年化投资/万元"); ax.set_ylabel("最恶劣分布下期望运行成本/万元"); label(ax, "(b) 样本量 M")
+    for ax, T, nm, fmt, tag in ((axs[0], A, "α1", "{:g}", "(a) 置信水平 α1"), (axs[1], Mx, "M", "{:.0f}", "(b) 样本量 M")):
+        if T is None or len(T) < 2: ax.set_visible(False); continue
+        T = T.sort_values("θ1")
+        ax.plot(T["θ1"], T["能源侧成本_单独"], "o", mfc="white", color="gray", label="各点单独求解")
+        ax.plot(T["θ1"], T["能源侧成本"], "s-", color="#E64B35", label="交叉评估（取最优方案）")
+        for _, r in T.iterrows(): ax.annotate(f"{nm}={fmt.format(r['取值'])}", (r["θ1"], r["能源侧成本"]), textcoords="offset points", xytext=(3, -10), fontsize=7)
+        ax.margins(x=0.08, y=0.15); ax.set_xlabel("1-范数模糊集半径 θ1"); ax.set_ylabel("能源侧年化成本/万元"); ax.set_title(tag, fontsize=9); ax.legend(loc="upper left", fontsize=7)
     fig.tight_layout(); save(fig, "图13_置信水平与样本量")
-    A.to_csv(f"{RES}/{site}_sens_alpha.csv", index=False); Mx.to_csv(f"{RES}/{site}_sens_M.csv", index=False)
+    A.to_csv(f"{RES}/{site}_sens_alpha.csv", index=False)
+    if Mx is not None: Mx.to_csv(f"{RES}/{site}_sens_M.csv", index=False)
 
 
 def fig14():
