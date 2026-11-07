@@ -247,8 +247,10 @@ def fig15(site):
     fig, ax = plt.subplots(figsize=(8.5 * PS.CM, 6 * PS.CM))
     for k, lab, c, mk in (("MC", "机械制冷", "#3C5488", "o"), ("FC", "自然冷却", "#4DBBD5", "s"), ("HP", "热泵", "#E64B35", "^")):
         ax.plot(S["v"], S[k] / 1e3, marker=mk, color=c, label=lab)
-    ax.set_xlabel("芯片温度上限/℃"); ax.set_ylabel("容量/MW"); ax.legend()
-    a2 = ax.twinx(); a2.plot(S["v"], S["TES"] / 1e3, "k--d", ms=3.5, label="蓄冷"); a2.set_ylabel("蓄冷容量/MWh")
+    ax.set_xlabel("芯片温度上限/℃"); ax.set_ylabel("容量/MW")
+    a2 = ax.twinx(); a2.plot(S["v"], S["obj"], "k--d", ms=3.5, label="能源侧年化成本"); a2.set_ylabel("能源侧年化成本/万元")
+    h1, l1 = ax.get_legend_handles_labels(); h2, l2 = a2.get_legend_handles_labels()
+    ax.legend(h1 + h2, l1 + l2, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=4, frameon=False, fontsize=7)
     save(fig, "图15_芯片温限"); S.to_csv(f"{RES}/{site}_sens_chip.csv", index=False)
 
 
