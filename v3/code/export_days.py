@@ -49,5 +49,5 @@ if __name__ == "__main__":
     else:
         med = np.array(r["days"]); heat = D["heating"][med]
         wd = str(D["dates"][med[heat][np.argmax(np.asarray(r["p0"])[heat])]])
-    out = f"{ROOT}/results/fig_data"; os.makedirs(out, exist_ok=True)
+    out = os.environ.get("OUTDIR", f"{ROOT}/results/fig_data"); os.makedirs(out, exist_ok=True)
     for d in ("2023-06-15", wd): export(site, r, d, P, D, out)
