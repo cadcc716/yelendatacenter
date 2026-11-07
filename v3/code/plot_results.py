@@ -257,8 +257,9 @@ def fig16(site):
     if len(S) < 3: return
     fig, ax = plt.subplots(figsize=(8.5 * PS.CM, 6 * PS.CM))
     ax.plot(S["v"], S["HP"] / 1e3, "o-", color="#E64B35", label="热泵容量"); ax.set_xlabel("热价/(元/kWh$_{\\rm th}$)"); ax.set_ylabel("热泵容量/MW")
-    a2 = ax.twinx(); a2.plot(S["v"], S["TES"] / 1e3, "s--", color="#00A087", label="蓄冷容量"); a2.set_ylabel("蓄冷容量/MWh")
-    h1, l1 = ax.get_legend_handles_labels(); h2, l2 = a2.get_legend_handles_labels(); ax.legend(h1 + h2, l1 + l2, loc="upper left")
+    a2 = ax.twinx(); a2.plot(S["v"], S["obj"], "s--", color="#3C5488", label="能源侧年化成本"); a2.set_ylabel("能源侧年化成本/万元")
+    ax.axvspan(0.15, 0.20, color="gray", alpha=0.15, lw=0); ax.text(0.175, 0.05, "切换区间", ha="center", fontsize=7, transform=ax.get_xaxis_transform())
+    h1, l1 = ax.get_legend_handles_labels(); h2, l2 = a2.get_legend_handles_labels(); ax.legend(h1 + h2, l1 + l2, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=2, frameon=False)
     save(fig, "图16_热价灵敏度"); S.to_csv(f"{RES}/{site}_sens_heat.csv", index=False)
 
 
