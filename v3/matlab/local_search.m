@@ -12,6 +12,7 @@ step = struct('MC', 0.15, 'FC', 0.15, 'EB', 0.2, 'PB', 0.2, 'TES', 0.5, 'HP', 0.
 flo = struct('MC', 50, 'FC', 100, 'EB', 1000, 'PB', 200, 'TES', 1000, 'HP', 100);
 absmin = struct('MC', 0, 'FC', 0, 'EB', 0, 'PB', 0, 'TES', 5000, 'HP', 300);
 cur = best.x; fcur = best.obj; keep = []; hist = []; n = 0; improved = true; t0 = tic;
+log_line(sprintf('[%s] 进入容量邻域搜索（最多 %d 次评估，每次逐典型日求解运行问题，约 1 分钟/次）……', scen, max_eval));
 while n < max_eval
     if ~improved
         small = true;
@@ -42,6 +43,9 @@ while n < max_eval
         if ~ok, continue; end
         ev = evaluate_x(P, D, scen, x, th, a); n = n + 1;
         hist = [hist, struct('move', mv, 'obj', ev.obj)]; %#ok<AGROW>
+        if ev.obj >= fcur - 1
+            log_line(sprintf('  [邻域搜索 %s] %d/%d: %s → %.2f 万元（未改进，当前最好 %.2f），用时 %.0f s', scen, n, max_eval, move_str(mv), ev.obj / 1e4, fcur / 1e4, toc(t0)));
+        end
         if ev.obj < fcur - 1
             log_line(sprintf('  [邻域搜索 %s] %d: %s → %.2f 万元（改进 %.2f），用时 %.0f s', scen, n, move_str(mv), ev.obj / 1e4, (fcur - ev.obj) / 1e4, toc(t0)));
             cur = x; fcur = ev.obj; keep = ev; improved = true; break;
@@ -50,6 +54,7 @@ while n < max_eval
     end
 end
 if ~isempty(keep) && fcur < best.obj - 1, imp = keep; else, imp = []; end
+log_line(sprintf('[%s] 邻域搜索结束：共评估 %d 次，用时 %.0f s', scen, n, toc(t0)));
 end
 
 function s = move_str(mv)

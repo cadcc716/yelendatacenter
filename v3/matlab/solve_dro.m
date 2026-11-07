@@ -61,8 +61,12 @@ else
         x = ev.x;
         log_line(sprintf('[%s θ=(%.3g,%.3g) %s] 迭代 %d: LB %.2f, UB %.2f 万元, gap %.2e, N %.1f, FC %.0f, MC %.0f, TES %.0f, HP %.0f, PV %.0f, EB %.0f, PB %.0f, 用时 %.0f s', ...
             scen, th(1), th(2), mode, k, LB / 1e4, UB / 1e4, g, x.N, x.FC, x.MC, x.TES, x.HP, x.PV, x.EB, x.PB, toc(t0)));
-        if g <= opt.eps, break; end
-        if any(max(abs(cuts - repmat(p, 1, size(cuts, 2))), [], 1) < 1e-6), break; end   % 最恶劣分布重复，判定收敛
+        if g <= opt.eps
+            log_line(sprintf('[%s] C&CG 收敛：gap %.2e ≤ ε = %.0e', scen, g, opt.eps)); break;
+        end
+        if any(max(abs(cuts - repmat(p, 1, size(cuts, 2))), [], 1) < 1e-6)   % 最恶劣分布重复，判定收敛
+            log_line(sprintf('[%s] C&CG 结束：最恶劣分布与已有概率割重复，剩余 gap %.2e 来自主问题', scen, g)); break;
+        end
     end
 end
 r = best; r.LB = LB; r.gap_final = (r.obj - LB) / abs(r.obj); r.hist = hist; r.t = toc(t0); r.a = a; r.method = method;
