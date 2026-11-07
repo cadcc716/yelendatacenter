@@ -216,10 +216,10 @@ def fig13(site):
     for ax, T, nm, fmt, tag in ((axs[0], A, "α1", "{:g}", "(a) 置信水平 α1"), (axs[1], Mx, "M", "{:.0f}", "(b) 样本量 M")):
         if T is None or len(T) < 2: ax.set_visible(False); continue
         T = T.sort_values("θ1")
-        ax.plot(T["θ1"], T["能源侧成本_单独"], "o", mfc="white", color="gray", label="各点单独求解")
-        ax.plot(T["θ1"], T["能源侧成本"], "s-", color="#E64B35", label="交叉评估（取最优方案）")
-        for _, r in T.iterrows(): ax.annotate(f"{nm}={fmt.format(r['取值'])}", (r["θ1"], r["能源侧成本"]), textcoords="offset points", xytext=(3, -10), fontsize=7)
-        ax.margins(x=0.08, y=0.15); ax.set_xlabel("1-范数模糊集半径 θ1"); ax.set_ylabel("能源侧年化成本/万元"); ax.set_title(tag, fontsize=9); ax.legend(loc="upper left", fontsize=7)
+        ax.plot(T["θ1"], T["总成本_单独"], "o", mfc="white", color="gray", label="各点单独求解")
+        ax.plot(T["θ1"], T["总成本"], "s-", color="#E64B35", label="交叉评估（取最优方案）")
+        for _, r in T.iterrows(): ax.annotate(f"{nm}={fmt.format(r['取值'])}", (r["θ1"], r["总成本"]), textcoords="offset points", xytext=(3, -10), fontsize=7)
+        ax.margins(x=0.08, y=0.15); ax.set_xlabel("1-范数模糊集半径 θ1"); ax.set_ylabel("年化总成本/万元"); ax.set_title(tag, fontsize=9); ax.legend(loc="upper left", fontsize=7)
     fig.tight_layout(); save(fig, "图13_置信水平与样本量")
     A.to_csv(f"{RES}/{site}_sens_alpha.csv", index=False)
     if Mx is not None: Mx.to_csv(f"{RES}/{site}_sens_M.csv", index=False)

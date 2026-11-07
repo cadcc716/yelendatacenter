@@ -45,23 +45,28 @@ def sens(site, group):
         rows.append(dict(取值=v, 能源侧成本=r["obj"] / 1e4, 投资=r["inv"] / 1e4, 运行期望=(r["obj"] - r["inv"]) / 1e4, **{k: r["x"][k] for k in BO.CAPS}))
     if not rows: return None
     T = pd.DataFrame(rows).sort_values("取值")
-    if group in ("alpha", "M"): T = cross_eval(T, [pickle.load(open(f, "rb")) for f in fs], group)
+    if group in ("alpha", "M"):                                       # α1、M 两组方案模型参数相同，合并为候选集
+        pool = sorted(set(fs) | set(glob.glob(f"{RES}/{site}_sens_alpha_*.pkl")) | set(glob.glob(f"{RES}/{site}_sens_M_*.pkl")))
+        T = cross_eval(T, [pickle.load(open(f, "rb")) for f in fs], group, [pickle.load(open(f, "rb")) for f in pool], pool)
     return T
 
 
-def cross_eval(T, rs, group):
+def cross_eval(T, rs, group, cand=None, names=None):
     """α1、M 只改变模糊集半径 θ，各点的容量方案对其他点同样可行：把全部方案在每个 θ 下按式(37)评估最恶劣期望，取最低者。
     对固定方案，最恶劣期望随 θ 单调不减，因此取最小后的曲线单调，并消除各点求解间隙带来的抖动。"""
     import ccg_solve as C
     vals = {round(float(f), 6): r for f, r in zip([(BASEV[group] if r["params_over"] == {} else list(r["params_over"].values())[0]) for r in rs], rs)}
-    best, src = [], []
+    best, src, tot, nn = [], [], [], []
     for v in T["取值"]:
         th = vals[round(float(v), 6)]["theta"]
-        F = [(r["inv"] + 365 * float(np.dot(C.worst_p(np.array(r["Q"]), r["p0"], *th), r["Q"]))) / 1e4 for r in rs]
-        k = int(np.argmin(F)); best.append(F[k]); src.append(k)
-    keys = [(BASEV[group] if r["params_over"] == {} else list(r["params_over"].values())[0]) for r in rs]
+        cand = cand or rs
+        gpu = [r["a_full"]["N"] * r["x"]["N"] / 1e4 for r in cand]          # 各方案 GPU 数可能不同，按含 GPU 投资的总成本比较
+        F = [(r["inv"] + 365 * float(np.dot(C.worst_p(np.array(r["Q"]), r["p0"], *th), r["Q"]))) / 1e4 for r in cand]
+        k = int(np.argmin([f + g for f, g in zip(F, gpu)])); best.append(F[k]); src.append(k); tot.append(F[k] + gpu[k]); nn.append(cand[k]["x"]["N"])
+    keys = [os.path.basename(n)[len("zhongwei_sens_"):-4] for n in names] if names else [str(k) for k in range(len(cand))]
     T["能源侧成本_单独"] = T["能源侧成本"].values; T["能源侧成本"] = best; T["θ1"] = [vals[round(float(v), 6)]["theta"][0] for v in T["取值"]]
-    T["采用方案"] = [keys[k] for k in src]
+    T["采用方案"] = [keys[k] for k in src]; T["总成本"] = tot; T["采用方案N"] = nn
+    T["总成本_单独"] = [(r["obj"] + r["a_full"]["N"] * r["x"]["N"]) / 1e4 for r in [vals[round(float(v), 6)] for v in T["取值"]]]
     return T
 
 
@@ -129,10 +134,10 @@ if __name__ == "__main__":
     if A is None or len(A) < 3: L.append(("C12", "未运行", "未运行"))
     else:
         th = A["θ1"].values
-        sl = np.diff(A["能源侧成本"]) / np.diff(th)                          # 成本—保守度曲线斜率
+        sl = np.diff(A["总成本"]) / np.diff(th)                          # 成本—保守度曲线斜率
         kink = len(sl) >= 2 and (sl.max() > 2 * max(sl.min(), 1e-9))
         L.append(("C12", "α1 灵敏度（能源侧成本/万元，交叉评估后）：" + "，".join(f"{r.取值}: {r.能源侧成本:.1f}" for r in A.itertuples())
-                  + "；斜率/(万元/单位θ1)：" + "，".join(f"{v:.0f}" for v in sl), ok(A["能源侧成本"].is_monotonic_increasing and kink)))
+                  + "；斜率/(万元/单位θ1)：" + "，".join(f"{v:.0f}" for v in sl), ok(A["总成本"].is_monotonic_increasing and kink)))
     Cl = {}
     for st in ("zhongwei", "guian", "shaoguan"):
         T = AN.table_e(st, tags={"S5": "DRO_S5"}) if os.path.exists(f"{RES}/{st}_DRO_S5.pkl") else None
