@@ -1,9 +1,7 @@
 log_*.txt
-*.pkl
 trial/*.pkl
 trial/log_*.txt
 archive_tes80/*.pkl
 ext/*.pkl
 logs/
 log_orchestrate.txt
-ext2/*.pkl
