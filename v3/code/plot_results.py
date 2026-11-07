@@ -226,18 +226,31 @@ def fig13(site):
 
 
 def fig14():
+    import analyze as AN
     rows = []
     for s, nm in (("zhongwei", "中卫"), ("guian", "贵安"), ("shaoguan", "韶关")):
-        r = load(f"{RES}/{s}_DRO_S5.pkl")
-        if r is None: continue
-        rows.append(dict(站点=nm, FC=r["x"]["FC"] / 1e3, MC=r["x"]["MC"] / 1e3, TES=r["x"]["TES"] / 1e3, HP=r["x"]["HP"] / 1e3, 能源侧=r["obj"] / 1e4))
+        if not os.path.exists(f"{RES}/{s}_DRO_S5.pkl"): continue
+        e = AN.table_e(s, tags={"S1": "DRO_S1", "S5": "DRO_S5"}).set_index("场景")
+        e.index = [i[:2] for i in e.index]; r5 = e.loc["S5"]
+        rows.append(dict(站点=nm, N=r5["N/卡"], FC=r5["K_FC/MW"], MC=r5["K_MC/MW"], TES=r5["E_TES/MWh"], HP=r5["K_HP/MW"],
+                         PUE=r5["名义PUE"], 自然冷却小时=r5["自然冷却利用小时/h"], 余热=r5["余热回收/MWh"] / 1e3, ERF=r5["ERF/%"],
+                         能源侧=r5["能源侧年化成本/万元"], 碳排放=r5["碳排放/t"],
+                         S1能源侧=e.loc["S1", "能源侧年化成本/万元"] if "S1" in e.index else np.nan))
     if len(rows) < 2: return
-    T = pd.DataFrame(rows); fig, axs = plt.subplots(1, 2, figsize=(17 * PS.CM, 6 * PS.CM)); x = np.arange(len(T))
-    for k, (c, lab, col) in enumerate([("FC", "自然冷却/MW", "#4DBBD5"), ("MC", "机械制冷/MW", "#3C5488"), ("HP", "热泵/MW", "#E64B35")]):
+    T = pd.DataFrame(rows); T["较S1降低/%"] = 100 * (1 - T["能源侧"] / T["S1能源侧"]); T.to_csv(f"{RES}/气候区对比.csv", index=False)
+    fig, axs = plt.subplots(1, 2, figsize=(17 * PS.CM, 6 * PS.CM)); x = np.arange(len(T))
+    for k, (c, lab, col) in enumerate([("FC", "自然冷却", "#4DBBD5"), ("MC", "机械制冷", "#3C5488"), ("HP", "余热热泵", "#E64B35")]):
         axs[0].bar(x + (k - 1) * 0.26, T[c], 0.25, label=lab, color=col, edgecolor="black", linewidth=0.3)
-    axs[0].set_xticks(x); axs[0].set_xticklabels(T["站点"]); axs[0].set_ylabel("容量/MW"); axs[0].legend(); label(axs[0], "(a)")
-    axs[1].bar(x, T["TES"], 0.5, color="#00A087", edgecolor="black", linewidth=0.3); axs[1].set_xticks(x); axs[1].set_xticklabels(T["站点"])
-    axs[1].set_ylabel("蓄冷容量/MWh"); label(axs[1], "(b)")
+    axs[0].set_xticks(x); axs[0].set_xticklabels(T["站点"]); axs[0].set_ylabel("容量/MW"); axs[0].legend(fontsize=7)
+    axs[0].set_title("(a) S5冷热源容量", fontsize=9)
+    axs[1].bar(x - 0.2, T["自然冷却小时"], 0.38, color="#4DBBD5", edgecolor="black", linewidth=0.3, label="自然冷却利用小时")
+    axs[1].set_ylabel("自然冷却利用小时/h"); axs[1].set_xticks(x); axs[1].set_xticklabels(T["站点"])
+    a2 = axs[1].twinx(); a2.bar(x + 0.2, T["余热"], 0.38, color="#E64B35", edgecolor="black", linewidth=0.3, label="年余热回收")
+    a2.set_ylabel("年余热回收/GWh")
+    for k, v in enumerate(T["PUE"]): axs[1].text(k, axs[1].get_ylim()[1] * 0.97, f"PUE {v:.3f}", ha="center", va="top", fontsize=7)
+    h1, l1 = axs[1].get_legend_handles_labels(); h2, l2 = a2.get_legend_handles_labels()
+    axs[1].legend(h1 + h2, l1 + l2, loc="lower center", bbox_to_anchor=(0.5, 1.08), ncol=2, frameon=False, fontsize=7)
+    axs[1].set_title("(b) 运行指标", fontsize=9, pad=22)
     fig.tight_layout(); save(fig, "图14_气候区对比")
 
 
