@@ -170,6 +170,8 @@ def two_step(site, scen, tag, method="ccg", prev=None, over=None, log=print):
     # 第一步：总成本，求 N*
     r1 = with_check(f1, P, D, scen, th, log=log, gap=ENV("GAP1", 3e-3), tl=ENV("TL1", 1500.0))
     Nstar = float(round(r1["x"]["N"]))
+    if os.environ.get("FIXN"):                      # GPU 冗余度试验：第二步把 GPU 数量固定为给定值
+        Nstar = float(os.environ["FIXN"]); log(f"[{scen}] GPU 数量按设定固定为 {Nstar:.0f}", flush=True)
     log(f"[{scen}] 第一步：N* = {Nstar:.0f}，总成本 {r1['obj'] / 1e4:.2f} 万元", flush=True)
     # 第二步：固定 N*，能源侧成本；嵌套热启动与截断
     init = cutoff = seed = None

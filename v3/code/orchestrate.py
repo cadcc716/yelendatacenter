@@ -25,6 +25,10 @@ for g, k, v in sens:
     out = f"{RES}/zhongwei_sens_{nm}.pkl"
     over = {} if k is None else {k: v}
     T.append(task(f"sens_{nm}", out, ["zhongwei", "S5", "DRO_sens", "mono", "-"], dict(TL2="1500", OUT=out, PARAM_OVER=json.dumps(over))))
+# ---------- GPU 冗余度：S5（DRO）固定 N = 6000、8000（检验降档与高温运行机理） ----------
+for n in (6000, 8000):
+    out = f"{RES}/zhongwei_fixN_{n}.pkl"
+    T.append(task(f"fixN_{n}", out, ["zhongwei", "S5", "DRO_fixN", "mono", "-"], dict(TL2="1500", OUT=out, FIXN=str(n))))
 # ---------- 气候区：贵安、韶关 S1、S3→S4→S5（C&CG，与中卫主算例同一设置） ----------
 for site in ("guian", "shaoguan"):
     e = dict(TL2="1800")
@@ -44,8 +48,23 @@ def ext_running():
     return len([x for x in r.stdout.split() if x.strip()])
 
 
+def alive(pid):
+    try: os.kill(pid, 0); return True
+    except OSError: return False
+
+
+class Ext:                                   # 调度器重启前已在运行的任务（按 pid 文件识别）
+    def __init__(s, pid): s.pid = pid; s.returncode = None
+    def poll(s): return None if alive(s.pid) else 0
+
+
 if __name__ == "__main__":
     done = {t["name"] for t in T if os.path.exists(t["out"])}; fail = {}; run = {}
+    for t in T:
+        pf = f"{LOGS}/{t['name']}.pid"
+        if t["name"] not in done and os.path.exists(pf):
+            pid = int(open(pf).read().strip() or 0)
+            if pid and alive(pid): run[t["name"]] = Ext(pid); log(f"接管运行中的任务 {t['name']}（pid {pid}）")
     log(f"启动：共 {len(T)} 个任务，已完成 {len(done)} 个")
     while True:
         for nm, p in list(run.items()):
@@ -62,6 +81,7 @@ if __name__ == "__main__":
             t = todo.pop(0); env = {**os.environ, **t["env"]}
             lf = open(f"{LOGS}/{t['name']}.txt", "a")
             run[t["name"]] = subprocess.Popen([sys.executable, "-u", "ccg_solve.py", *t["args"]], stdout=lf, stderr=lf, env=env, cwd=CODE)
+            open(f"{LOGS}/{t['name']}.pid", "w").write(str(run[t["name"]].pid))
             log(f"开始 {t['name']}（并行 {len(run)}/{par}）")
         time.sleep(20)
     log(f"全部结束：完成 {len(done)}，失败 {[k for k, v in fail.items() if v >= 2]}")
