@@ -3,9 +3,10 @@ function init_env(varargin)
 %   init_env('yalmip', 'D:\YALMIP-master')                 % 指定 YALMIP 目录（若已在路径中可省略）
 %   init_env('solver', 'gurobi', 'parallel', false)        % 缺省即为 gurobi、串行
 % 可选字段：solver（gurobi | glpk）、parallel（true 时子问题用 parfor）、MIPFocus（缺省 3）、logfile、
-%           show_log（缺省 true：主问题与单层 MILP 求解时在命令行显示 Gurobi 日志）
+%           show_log（缺省 true：主问题与单层 MILP 求解时在命令行显示 Gurobi 日志）、
+%           threads（Gurobi 线程数，缺省 12；0 为全部核，笔记本长时间满载易过热）
 global CFG
-CFG = struct('solver', 'gurobi', 'parallel', false, 'MIPFocus', 3, 'logfile', '', 'show_log', true);
+CFG = struct('solver', 'gurobi', 'parallel', false, 'MIPFocus', 3, 'logfile', '', 'show_log', true, 'threads', 12);
 here = fileparts(mfilename('fullpath'));
 for i = 1:2:numel(varargin)
     k = varargin{i}; v = varargin{i + 1};

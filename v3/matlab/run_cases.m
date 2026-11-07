@@ -4,13 +4,16 @@ function run_cases(site, tags, method, varargin)
 %   run_cases('zhongwei', {'S3','S4','S5'})       指定场景（嵌套链按 S1→S2、S3→S4→S5 顺序自动衔接）
 %   run_cases('zhongwei', {}, 'mono')             第二步用单层 MILP(40)，结果文件名加 _mono，用于与 C&CG 对照（不做邻域搜索）
 %   其余参数传给 ccg_two_step 的 opt，如 'tl2', 1800, 'ls_max', 30；参数覆盖用 'P', {'C_HEAT', 0.25}
+%   断点续跑：结果文件已存在的场景直接跳过；需要重算时加 'force', true
 %   结果：results/<site>_<DRO|SP|RO>_<Sx>[_mono].mat，变量 r
 global CFG
 if nargin < 2 || isempty(tags), tags = {'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7'}; end
 if nargin < 3 || isempty(method), method = 'ccg'; end
-opt = struct(); pover = {};
+opt = struct(); pover = {}; force = false;
 for i = 1:2:numel(varargin)
-    if strcmp(varargin{i}, 'P'), pover = varargin{i + 1}; else, opt.(varargin{i}) = varargin{i + 1}; end
+    if strcmp(varargin{i}, 'P'), pover = varargin{i + 1};
+    elseif strcmp(varargin{i}, 'force'), force = varargin{i + 1};
+    else, opt.(varargin{i}) = varargin{i + 1}; end
 end
 if strcmp(method, 'mono') && ~isfield(opt, 'ls'), opt.ls = false; end
 D = load(fullfile(CFG.data, [site '_data.mat']));
@@ -20,6 +23,10 @@ jobs = struct('S1', {{'S1', 'DRO', ''}}, 'S2', {{'S2', 'DRO', 'S1'}}, 'S3', {{'S
 suffix = ''; if strcmp(method, 'mono'), suffix = '_mono'; end
 for i = 1:numel(tags)
     tg = tags{i}; j = jobs.(tg); scen = j{1}; unc = j{2};
+    fout = fullfile(CFG.res, sprintf('%s_%s_%s%s.mat', site, unc, tg, suffix));
+    if ~force && exist(fout, 'file')
+        log_line(sprintf('%s %s 已有结果，跳过（重算请加 ''force'', true）', site, tg)); continue;
+    end
     switch unc
         case 'SP', th = [0 0];
         case 'RO', th = [2 1];
@@ -32,6 +39,6 @@ for i = 1:numel(tags)
     end
     log_line(sprintf('==== %s %s（开关 %s，θ=(%.4f,%.4f)，第二步 %s）====', site, tg, scen, th(1), th(2), method));
     r = ccg_two_step(P, D, scen, th, method, prev, opt); r.P = P; r.site = site; r.tag = tg; %#ok<STRNU>
-    save(fullfile(CFG.res, sprintf('%s_%s_%s%s.mat', site, unc, tg, suffix)), 'r', '-v7');
+    save(fout, 'r', '-v7');
 end
 end

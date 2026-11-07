@@ -13,7 +13,8 @@ if strcmp(CFG.solver, 'gurobi')
     ops.gurobi.DisplayInterval = 60;       % 日志每 60 s 刷新一次
     ops.gurobi.MIPGap = gap;
     ops.gurobi.TimeLimit = tl;
-    ops.gurobi.Threads = 0;                 % 0 = 使用全部核
+    if isfield(CFG, 'threads'), ops.gurobi.Threads = CFG.threads; else, ops.gurobi.Threads = 12; end   % 线程数（缺省 12，降低笔记本发热）
+    ops.gurobi.NodefileStart = 2;           % 分支定界节点数据超过 2 GB 后写入硬盘，限制内存占用
     if isfield(CFG, 'MIPFocus'), ops.gurobi.MIPFocus = CFG.MIPFocus; else, ops.gurobi.MIPFocus = 3; end
     if ~isempty(cutoff), ops.gurobi.Cutoff = cutoff; end
 else
