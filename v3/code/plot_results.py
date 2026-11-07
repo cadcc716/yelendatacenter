@@ -162,22 +162,27 @@ def fig11(site):
             rows.append(dict(集合=setname, 方法=m, N=r["x"]["N"], MC=r["x"]["MC"] / 1e3, TES=r["x"]["TES"] / 1e3, HP=r["x"]["HP"] / 1e3,
                              GPU投资=r["a_full"]["N"] * r["x"]["N"] / 1e4, 非GPU投资=r["inv"] / 1e4,
                              样本外期望=(r["inv"] + 365 * O.Q.mean()) / 1e4 if O is not None else np.nan,
+                             样本外总成本=(r["a_full"]["N"] * r["x"]["N"] + r["inv"] + 365 * O.Q.mean()) / 1e4 if O is not None else np.nan,
+                             实时满足率=100 * (1 - O.LR.sum() / O.AR.sum()) if O is not None else np.nan,
                              缺额日概率=100 * (O.LR > 1).mean() if O is not None else np.nan))
     if len(rows) < 3: return
     T = pd.DataFrame(rows); T.to_csv(f"{RES}/{site}_SP_DRO_RO对照.csv", index=False)
     fig, axs = plt.subplots(1, 3, figsize=(17 * PS.CM, 5.8 * PS.CM))
-    for ax, col, yl, tag in zip(axs, ["N", "样本外期望", "缺额日概率"], ["GPU数量/卡", "样本外期望能源侧成本/万元", "实时缺额日概率/%"], "abc"):
+    for ax, col, yl, tag in zip(axs, ["N", "样本外总成本", "缺额日概率"], ["GPU数量/卡", "样本外期望年化总成本/万元", "实时缺额日概率/%"], "abc"):
         for k, s in enumerate(T["集合"].unique()):
             t = T[T["集合"] == s]; x = np.arange(len(t)) + (k - 0.5) * 0.38
             ax.bar(x, t[col], 0.36, label=s, color=["#8491B4", "#E64B35"][k], edgecolor="black", linewidth=0.3)
         ax.set_xticks(range(3)); ax.set_xticklabels(["SP", "DRO", "RO"]); ax.set_ylabel(yl); label(ax, f"({tag})")
         if col == "N": ax.set_ylim(T["N"].min() * 0.97, T["N"].max() * 1.02)
+        if col == "样本外总成本": ax.set_ylim(np.nanmin(T[col]) * 0.97, np.nanmax(T[col]) * 1.01)
+        if col == "缺额日概率": ax.set_ylim(0, np.nanmax(T[col]) * 1.2)
     axs[0].legend(loc="upper left", bbox_to_anchor=(0.1, 1.0)); fig.tight_layout(); save(fig, "图11_SP_DRO_RO对比")
 
 
 # ---------------------------------------------------------------- 图12 C&CG 收敛
 def fig12(site):
-    rs = {m: load(f"{RES}/{site}_{tg}.pkl") for m, tg in (("DRO(S5)", "DRO_S5"), ("RO(S7)", "RO_S7"))}
+    ext = os.path.exists(f"{RES}/ext2/{site}_ext_DRO_S5.pkl")
+    rs = {m: load(f"{RES}/ext2/{site}_ext_{tg}.pkl" if ext else f"{RES}/{site}_{tg}.pkl") for m, tg in (("DRO(S5)", "DRO_S5"), ("RO(S7)", "RO_S7"))}
     rs = {k: v for k, v in rs.items() if v is not None}
     if not rs: return
     fig, axs = plt.subplots(1, len(rs), figsize=(17 * PS.CM, 5.5 * PS.CM))
@@ -187,7 +192,7 @@ def fig12(site):
         if "obj" in r: ax.axhline(r["obj"] / 1e4, color="gray", ls="--", lw=0.8, label="邻域搜索后")
         ax.set_xlabel("迭代次数"); ax.set_ylabel("能源侧年化成本/万元"); ax.set_xticks(k)
         a2 = ax.twinx(); a2.semilogy(k, H["gap"].clip(1e-5), "k^:", ms=3.5, label="相对间隙"); a2.set_ylabel("相对间隙")
-        label(ax, f"({tag}) {m}，用时 {r['t']/60:.0f} min"); ax.legend(loc="center right")
+        ax.set_title(f"({tag}) {m}，用时 {r['t']/60:.0f} min", fontsize=9); ax.legend(loc="center right")
     fig.tight_layout(); save(fig, "图12_CCG收敛")
 
 
