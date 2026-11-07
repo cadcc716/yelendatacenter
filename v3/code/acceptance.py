@@ -16,7 +16,8 @@ def oos(site, tag, a_full, rdir=RES, src=None):
     if not os.path.exists(f) or not os.path.exists(pk): return None
     d = pd.read_csv(f); r = pickle.load(open(pk, "rb"))
     inv = r["inv"]                                                     # 非 GPU 年化投资
-    return dict(期望能源侧成本=(inv + 365 * d.Q.mean()) / 1e4, 最高日运行成本=d.Q.max() / 1e4, 缺额日概率=(d.LR > 1).mean(),
+    gpu = r["a_full"]["N"] * r["x"]["N"]                               # GPU 年化投资
+    return dict(期望总成本=(gpu + inv + 365 * d.Q.mean()) / 1e4, 期望能源侧成本=(inv + 365 * d.Q.mean()) / 1e4, 最高日运行成本=d.Q.max() / 1e4, 缺额日概率=(d.LR > 1).mean(),
                 缺额时长=int(d.LR_h.sum()), 实时满足率=100 * (1 - d.LR.sum() / d.AR.sum()), 超期量=d.O.sum(), N=r["x"]["N"])
 
 
@@ -92,9 +93,9 @@ if __name__ == "__main__":
     L.append(("C7", txt, ok(res)))
     # C8
     if all(G.values()):
-        cmin = min(g["期望能源侧成本"] for g in G.values())
-        c8 = G["DRO_S5"]["期望能源侧成本"] <= cmin * 1.02 and G["DRO_S5"]["缺额日概率"] < 0.5 * G["SP_S6"]["缺额日概率"]
-        L.append(("C8", ("样本外（含极端日集合）：" if G is GX else "样本外（基准集合）：") + "；".join(f"{k} 期望能源侧 {g['期望能源侧成本']:.1f} 万元、缺额日概率 {g['缺额日概率']:.1%}" for k, g in G.items()), ok(c8)))
+        cmin = min(g["期望总成本"] for g in G.values())
+        c8 = G["DRO_S5"]["期望总成本"] <= cmin * 1.02 and G["DRO_S5"]["缺额日概率"] < 0.5 * G["SP_S6"]["缺额日概率"]
+        L.append(("C8", ("样本外（含极端日集合）：" if G is GX else "样本外（基准集合）：") + "；".join(f"{k} 期望总成本 {g['期望总成本']:.1f}（能源侧 {g['期望能源侧成本']:.1f}）万元、缺额日概率 {g['缺额日概率']:.1%}、实时满足率 {g['实时满足率']:.3f}%" for k, g in G.items()), ok(c8)))
     # C9
     gaps = {k: e.loc[k, "最终gap"] for k in e.index}
     its = {k: e.loc[k, "迭代次数"] for k in e.index}
