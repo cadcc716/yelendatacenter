@@ -7,14 +7,15 @@ global CFG
 ext = [site '_ext'];
 E = load(fullfile(CFG.data, [ext '_data.mat']));
 log_line(sprintf('极端日试验：%s，K = %d（典型日 12 + 极端日 %d），极端日：%s', ext, numel(E.med), numel(E.ext_days), E.ext_names));
-run_cases(ext, {'S6', 'S5', 'S7'}, 'ccg', varargin{:});
+run_cases(site, {'S6', 'S5', 'S7'}, 'ccg', varargin{:});   % 基准集合（已有有效结果则跳过）
+run_cases(ext, {'S6', 'S5', 'S7'}, 'ccg', varargin{:});    % 加入极端日的集合
 tags = {'SP_S6', 'DRO_S5', 'RO_S7'};
 rows = {};
 for i = 1:numel(tags)
     for v = {site, ext}
         sv = v{1}; f = fullfile(CFG.res, sprintf('%s_%s.mat', sv, tags{i}));
         if ~exist(f, 'file'), continue; end
-        if ~exist(fullfile(CFG.res, sprintf('%s_oos_%s.mat', sv, tags{i})), 'file'), oos_test(sv, tags{i}, site); end
+        oos_test(sv, tags{i}, site);                      % 已有且比容量结果新时自动跳过
         S = load(f); r = S.r; O = load(fullfile(CFG.res, sprintf('%s_oos_%s.mat', sv, tags{i}))); M = O.M;
         rows(end + 1, :) = {sv, tags{i}, r.x.N, r.x.MC / 1e3, r.x.FC / 1e3, r.x.TES / 1e3, r.x.HP / 1e3, r.obj / 1e4, ...
             (r.inv + 365 * mean(M(:, 2))) / 1e4, 100 * mean(M(:, 3) > 1), sum(M(:, 5)), sum(M(:, 6)), sum(M(:, 7)), ...

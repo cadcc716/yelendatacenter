@@ -5,9 +5,13 @@ function r = ccg_two_step(P, D, scen, th, method, prev, opt)
 %   嵌套热启动：上一场景结果 prev（S4←S3、S5←S4、S2←S1，N* 相同时）与第一步容量取优，
 %              作为初始解、截断值（Cutoff）与上界初值，保证能源侧成本单调
 %   method：'ccg'（第二步用 C&CG）或 'mono'（第二步用单层 MILP(40)）
-%   opt 字段：step1 ('mono'|'ccg'), gap1, tl1, gap2, tl2, eps, ls (true/false), ls_max
+%   opt 字段：step1 ('mono'|'ccg'), gap1, tl1, gap2, tl2（缺省 1200 s）, eps, ls (true/false), ls_max（缺省 30）
 if nargin < 6, prev = []; end
-d = struct('step1', 'mono', 'gap1', 1e-3, 'tl1', 900, 'gap2', 1e-3, 'tl2', 3600, 'eps', 1e-3, 'ls', true, 'ls_max', 50, 'max_it', 10);
+d = struct('step1', 'mono', 'gap1', 1e-3, 'tl1', 900, 'gap2', 1e-3, 'tl2', 1200, 'eps', 1e-3, 'ls', true, 'ls_max', 30, 'max_it', 10);
+global CFG
+if ~isempty(CFG) && isfield(CFG, 'opt')          % 全局覆盖：init_env('opt', struct('tl2', 1800, 'ls_max', 20))
+    g = fieldnames(CFG.opt); for i = 1:numel(g), if ~isfield(opt, g{i}), opt.(g{i}) = CFG.opt.(g{i}); end, end
+end
 fn = fieldnames(d);
 for i = 1:numel(fn), if ~isfield(opt, fn{i}), opt.(fn{i}) = d.(fn{i}); end, end
 t0 = tic;
@@ -54,6 +58,7 @@ for rnd = 1:3
     log_line(sprintf('[%s] 发现同时充放，恢复相应时段 0-1 变量后重解', scen));
 end
 r = r2; r.int_add = int_add; r.scen = scen; r.theta = th; r.days = D.med; r.p0 = D.p0; r.a_full = C.a;
+r.ver = 'v2'; r.used_prev = ~isempty(prev);           % 版本标记；是否用上一场景结果做了嵌套热启动
 r.step1 = struct('N', Nstar, 'obj_total', r1.obj, 'x', r1.x, 'gap', r1.gap_final, 't', r1.t);
 r.t_total = toc(t0);
 log_line(sprintf('[%s] 第二步：能源侧年化成本 %.2f 万元，gap %.2e，总用时 %.0f s', scen, r.obj / 1e4, r.gap_final, r.t_total));

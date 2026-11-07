@@ -40,4 +40,18 @@ for i = 1:size(rows, 1)
     log_line(sprintf('%s: N %d, MC %.2f MW, TES %.1f MWh, HP %.2f MW, 能源侧 %.2f 万元, 碳 %.0f t, PUE %.3f, gap %.2e', ...
         rows{i, 1}, rows{i, 2}, rows{i, 7}, rows{i, 8}, rows{i, 9}, rows{i, 16}, rows{i, 24}, rows{i, 20}, rows{i, 30}));
 end
+% 单调性检查：嵌套场景的能源侧年化成本须满足 S2 ≤ S1、S4 ≤ S3、S5 ≤ S4（N* 相同时）
+pairs = {'S2', 'S1'; 'S4', 'S3'; 'S5', 'S4'};
+for k = 1:size(pairs, 1)
+    a = find(strcmp(rows(:, 1), pairs{k, 1})); b = find(strcmp(rows(:, 1), pairs{k, 2}));
+    if isempty(a) || isempty(b), continue; end
+    if rows{a, 2} ~= rows{b, 2}
+        log_line(sprintf('单调性检查 %s vs %s：N* 不同（%d / %d），不比较', pairs{k, 1}, pairs{k, 2}, rows{a, 2}, rows{b, 2}));
+    elseif rows{a, 16} <= rows{b, 16} * (1 + 1e-6)
+        log_line(sprintf('单调性检查 %s ≤ %s：通过（%.2f ≤ %.2f 万元）', pairs{k, 1}, pairs{k, 2}, rows{a, 16}, rows{b, 16}));
+    else
+        log_line(sprintf('!!!! 单调性检查 %s ≤ %s 未通过（%.2f > %.2f 万元）：用 run_cases(''%s'', {''%s''}, ''ccg'', ''force'', true) 重算 %s', ...
+            pairs{k, 1}, pairs{k, 2}, rows{a, 16}, rows{b, 16}, site, pairs{k, 1}, pairs{k, 1}));
+    end
+end
 end
