@@ -164,6 +164,9 @@ def with_check(f, P, D, scen, th, log=print, **kw):
 
 def two_step(site, scen, tag, method="ccg", prev=None, over=None, log=print):
     P = PR.params(**(over or {})); D = dict(np.load(f"{ROOT}/data/{site}_data.npz"))
+    if P.get("R_N", 0.0) > 0:                        # 算力保障约束：N ≥ (1+R_N)·全年日均满频算力需求
+        P["N_MIN"] = float(np.ceil((1 + P["R_N"]) * (D["AR"] + D["AB"]).mean()))
+        log(f"[{scen}] 算力保障约束 N ≥ {P['N_MIN']:.0f}（冗余率 {P['R_N']:.0%}）", flush=True)
     th = {"SP": (0.0, 0.0), "RO": (2.0, 1.0)}.get(tag.split("_")[0]) or PR.theta(P)
     f1 = mono if ENV("STEP1", method) == "mono" else ccg
     f2 = mono if method == "mono" else ccg
