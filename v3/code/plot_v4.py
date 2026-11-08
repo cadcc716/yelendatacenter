@@ -170,7 +170,8 @@ def fig_winter():
     axs[0].axhspan(45, 55, color="#E64B35", alpha=0.08, lw=0); axs[0].set_ylabel("液冷温度/℃"); axs[0].legend(loc="lower right")
     axs[0].set_title("(a)", fontsize=9, loc="left", pad=2)
     axs[1].bar(t, hs["热泵供热"] / 1e3, 0.8, color="#E64B35", alpha=0.8, label="S5热泵供热")
-    axs[1].plot(t, hs["热需求"] / 1e3, "k-", lw=1.1, label="热需求"); axs[1].set_ylabel("热功率/MW"); axs[1].legend(loc="lower left", ncol=2)
+    axs[1].plot(t, hs["热需求"] / 1e3, "k-", lw=1.1, label="热需求"); axs[1].set_ylabel("热功率/MW")
+    axs[1].set_ylim(0, hs["热需求"].max() / 1e3 * 1.4); axs[1].legend(loc="upper center", ncol=2)
     axs[1].set_title("(b)", fontsize=9, loc="left", pad=2); hours(axs[1]); fig.tight_layout(h_pad=0.3)
     save(fig, "图11_采暖季典型日余热回收", pd.DataFrame(rows))
 
