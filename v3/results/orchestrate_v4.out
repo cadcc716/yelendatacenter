@@ -3,3 +3,11 @@
 11-08 13:05:39 开始 zhongwei_DRO_S3_ccg（并行 2/4）
 11-08 13:05:39 开始 zhongwei_SP_S6_ccg（并行 3/4）
 11-08 13:05:39 开始 zhongwei_RO_S7_ccg（并行 4/4）
+11-08 13:05:59 完成 zhongwei_DRO_S1_ccg
+11-08 13:05:59 开始 zhongwei_DRO_S2_ccg（并行 4/4）
+11-08 13:06:19 完成 zhongwei_DRO_S2_ccg
+11-08 13:06:19 开始 zhongwei_DRO_S1_mono（并行 4/4）
+11-08 13:06:39 完成 zhongwei_DRO_S1_mono
+11-08 13:06:39 开始 zhongwei_DRO_S2_mono（并行 4/4）
+11-08 13:06:59 完成 zhongwei_DRO_S2_mono
+11-08 13:06:59 开始 zhongwei_DRO_S3_mono（并行 4/4）
