@@ -23,7 +23,7 @@ def solve(P, D, x, i, scen="S5"):
 
 
 def export(site, r, date, P, D, out):
-    i = list(D["dates"]).index(date); R, obj, st = solve(P, D, r["x"], i); T = P["T"]
+    i = list(D["dates"]).index(date); R, obj, st = solve(P, D, r["x"], i, r.get("scen", "S5")); T = P["T"]
     gear = pd.DataFrame(index=pd.Index(range(T), name="时"))
     for a, k in enumerate(P["K_R"]): gear[f"实时_档{k + 1}"] = R["mR"][a].sum(0)
     for a, k in enumerate(P["K_B"]): gear[f"可延期_档{k + 1}"] = R["mB"][a].sum(0)
