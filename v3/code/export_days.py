@@ -16,10 +16,16 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def solve(P, D, x, i, scen="S5"):
-    fl = BO.flags_of(scen); M = MILP(); X, _ = BO.add_capacity(M, P, fl, fix=x)
-    V = BO.add_day(M, P, X, BO.day_of(D, i), fl, w=1.0, Tamb_des=BO.tamb_design(D, P))
-    sol, st, obj, g = M.solve(gap=1e-4, tl=1200)
-    return BO.extract(sol, V), obj, st
+    import ccg_solve as C
+    fl = BO.flags_of(scen); ia = None
+    for _ in range(4):                                  # 同时充放校验：出现则加回相应时段 0-1 变量重解
+        M = MILP(); X, _ = BO.add_capacity(M, P, fl, fix=x)
+        V = BO.add_day(M, P, X, BO.day_of(D, i), fl, w=1.0, Tamb_des=BO.tamb_design(D, P), int_add=ia)
+        sol, st, obj, g = M.solve(gap=1e-4, tl=1200)
+        R = BO.extract(sol, V); sc = C.simul_check([R])
+        if not sc: break
+        ia = C.merge_int({0: ia or {}}, sc)[0]
+    return R, obj, st
 
 
 def export(site, r, date, P, D, out):
@@ -32,7 +38,7 @@ def export(site, r, date, P, D, out):
     h = pd.DataFrame({
         "时": range(T), "气温": D["Tamb"][i], "液冷温度": R["Tw"][:T], "温区": R["u"].argmax(0) + 1, "P_IT": R["PIT"],
         "自然冷却": R["qFC"].sum(0), "机械制冷": R["qMC"].sum(0), "热泵取热": R["qHP"].sum(0), "蓄冷充冷": R["qch"], "蓄冷放冷": R["qdis"],
-        "蓄冷库存": R["S"][:T], "热泵供热": R["HHP"], "热需求": D["H"][i], "热泵用电": R["PHP"], "冷机用电": R["PMC"], "干冷器用电": R["PFC"],
+        "蓄冷库存": R["S"][:T], "热泵供热": R["HHP"], "热需求": D["H"][i] * (P.get("H_MULT", 1.0) if D["H"][i].max() > P["H_SUMMER"] * 1.05 else 1.0), "热泵用电": R["PHP"], "冷机用电": R["PMC"], "干冷器用电": R["PFC"],
         "光伏可用": g, "光伏实用": R["PV"], "弃光": R["cur"], "购电": R["buy"], "储能充电": R["Pch"], "储能放电": R["Pdis"], "储能SOC": R["SB"][:T],
         "电价": c["price"], "实时到达": D["AR"][i], "实时处理": R["UR"], "实时切除": R["LR"],
         "可延期到达": D["AB"][i], "可延期处理": R["UB"], "可延期积压": R["B"][:T], "超期量": R["O"]})

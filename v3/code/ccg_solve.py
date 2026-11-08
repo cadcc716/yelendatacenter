@@ -148,6 +148,25 @@ def mono(P, D, scen, th, fixN=None, int_add=None, init=None, cutoff=None, seed=N
     return best
 
 
+def merge_int(a, b):
+    """合并两组需加回 0-1 变量的 {典型日: {变量: [时段]}}。"""
+    out = {k: {v: list(h) for v, h in d.items()} for k, d in (a or {}).items()}
+    for k, d in (b or {}).items():
+        for v, h in d.items(): out.setdefault(k, {}).setdefault(v, []); out[k][v] = sorted(set(out[k][v]) | set(h))
+    return out
+
+
+def fix_simul(P, D, flags, ev, days, p0, th, int_add, a, log=print):
+    """邻域搜索等固定容量评估后若出现同时充放，加回相应 0-1 变量重新逐日求解，直至消除。"""
+    sc = simul_check(ev["R"])
+    for _ in range(4):
+        if not sc: break
+        int_add = merge_int(int_add, sc); log(f"  校验发现同时充放 {list(sc)}，加回 0-1 变量重算", flush=True)
+        ev = evaluate(P, D, flags, ev["x"], days, p0, th, int_add, a); sc = simul_check(ev["R"])
+    ev["simul"] = sc; ev["int_add"] = int_add
+    return ev
+
+
 def with_check(f, P, D, scen, th, log=print, **kw):
     """求解后校验同时充放电/充放冷，出现则只在相应典型日、时段加回 0-1 变量重解。"""
     int_add = None
@@ -212,7 +231,7 @@ def two_step(site, scen, tag, method="ccg", prev=None, over=None, log=print):
         r2["ls_hist"] = hist
         if imp is not None:
             ev = evaluate(P, D, BO.flags_of(scen), imp["x"], list(D["med"]), D["p0"], th, r2.get("int_add"), r2["a"])
-            ev["simul"] = simul_check(ev["R"])
+            ev = fix_simul(P, D, BO.flags_of(scen), ev, list(D["med"]), D["p0"], th, r2.get("int_add"), r2["a"], log=log)
             log(f"[{scen}] 邻域搜索改进：{r2['obj'] / 1e4:.2f} → {ev['obj'] / 1e4:.2f} 万元", flush=True)
             r2.update(ev); r2["gap_final"] = (r2["obj"] - r2["LB"]) / abs(r2["obj"])
     r2.update(step1=dict(N=Nstar, obj_total=r1["obj"], x=r1["x"], gap=r1["gap_final"], t=r1["t"], hist=r1["hist"]),

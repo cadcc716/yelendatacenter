@@ -16,10 +16,15 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def one(args):
     site, scen, x, i = args[:4]; over = args[4] if len(args) > 4 else {}
     P = PR.params(**over); D = dict(np.load(f"{ROOT}/data/{site}_data.npz")); fl = BO.flags_of(scen)
-    M = MILP(); X, _ = BO.add_capacity(M, P, fl, fix=x)
-    V = BO.add_day(M, P, X, BO.day_of(D, i), fl, w=1.0, Tamb_des=BO.tamb_design(D, P))
-    sol, st, obj, g = M.solve(gap=1e-3, tl=300)
-    R = BO.extract(sol, V)
+    import ccg_solve as C
+    ia = None
+    for _ in range(4):                                  # 同时充放校验：出现则加回相应时段 0-1 变量重解
+        M = MILP(); X, _ = BO.add_capacity(M, P, fl, fix=x)
+        V = BO.add_day(M, P, X, BO.day_of(D, i), fl, w=1.0, Tamb_des=BO.tamb_design(D, P), int_add=ia)
+        sol, st, obj, g = M.solve(gap=1e-3, tl=300)
+        R = BO.extract(sol, V); sc = C.simul_check([R])
+        if not sc: break
+        ia = C.merge_int({0: ia or {}}, sc)[0]
     act = R["mR"].sum((0, 1)) + R["mB"].sum((0, 1)); gl = act >= x["N"] - 1        # GPU 已满载的时段
     return dict(day=i, date=str(D["dates"][i]), Q=obj, LR=R["LR"].sum(), AR=D["AR"][i].sum(), LR_h=int((R["LR"] > 1).sum()),
                 LR_gpu=float(R["LR"][gl].sum()), LR_cool=float(R["LR"][~gl].sum()),
