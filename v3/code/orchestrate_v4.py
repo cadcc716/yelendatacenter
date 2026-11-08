@@ -52,6 +52,10 @@ sens = [("base", None, None)] + [("alpha", "ALPHA1", v) for v in (0.2, 0.4, 0.7,
 for g, k, v in sens:
     nm = "base" if g == "base" else f"{g}_{v}"; out = f"{RES}/{S}_sens_{nm}.pkl"
     solve(S, "S5", "DRO_sens", "mono", out=out, env=dict(TL2="1500", PARAM_OVER=json.dumps({} if k is None else {k: v})), name=f"sens_{nm}")
+# ---------- 液冷热惯性与蓄冷的替代关系（S4，单层 MILP + 邻域搜索）：C_w 取 6/8/12/24 K·h⁻¹ 满载温升对应值 ----------
+for v in (1150.0, 862.5, 575.0, 287.5):
+    out = f"{RES}/{S}_sensS4_Cw_{v}.pkl"
+    solve(S, "S4", "DRO_sensS4", "mono", out=out, env=dict(TL2="1500", PARAM_OVER=json.dumps({"C_W": v})), name=f"sensS4_Cw_{v}")
 # ---------- 气候区 ----------
 for site in ("guian", "shaoguan"):
     q = lambda t: f"{RES}/{site}_{t}.pkl"
