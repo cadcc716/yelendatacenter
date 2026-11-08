@@ -17,7 +17,7 @@ NAMES = {"S1": "S1 传统规划", "S2": "S2 +调频", "S3": "S3 +热耦合", "S4
 
 
 def load(site, tag):
-    f = f"{ROOT}/results/{site}_{tag}.pkl"
+    f = f"{os.environ.get('RES_DIR', ROOT + '/results')}/{site}_{tag}.pkl"
     return pickle.load(open(f, "rb")) if os.path.exists(f) else None
 
 
@@ -33,7 +33,8 @@ def day_items(R, P, d):
         E_total=float((R["PIT"] * (1 + c["kaux"]) + P["P0"] + R["PFC"] + R["PMC"]).sum()), E_IT=float(R["PIT"].sum()),
         cur=float(R["cur"].sum()), ren=float((R["PV"] + R["cur"]).sum()), LR=float(R["LR"].sum()), AR=float(d["AR"].sum()),
         O=float(R["O"].sum()), CO2=float((P["E_GRID"] * R["buy"] - P["E_HEAT"] * R["HHP"]).sum()), Heat=float(R["HHP"].sum()),
-        FCh=float((R["qFC"].sum(0) > 1.0).sum()), PIT_max=float(R["PIT"].max()), buy_max=float(R["buy"].max()))
+        FCh=float((R["qFC"].sum(0) > 1.0).sum()), PIT_max=float(R["PIT"].max()), buy_max=float(R["buy"].max()),
+        QFC=float(R["qFC"].sum()), QMC=float(R["qMC"].sum()), QHP=float(R["qHP"].sum()), E_cool=float((R["PFC"] + R["PMC"]).sum()))
 
 
 def summarize(r, P, D, name):
@@ -52,6 +53,8 @@ def summarize(r, P, D, name):
                 "名义PUE": E0("E_total") / E0("E_IT"), "ERF/%": 100 * E0("Heat") / E0("E_total"),
                 "实时满足率/%": 100 * (1 - E0("LR") / E0("AR")), "超期量/GPU·h": E0("O"), "碳排放/t": E0("CO2"),
                 "余热回收/MWh": E0("Heat") / 1e3, "弃光率/%": 100 * E0("cur") / max(E0("ren"), 1e-9), "自然冷却利用小时/h": E0("FCh"),
+                "自然冷却冷量占比/%": 100 * E0("QFC") / max(E0("QFC") + E0("QMC") + E0("QHP"), 1e-9),
+                "冷却用电/MWh": E0("E_cool") / 1e3, "IT用电/MWh": E0("E_IT") / 1e3,
                 "峰值IT功率/MW": max(d["PIT_max"] for d in st) / 1e3, "购电峰值/MW": max(d["buy_max"] for d in st) / 1e3,
                 "迭代次数": len(r["hist"]), "最终gap": r["gap_final"], "求解时间/s": r["t"],
                 "到达上限的容量": ",".join(k for k in BO.CAPS if xm[k] > 0 and x[k] >= xm[k] * (1 - 1e-4)),
