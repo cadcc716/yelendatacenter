@@ -24,7 +24,7 @@ def solve(P, D, x, i, scen="S5"):
         sol, st, obj, g = M.solve(gap=1e-4, tl=1200)
         R = BO.extract(sol, V); sc = C.simul_check([R])
         if not sc: break
-        ia = C.merge_int({0: ia or {}}, sc)[0]
+        ia = C.merge_int({0: ia or {}}, {0: {v: list(range(P["T"])) for v in sc[0]}})[0]   # 整日加回
     return R, obj, st
 
 

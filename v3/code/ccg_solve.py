@@ -161,7 +161,8 @@ def fix_simul(P, D, flags, ev, days, p0, th, int_add, a, log=print):
     sc = simul_check(ev["R"])
     for _ in range(4):
         if not sc: break
-        int_add = merge_int(int_add, sc); log(f"  校验发现同时充放 {list(sc)}，加回 0-1 变量重算", flush=True)
+        full = {d: {v: list(range(P["T"])) for v in vs} for d, vs in sc.items()}     # 出现同时充放的日，整日加回该类 0-1 变量
+        int_add = merge_int(int_add, full); log(f"  校验发现同时充放 {list(sc)}，整日加回 0-1 变量重算", flush=True)
         ev = evaluate(P, D, flags, ev["x"], days, p0, th, int_add, a); sc = simul_check(ev["R"])
     ev["simul"] = sc; ev["int_add"] = int_add
     return ev

@@ -24,7 +24,7 @@ def one(args):
         sol, st, obj, g = M.solve(gap=1e-3, tl=300)
         R = BO.extract(sol, V); sc = C.simul_check([R])
         if not sc: break
-        ia = C.merge_int({0: ia or {}}, sc)[0]
+        ia = C.merge_int({0: ia or {}}, {0: {v: list(range(P["T"])) for v in sc[0]}})[0]   # 整日加回
     act = R["mR"].sum((0, 1)) + R["mB"].sum((0, 1)); gl = act >= x["N"] - 1        # GPU 已满载的时段
     return dict(day=i, date=str(D["dates"][i]), Q=obj, LR=R["LR"].sum(), AR=D["AR"][i].sum(), LR_h=int((R["LR"] > 1).sum()),
                 LR_gpu=float(R["LR"][gl].sum()), LR_cool=float(R["LR"][~gl].sum()),
