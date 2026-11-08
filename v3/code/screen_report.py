@@ -1,6 +1,6 @@
 import sys, glob, os, pickle, json, numpy as np, pandas as pd
 import params as PR, analyze as AN
-R = "../results/screen"; rows = []
+R = os.path.abspath("../results/screen"); rows = []
 for f in sorted(glob.glob(f"{R}/*_S5.pkl")):
     name = os.path.basename(f)[:-7]; r = pickle.load(open(f, "rb")); P = PR.params(**r["params_over"])
     e = AN.table_e("zhongwei", tags={"S5": f}).iloc[0]

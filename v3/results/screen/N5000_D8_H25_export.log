@@ -1,0 +1,22 @@
+/home/user/yelendatacenter/v3/code/export_days.py:30: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  for k in range(5): gear[f"档{k + 1}"] = gear.filter(like=f"档{k + 1}").sum(1)
+/home/user/yelendatacenter/v3/code/export_days.py:30: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  for k in range(5): gear[f"档{k + 1}"] = gear.filter(like=f"档{k + 1}").sum(1)
+/home/user/yelendatacenter/v3/code/export_days.py:30: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  for k in range(5): gear[f"档{k + 1}"] = gear.filter(like=f"档{k + 1}").sum(1)
+/home/user/yelendatacenter/v3/code/export_days.py:30: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  for k in range(5): gear[f"档{k + 1}"] = gear.filter(like=f"档{k + 1}").sum(1)
+/home/user/yelendatacenter/v3/code/export_days.py:30: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  for k in range(5): gear[f"档{k + 1}"] = gear.filter(like=f"档{k + 1}").sum(1)
+2023-06-15: 状态 Optimal, 日运行成本 2.17 万元, 实时切除 0, 超期 0, T_w 30.0–50.0 ℃
+/home/user/yelendatacenter/v3/code/export_days.py:30: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  for k in range(5): gear[f"档{k + 1}"] = gear.filter(like=f"档{k + 1}").sum(1)
+/home/user/yelendatacenter/v3/code/export_days.py:30: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  for k in range(5): gear[f"档{k + 1}"] = gear.filter(like=f"档{k + 1}").sum(1)
+/home/user/yelendatacenter/v3/code/export_days.py:30: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  for k in range(5): gear[f"档{k + 1}"] = gear.filter(like=f"档{k + 1}").sum(1)
+/home/user/yelendatacenter/v3/code/export_days.py:30: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  for k in range(5): gear[f"档{k + 1}"] = gear.filter(like=f"档{k + 1}").sum(1)
+/home/user/yelendatacenter/v3/code/export_days.py:30: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  for k in range(5): gear[f"档{k + 1}"] = gear.filter(like=f"档{k + 1}").sum(1)
+2023-11-22: 状态 Optimal, 日运行成本 1.46 万元, 实时切除 0, 超期 0, T_w 35.0–45.0 ℃
