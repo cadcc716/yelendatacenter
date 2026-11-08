@@ -168,7 +168,10 @@ def two_step(site, scen, tag, method="ccg", prev=None, over=None, log=print):
     f1 = mono if ENV("STEP1", method) == "mono" else ccg
     f2 = mono if method == "mono" else ccg
     # 第一步：总成本，求 N*
-    r1 = with_check(f1, P, D, scen, th, log=log, gap=ENV("GAP1", 3e-3), tl=ENV("TL1", 1500.0))
+    if os.environ.get("FIXN") and ENV("SKIP1", 0) == 1:       # 筛选试算：跳过第一步
+        r1 = dict(x={k: 0.0 for k in BO.CAPS}, obj=float("nan"), gap_final=float("nan"), t=0.0, hist=[])
+    else:
+        r1 = with_check(f1, P, D, scen, th, log=log, gap=ENV("GAP1", 3e-3), tl=ENV("TL1", 1500.0))
     Nstar = float(round(r1["x"]["N"]))
     if os.environ.get("FIXN"):                      # GPU 冗余度试验：第二步把 GPU 数量固定为给定值
         Nstar = float(os.environ["FIXN"]); log(f"[{scen}] GPU 数量按设定固定为 {Nstar:.0f}", flush=True)
@@ -186,10 +189,11 @@ def two_step(site, scen, tag, method="ccg", prev=None, over=None, log=print):
             log(f"[{scen}] 上一场景 N*={pr['x']['N']:.0f} 与本场景 N*={Nstar:.0f} 不同，不做嵌套热启动", flush=True)
     # 第一步容量（N 取 N*）作为第二步的候选初值，与上一场景解比较取优
     a2 = dict(PR.annual_cost(P), N=0.0); x1 = dict(r1["x"], N=Nstar)
-    c1 = evaluate(P, D, BO.flags_of(scen), x1, list(D["med"]), D["p0"], th, None, a2)
-    log(f"[{scen}] 第一步容量在第二步口径下的能源侧成本 {c1['obj'] / 1e4:.2f} 万元", flush=True)
-    if seed is None or c1["obj"] < seed["obj"]:
-        seed = dict(c1); init = c1; cutoff = c1["obj"] * (1 + 1e-7) + 1.0
+    if not np.isnan(r1["obj"]):
+        c1 = evaluate(P, D, BO.flags_of(scen), x1, list(D["med"]), D["p0"], th, None, a2)
+        log(f"[{scen}] 第一步容量在第二步口径下的能源侧成本 {c1['obj'] / 1e4:.2f} 万元", flush=True)
+        if seed is None or c1["obj"] < seed["obj"]:
+            seed = dict(c1); init = c1; cutoff = c1["obj"] * (1 + 1e-7) + 1.0
     r2 = with_check(f2, P, D, scen, th, log=log, fixN=Nstar, init=init, cutoff=cutoff, seed=seed,
                     gap=ENV("GAP2", 1e-3), tl=ENV("TL2", 2700.0), eps=ENV("EPS", 1e-3))
     if seed is not None and r2["obj"] > seed["obj"] * (1 + 1e-6):          # 单调性校验

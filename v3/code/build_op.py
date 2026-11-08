@@ -42,7 +42,8 @@ def add_capacity(M, P, flags, fix=None, integer_N=True, fixN=None):
         elif k == "N" and fixN is not None:
             X[k] = M.var(1, float(fixN), float(fixN)); M.N_fixed = float(fixN)
         else:
-            X[k] = M.var(1, 0.0, ub[k], integer=(k == "N" and integer_N), cost=a[k])
+            lb = float(P.get("N_MIN", 0.0)) if k == "N" else 0.0          # 算力保障约束：N ≥ N_min
+            X[k] = M.var(1, lb, ub[k], integer=(k == "N" and integer_N), cost=a[k])
     if fix is None:
         M.con([(X["PB"], 1.0), (X["EB"], -P["C_B_MAX"])], hi=0.0)
     return X, a
@@ -54,6 +55,8 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
     T = P["T"]; G = P["GEARS"]; J = len(P["ZONES"]); Z = PR.zone_consts(P)
     KR, KB = P["K_R"], P["K_B"]
     AR, AB, Ta, gpv, Hd = (np.asarray(day[k], float) for k in ("AR", "AB", "Tamb", "gPV", "H"))
+    if P.get("H_MULT", 1.0) != 1.0 and Hd.max() > P["H_SUMMER"] * 1.05:   # 采暖日热负荷整体缩放（筛选试算用）
+        Hd = Hd * P["H_MULT"]
     Nmax = min(P["N_BIGM"], getattr(M, "N_fixed", None) or P["N_BIGM"]); V = {}   # N 固定时取实际装机数
     # ---------- 温区相关常数 ----------
     if flags["thermal"]:
