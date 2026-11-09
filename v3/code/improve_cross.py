@@ -12,7 +12,7 @@ f = f"{R}/{site}_{tag}.pkl"; orig = f.replace(".pkl", "_orig.pkl")
 if not os.path.exists(orig): shutil.copy(f, orig)
 r = pickle.load(open(orig, "rb")); scen = r["scen"]; fl = BO.flags_of(scen)
 P = PR.params(); D = dict(np.load(f"{ROOT}/data/{site}_data.npz"))
-pool = [p for p in sorted(glob.glob(f"{R}/{site}_*.pkl")) if "_orig" not in p and "fixN" not in p]
+pool = [p for p in sorted(glob.glob(f"{R}/*.pkl")) if "_orig" not in p and "fixN" not in p]   # 各站点方案均可作为候选（GPU 数相同即可行）
 cands, lbs = {}, [r["LB"]]
 for p in pool:
     q = pickle.load(open(p, "rb"))
@@ -22,7 +22,7 @@ for p in pool:
     if not fl["heat"]: x["HP"] = 0.0
     key = tuple(round(x[k]) for k in BO.CAPS)
     cands.setdefault(key, (os.path.basename(p), x))
-    if q.get("scen") == scen and q.get("theta") is not None and np.allclose(q["theta"], r["theta"]): lbs.append(q.get("LB", -np.inf))
+    if os.path.basename(p).startswith(site + "_") and q.get("scen") == scen and q.get("theta") is not None and np.allclose(q["theta"], r["theta"]): lbs.append(q.get("LB", -np.inf))
 base = dict(r["x"])
 for key, (src, x) in list(cands.items()):                      # 混合候选：本场景原方案 + 其他方案的冷侧容量
     hx = dict(base, FC=x["FC"], MC=x["MC"], TES=x["TES"] if fl["tes"] else 0.0)
