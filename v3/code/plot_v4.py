@@ -254,6 +254,25 @@ def fig_rn():
     fig.tight_layout(h_pad=0.3); save(fig, "图16_算力冗余率", T)
 
 
+# ------------------------------------------------------------------ 液冷热惯性与蓄冷的替代关系（S4，改变 C_w）
+def fig_cw():
+    rows = []
+    for f in sorted(glob.glob(f"{RES}/{SITE}_sensS4_Cw_*.pkl")):
+        r = pickle.load(open(f, "rb")); cw = r["params_over"]["C_W"]
+        rows.append(dict(C_w=cw, 满载温升=6.0 * 1150.0 / cw, 蓄冷=r["x"]["TES"] / 1e3, 机械制冷=r["x"]["MC"] / 1e3, 能源侧=r["obj"] / 1e4))
+    if len(rows) < 3: return
+    T = pd.DataFrame(rows).sort_values("C_w")
+    fig, ax = plt.subplots(figsize=(W, 5.4 * CM)); x = T["C_w"]
+    ax.plot(x, T["蓄冷"], "o-", color="#3C5488", label="蓄冷容量/MWh")
+    ax.plot(x, T["机械制冷"] * 10, "s--", color="#E64B35", label="机械制冷容量/(0.1 MW)")
+    ax.set_xlabel("液冷环路等效热容$C_w$/(kWh/K)"); ax.set_ylabel("容量"); ax.axvline(1150, color="gray", lw=0.6, ls=":")
+    ax.text(1150, ax.get_ylim()[1] * 0.95, " 基准值", fontsize=8, va="top", color="gray")
+    a2 = ax.twinx(); a2.plot(x, T["能源侧"], "^:", color="#00A087", label="能源侧年化成本"); a2.set_ylabel("能源侧年化成本/万元")
+    h1, l1 = ax.get_legend_handles_labels(); h2, l2 = a2.get_legend_handles_labels()
+    ax.legend(h1 + h2, l1 + l2, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=2, fontsize=8)
+    save(fig, "图16b_热惯性与蓄冷替代", T)
+
+
 # ------------------------------------------------------------------ 图17 芯片温度上限、图18 热价
 def _sens(group, key, base_v):
     rows = []
@@ -314,7 +333,7 @@ def fig_climate():
 if __name__ == "__main__":
     E = tab()
     for f in (lambda: fig_waterfall(E), lambda: fig_capacity(E), lambda: fig_kpi(E), fig_gears, fig_thermal, fig_shift, fig_winter,
-              fig_oos, fig_ccg, fig_alpha, fig_rn, fig_chip, fig_heat, fig_climate):
+              fig_oos, fig_ccg, fig_alpha, fig_rn, fig_cw, fig_chip, fig_heat, fig_climate):
         try: f()
         except Exception as e:
             import traceback; print("出错：", repr(e)); traceback.print_exc(limit=2)
