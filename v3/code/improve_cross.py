@@ -23,6 +23,11 @@ for p in pool:
     key = tuple(round(x[k]) for k in BO.CAPS)
     cands.setdefault(key, (os.path.basename(p), x))
     if q.get("scen") == scen and q.get("theta") is not None and np.allclose(q["theta"], r["theta"]): lbs.append(q.get("LB", -np.inf))
+base = dict(r["x"])
+for key, (src, x) in list(cands.items()):                      # 混合候选：本场景原方案 + 其他方案的冷侧容量
+    hx = dict(base, FC=x["FC"], MC=x["MC"], TES=x["TES"] if fl["tes"] else 0.0)
+    k2 = tuple(round(hx[k]) for k in BO.CAPS)
+    if k2 not in cands: cands[k2] = (src + "（冷侧）+原方案", hx)
 print(f"[{tag}] 候选方案 {len(cands)} 个，原能源侧 {r['obj'] / 1e4:.2f} 万元", flush=True)
 best = None
 for key, (src, x) in cands.items():
