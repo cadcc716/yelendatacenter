@@ -322,14 +322,15 @@ def fig_climate():
     for s, nm in (("zhongwei", "中卫"), ("guian", "贵安"), ("shaoguan", "韶关")):
         if not os.path.exists(f"{RES}/{s}_DRO_S5.pkl"): continue
         e = AN.table_e(s, tags={"S5": "DRO_S5"}).iloc[0]
-        rows.append(dict(站点=nm, 机械制冷=e["K_MC/MW"], 自然冷却冷量占比=e["自然冷却冷量占比/%"], PUE=e["名义PUE"], 余热=e["余热回收/MWh"] / 1e3,
+        rows.append(dict(站点=nm, 机械制冷=e["K_MC/MW"], 蓄冷=e["E_TES/MWh"], 自然冷却冷量占比=e["自然冷却冷量占比/%"], PUE=e["名义PUE"], 余热=e["余热回收/MWh"] / 1e3,
                          能源侧=e["能源侧年化成本/万元"]))
     if len(rows) < 3: return
     T = pd.DataFrame(rows)
     fig, axs = plt.subplots(2, 2, figsize=(W, 7.0 * CM)); cs = ["#3C5488", "#00A087", "#E64B35"]
-    for ax, (k, yl), tag in zip(axs.ravel(), [("机械制冷", "机械制冷/MW"), ("自然冷却冷量占比", "自然冷却冷量占比/%"), ("PUE", "PUE"), ("余热", "年余热回收/GWh")], "abcd"):
+    for ax, (k, yl), tag in zip(axs.ravel(), [("蓄冷", "蓄冷容量/MWh"), ("自然冷却冷量占比", "自然冷却冷量占比/%"), ("PUE", "PUE"), ("余热", "年余热回收/GWh")], "abcd"):
         ax.bar(range(3), T[k], 0.6, color=cs, edgecolor="black", linewidth=0.4); ax.set_xticks(range(3)); ax.set_xticklabels(T["站点"])
         ax.set_ylabel(yl); ax.set_title(f"({tag})", fontsize=9, loc="left", pad=2)
+        if k in ("蓄冷", "余热"): ax.set_ylim(0, T[k].max() * 1.25)
         if k == "PUE": lo, hi = T[k].min(), T[k].max(); ax.set_ylim(lo - 0.6 * (hi - lo) - 0.002, hi + 0.5 * (hi - lo) + 0.002)
         if k == "自然冷却冷量占比": lo, hi = T[k].min(), T[k].max(); ax.set_ylim(max(0, lo - 0.8 * (hi - lo) - 1), min(100, hi + 0.5 * (hi - lo) + 1))
         for i, x in enumerate(T[k]): ax.text(i, x, f"{x:.3f}" if k == "PUE" else f"{x:.1f}", ha="center", va="bottom", fontsize=7)
