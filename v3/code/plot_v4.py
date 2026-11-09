@@ -128,17 +128,23 @@ def fig_gears():
 def fig_thermal():
     hs, _ = days("DRO_S5", "2023-06-15"); h3, _ = days("DRO_S3", "2023-06-15"); h4, _ = days("DRO_S4", "2023-06-15")
     if hs is None: return
-    fig, axs = plt.subplots(2, 1, figsize=(W, 7.6 * CM), sharex=True); t = np.arange(24) + 0.5; rows = []
+    fig, axs = plt.subplots(2, 1, figsize=(W, 7.8 * CM), sharex=True); t = np.arange(24) + 0.5; rows = []
     for s, h, ls in (("S3", h3, "--"), ("S4", h4, ":"), ("S5", hs, "-")):
         if h is None: continue
         axs[0].plot(t, h["液冷温度"], ls, color=C[s], marker="o", ms=2.8, label=s)
-        axs[1].plot(t, h["机械制冷"] / 1e3, ls, color=C[s], marker="s", ms=2.8, label=f"{s}机械制冷")
-        for i in range(24): rows.append(dict(场景=s, 时刻=i, 液冷温度=h["液冷温度"][i], 机械制冷_kW=h["机械制冷"][i], 蓄冷放冷_kW=h["蓄冷放冷"][i], 气温=h["气温"][i]))
-    axs[1].bar(t, hs["蓄冷放冷"] / 1e3, 0.8, color="#3C5488", alpha=0.35, label="S5蓄冷放冷")
+        for i in range(24): rows.append(dict(场景=s, 时刻=i, 液冷温度=h["液冷温度"][i], 机械制冷_kW=h["机械制冷"][i], 蓄冷放冷_kW=h["蓄冷放冷"][i],
+                                            蓄冷充冷_kW=h["蓄冷充冷"][i], 自然冷却_kW=h["自然冷却"][i], 气温=h["气温"][i]))
     shade(axs[0], P["PEAK_H"]); shade(axs[1], P["PEAK_H"])
-    axs[0].set_ylabel("液冷温度/℃"); axs[0].legend(ncol=3, loc="upper left", fontsize=8); axs[0].set_title("(a)", fontsize=9, loc="left", pad=2)
-    axs[1].set_ylim(0, axs[1].get_ylim()[1] * 1.35); axs[1].set_ylabel("冷量/MW"); axs[1].legend(ncol=2, loc="upper left", fontsize=8); axs[1].set_title("(b)", fontsize=9, loc="left", pad=2)
-    a3 = axs[0].twinx(); a3.plot(t, hs["气温"], color="gray", lw=0.8, alpha=0.7); a3.set_ylabel("气温/℃", color="gray")
+    a3 = axs[0].twinx(); a3.plot(t, hs["气温"], color="gray", lw=0.8, alpha=0.7, label="气温"); a3.set_ylabel("气温/℃", color="gray")
+    axs[0].set_ylabel("液冷温度/℃"); axs[0].set_ylim(36, 53); axs[0].legend(ncol=3, loc="upper left", fontsize=8)
+    axs[0].set_title("(a)", fontsize=9, loc="left", pad=2)
+    if h3 is not None: axs[1].plot(t, h3["机械制冷"] / 1e3, "--", color=C["S3"], marker="s", ms=2.8, label="S3机械制冷")
+    w = 0.4
+    if h4 is not None: axs[1].bar(t - w / 2, h4["蓄冷放冷"] / 1e3, w, color=C["S4"], alpha=0.75, label="S4蓄冷放冷")
+    axs[1].bar(t + w / 2, hs["蓄冷放冷"] / 1e3, w, color=C["S5"], alpha=0.75, label="S5蓄冷放冷")
+    top = max((h3["机械制冷"].max() if h3 is not None else 0), (h4["蓄冷放冷"].max() if h4 is not None else 0), hs["蓄冷放冷"].max()) / 1e3
+    axs[1].set_ylim(0, top * 1.45); axs[1].set_ylabel("冷量/MW"); axs[1].legend(ncol=3, loc="upper center", fontsize=8, handlelength=1.2, columnspacing=0.8)
+    axs[1].set_title("(b)", fontsize=9, loc="left", pad=2)
     hours(axs[1]); fig.tight_layout(h_pad=0.3); save(fig, "图9_夏季典型日液冷温度与冷源", pd.DataFrame(rows))
 
 
