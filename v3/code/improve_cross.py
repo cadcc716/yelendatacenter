@@ -7,12 +7,12 @@
 import os, sys, glob, pickle, shutil, numpy as np
 import params as PR, build_op as BO, ccg_solve as C, local_search as LS
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); R = f"{ROOT}/results"
-tag = sys.argv[1]; nls = int(sys.argv[2]) if len(sys.argv) > 2 else 20
-f = f"{R}/zhongwei_{tag}.pkl"; orig = f.replace(".pkl", "_orig.pkl")
+tag = sys.argv[1]; nls = int(sys.argv[2]) if len(sys.argv) > 2 else 20; site = sys.argv[3] if len(sys.argv) > 3 else "zhongwei"
+f = f"{R}/{site}_{tag}.pkl"; orig = f.replace(".pkl", "_orig.pkl")
 if not os.path.exists(orig): shutil.copy(f, orig)
 r = pickle.load(open(orig, "rb")); scen = r["scen"]; fl = BO.flags_of(scen)
-P = PR.params(); D = dict(np.load(f"{ROOT}/data/zhongwei_data.npz"))
-pool = [p for p in sorted(glob.glob(f"{R}/zhongwei_*.pkl")) if "_orig" not in p and "fixN" not in p]
+P = PR.params(); D = dict(np.load(f"{ROOT}/data/{site}_data.npz"))
+pool = [p for p in sorted(glob.glob(f"{R}/{site}_*.pkl")) if "_orig" not in p and "fixN" not in p]
 cands, lbs = {}, [r["LB"]]
 for p in pool:
     q = pickle.load(open(p, "rb"))
