@@ -14,6 +14,7 @@ class MILP:
         s.extra = []          # 追加目标系数 (索引, 系数)
         s.int_extra = []      # 事后指定为整数的变量索引
         s.dual_bound = None
+        s.row_dual = None
 
     def set_int(s, idx):
         s.int_extra.append(np.ravel(idx))
@@ -75,5 +76,6 @@ class MILP:
         st = h.modelStatusToString(h.getModelStatus()); info = h.getInfo()
         sol = np.array(h.getSolution().col_value) if info.primal_solution_status == 2 else None
         s.dual_bound = info.mip_dual_bound if it.any() else info.objective_function_value
+        s.row_dual = np.array(h.getSolution().row_dual) if (not it.any() and sol is not None) else None   # LP 行对偶（K-模式定价用）
         gapv = abs(info.objective_function_value - info.mip_dual_bound) if it.any() else 0.0   # 绝对间隙 元
         return sol, st, info.objective_function_value, gapv

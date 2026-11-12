@@ -49,7 +49,8 @@ def add_capacity(M, P, flags, fix=None, integer_N=True, fixN=None):
     return X, a
 
 
-def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
+def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None,
+            u_mode=None, u_var=None, u_int=True):
     """在模型 M 中加入一个典型日的运行变量与约束，返回变量索引字典 V；
     V['Q'] 为该日运行成本 C_op（式(29)，元/日），以权重 w 计入目标。"""
     T = P["T"]; G = P["GEARS"]; J = len(P["ZONES"]); Z = PR.zone_consts(P)
@@ -111,9 +112,16 @@ def add_day(M, P, X, day, flags, w=1.0, Tamb_des=None, int_add=None):
         for t in range(D, T):
             M.row([(O[t], 1.0), (UB[:t + 1], 1.0)], lo=cumA[t - D])
     # ---------- (9)(10) 液冷热状态与温区 ----------
-    V["u"] = u = M.var((J, T), 0.0, zone_ok[:, None].astype(float) * np.ones(T), integer=True)
+    # K-模式：u_var 为多天共享的模式变量（Σ_j u = 1 由调用方加一次）；u_mode 固定温区（该日为 LP）；
+    # u_int=False 时 u 为连续变量，由模式一致性约束隐含取整。只对 flags["thermal"]=True 的场景使用。
+    if u_var is not None:
+        V["u"] = u = u_var
+    elif u_mode is not None:
+        um = np.asarray(u_mode, float); V["u"] = u = M.var((J, T), um, um)
+    else:
+        V["u"] = u = M.var((J, T), 0.0, zone_ok[:, None].astype(float) * np.ones(T), integer=u_int)
     if flags["thermal"]:
-        M.con([(u[j], 1.0) for j in range(J)], lo=1.0, hi=1.0)
+        if u_var is None: M.con([(u[j], 1.0) for j in range(J)], lo=1.0, hi=1.0)
     else:
         M.con([(u[jd], 1.0)], lo=1.0, hi=1.0)
     V["Tw"] = Tw = M.var(T + 1, Z["lo"].min(), Z["hi"].max())
